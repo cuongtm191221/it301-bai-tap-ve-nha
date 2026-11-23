@@ -1,0 +1,56 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trợ lý AI viết thêm ba phương thức cho mảng động trong vài giây, ba test của AI đều xanh. Có nên dùng ngay?" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-15/minh_hoa.png" /></p>
+<p><em>Trợ lý AI viết thêm ba phương thức cho mảng động trong vài giây, ba test của AI đều xanh. Có nên dùng ngay?</em></p>
+<p>Tài xế <strong>giao ghép</strong> GrabFood nhận nhiều đơn trong một chuyến. Ứng dụng tài xế chạy bản Python rút gọn nên danh sách đơn được lưu bằng lớp <code>OrderArray</code>, một mảng động tự cài theo Lesson 04. Các phương thức <code>append</code>, <code>pop(index)</code>, <code>_resize</code>, <code>items</code> đã có, đã được kiểm tra kỹ và đúng.</p>
+<p>Nhóm cần thêm ba phương thức:</p>
+<ul>
+<li><code>extend(values)</code>: nhận cả lô đơn từ nhà hàng, thêm vào cuối (một lô có thể tới vài chục đơn).</li>
+<li><code>index_of(value)</code>: vị trí đơn đầu tiên có mã đó; <strong>không có thì báo <code>ValueError</code></strong> (giống <code>list.index</code>).</li>
+<li><code>remove_all(value)</code>: khách hủy thì xóa <strong>mọi</strong> đơn có mã đó (do lỗi đồng bộ, một mã có thể bị ghi nhiều lần, kể cả liền nhau); trả về số đơn đã xóa.</li>
+</ul>
+<p>Một đồng nghiệp nhờ trợ lý AI viết ba phương thức. AI trả về mã kèm ba test, cả ba đều xanh, và đồng nghiệp đề nghị đưa vào bản cập nhật tuần này. Bạn là người <strong>duyệt mã</strong>. Quy định của nhóm: mã do AI sinh chỉ được dùng khi người duyệt đã tự chạy thử với dữ liệu của mình và chịu trách nhiệm về nó.</p>
+<h2><strong>2. Mã do AI sinh</strong></h2>
+<p>Phần AI viết thêm vào cuối lớp <code>OrderArray</code> trong <code>don_ghep.py</code>:</p>
+<pre><code>    def extend(self, values):&#10;        # Thêm mọi phần tử của values vào cuối.&#10;        if self._size + len(values) &gt; self._capacity:&#10;            self._resize(2 * self._capacity)&#10;        for value in values:&#10;            self._data[self._size] = value&#10;            self._size += 1&#10;&#10;    def index_of(self, value):&#10;        # Chỉ số của lần xuất hiện đầu tiên; không có thì báo ValueError.&#10;        for j in range(self._size):&#10;            if self._data[j] == value:&#10;                return j&#10;        return -1&#10;&#10;    def remove_all(self, value):&#10;        # Xóa mọi lần xuất hiện của value, trả về số phần tử đã xóa.&#10;        removed = 0&#10;        j = 0&#10;        while j &lt; self._size:&#10;            if self._data[j] == value:&#10;                self.pop(j)&#10;                removed += 1&#10;            j += 1&#10;        return removed&#10;</code></pre>
+<p>Lời giải thích AI gửi kèm: "<code>extend</code> mở rộng khi cần rồi ghi lần lượt. <code>remove_all</code> duyệt một lượt nên O(n). Đã có test cho cả ba phương thức."</p>
+<p>Ba test trong <code>test_don_ghep.py</code>: thêm lô 2 đơn vào mảng rỗng, tìm vị trí một mã có trong mảng, xóa một mã xuất hiện hai lần không liền nhau. Chạy đoạn cuối tệp:</p>
+<pre><code>Đơn đang giao: ['GF01', 'GF02', 'GF03']&#10;Vị trí GF02: 1&#10;Xóa GF02: 2 | còn: ['GF01', 'GF03']&#10;</code></pre>
+<p>Kết quả trông đúng. Nhiệm vụ của bạn là tìm ra những dữ liệu mà đoạn mã này <strong>không</strong> xử lý đúng.</p>
+<h2><strong>3. Các hướng cần kiểm chứng</strong></h2>
+<p>Đề không cho biết tình huống nào làm lộ lỗi; bạn phải tự chạy tay hoặc chạy thử để biết.</p>
+<p><strong>Hướng 1 — Lô đơn lớn:</strong> thêm lô 10 đơn vào mảng đang có 1 đơn.</p>
+<p><strong>Hướng 2 — Mã không có:</strong> tìm vị trí một mã không có trong mảng. Theo đặc tả phải xảy ra điều gì?</p>
+<p><strong>Hướng 3 — Mã trùng liền nhau:</strong> xóa mã xuất hiện nhiều lần <strong>liền nhau</strong>, kể cả ở cuối mảng.</p>
+<p><strong>Hướng 4 — Dữ liệu lớn:</strong> mảng 40.000 đơn, một nửa là mã cần xóa. Đo thời gian <code>remove_all</code>. Lời giải thích "duyệt một lượt nên O(n)" có đúng không? Mỗi lần gọi <code>pop(j)</code> phải làm gì?</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò người duyệt mã, bạn phải thực hiện đầy đủ bốn phần sau:</p>
+<p><strong>(1) Tìm dữ liệu làm lộ lỗi</strong></p>
+<ul>
+<li>Theo các hướng ở mục 3, tự nghĩ ra <strong>ít nhất 6 bộ dữ liệu thử</strong>. Với mỗi bộ: dự đoán kết quả đúng trước, rồi chạy mã của AI và ghi kết quả.</li>
+<li>Ghi vào bảng trong <code>PHAN_TICH.md</code>. Các bộ dữ liệu phải làm lộ <strong>ít nhất 3 lỗi khác nhau</strong>.</li>
+</ul>
+<p><strong>(2) Phân tích (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Với mỗi lỗi: dòng lệnh gây lỗi, nguyên nhân, và bảng chạy tay (<code>_size</code>, <code>_capacity</code>, <code>_data</code>, chỉ số j) trên bộ dữ liệu nhỏ nhất làm lộ lỗi đó.</li>
+<li>Đếm số tham chiếu phải dịch của <code>remove_all</code> khi xóa m đơn trong mảng n đơn; kết luận Big-O thật. Ghi thời gian đo với 40.000 đơn.</li>
+<li>Điền bảng <strong>"Nhật ký giữ – sửa – loại bỏ"</strong>: phần nào trong mã của AI bạn giữ, phần nào sửa, phần nào bỏ, kèm lý do.</li>
+<li>Đề xuất <strong>giải pháp thứ hai</strong> cho việc xóa mọi đơn trùng mã, chỉ duyệt mảng một lượt. So sánh hai giải pháp theo 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), thời gian đo, độ dễ đọc, mức phù hợp với chuyến 5 đơn và với bộ dữ liệu 200.000 đơn của máy chủ. Nêu rõ bạn chọn giải pháp nào.</li>
+</ul>
+<p><strong>(3) Sửa mã và cài giải pháp thứ hai (trong <code>don_ghep.py</code>)</strong></p>
+<ul>
+<li>Sửa ba phương thức của AI để hết mọi lỗi bạn tìm được; <code>remove_all</code> vẫn dùng <code>pop</code>.</li>
+<li>Viết thêm <code>remove_all_fast(value)</code>: cùng kết quả với <code>remove_all</code>, một lượt duyệt, không gọi <code>pop</code>; ô thừa ở đuôi đặt về <code>None</code>.</li>
+</ul>
+<p><strong>(4) Kiểm chứng sau khi sửa</strong></p>
+<ul>
+<li>Chạy lại toàn bộ bộ dữ liệu thử ở phần (1), ghi vào cột "Sau khi sửa". Mọi dòng phải đúng.</li>
+<li><code>pytest -q</code> vẫn xanh cả 3 test của AI.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex15</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-15">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-15</a> rồi chép các tệp vào kho: <code>don_ghep.py</code>, <code>test_don_ghep.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền <code>PHAN_TICH.md</code>, sửa và viết mã trong <code>don_ghep.py</code>.</li>
+<li>Mức AI của bài: AI-2 cho phần phản biện (đề đã cung cấp mã do AI sinh; bạn được hỏi AI để hiểu đoạn mã, nhưng dữ liệu thử, phân tích và mã sửa phải do bạn tự làm và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

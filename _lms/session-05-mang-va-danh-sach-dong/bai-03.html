@@ -1,0 +1,62 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Hành khách đến trước lại bị phục vụ sau cùng, hỏi vị trí trong hàng thì ứng dụng báo lỗi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-03/minh_hoa.png" /></p>
+<p><em>Hành khách đến trước lại bị phục vụ sau cùng, hỏi vị trí trong hàng thì ứng dụng báo lỗi.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm vận hành điểm đón sân bay Tân Sơn Nhất của Grab.</p>
+<p>Hành khách xếp hàng <strong>đặt xe</strong> tại quầy; mỗi yêu cầu có một mã (<code>YC01</code>, <code>YC02</code>...). Quy định: <strong>ai đặt trước được phục vụ trước</strong>. Lớp <code>RideQueue</code> có các thao tác:</p>
+<ul>
+<li><code>join(code)</code>: thêm yêu cầu vào cuối hàng.</li>
+<li><code>serve()</code>: trả mã yêu cầu được phục vụ tiếp theo và xóa khỏi hàng; hàng rỗng trả <code>None</code>.</li>
+<li><code>position(code)</code>: <strong>số thứ tự</strong> của yêu cầu trong hàng, <strong>đếm từ 1</strong> (người đứng đầu là 1); không có mã đó trả <code>None</code>.</li>
+<li><code>cancel(code)</code>: hủy yêu cầu; trả <code>True</code> nếu hủy được, <code>False</code> nếu không có mã đó.</li>
+<li><code>size()</code>: số yêu cầu đang chờ.</li>
+</ul>
+<p>Màn hình ở quầy hiện "Bạn đứng thứ N" cho hành khách hỏi; hành khách đổi ý thì bấm hủy. Giờ cao điểm hàng có vài trăm người, nên mọi thao tác không được làm sập màn hình.</p>
+<p>Mỗi lần màn hình hiện sai số thứ tự, hành khách lên quầy hỏi lại và hàng càng ùn. Ban quản lý sân bay đã nhắc nhở Grab về tình trạng chen hàng ở khu đón, nên nhóm cần bản sửa ngay trong tuần.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): bốn yêu cầu vào hàng; phục vụ hai lượt; hỏi vị trí của YC04 và YC09; hủy YC03 và YC09; phục vụ thêm hai lượt.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Phục vụ: YC01 YC02&#10;Vị trí của YC04: 2&#10;Vị trí của YC09: None&#10;Hủy YC03: True | hủy YC09: False&#10;Phục vụ: YC04 | tiếp: None | còn lại: 0&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhân viên quầy phản ánh:</p>
+<ul>
+<li>Hành khách <strong>đặt sau cùng lại được phục vụ trước</strong>; người đặt đầu tiên chờ mãi.</li>
+<li>Hỏi vị trí của một mã thì màn hình hiện số nhỏ hơn thực tế một đơn vị, hoặc báo lỗi <code>ValueError</code>.</li>
+<li>Bấm hủy một mã đã được phục vụ thì màn hình báo lỗi; phục vụ khi hàng đã hết cũng báo lỗi.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03):</p>
+<ul>
+<li><code>pop()</code> lấy phần tử <strong>cuối</strong>, O(1); <code>pop(0)</code> lấy phần tử <strong>đầu</strong>, dồn n − 1 tham chiếu sang trái, O(n).</li>
+<li><code>in</code>, <code>index</code> xét từ đầu và dừng ở lần gặp đầu; <code>index</code> và <code>remove</code> báo <code>ValueError</code> khi không có giá trị. Muốn trả <code>None</code> hoặc <code>False</code> thì phải kiểm tra trước (hoặc bắt lỗi).</li>
+<li>Chỉ số của list đếm từ 0, còn "số thứ tự" nói với người dùng đếm từ 1.</li>
+<li>Chọn cấu trúc cho hàng chờ là cân nhắc chi phí của thao tác dùng nhiều nhất (Lesson 03, mục 3.1).</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>hang_cho.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Hàng chờ yêu cầu đặt xe GrabCar tại sân bay.&quot;&quot;&quot;&#10;class RideQueue:&#10;    # Hàng chờ yêu cầu đặt xe: ai đặt trước được phục vụ trước.&#10;    # serve() trả mã yêu cầu được phục vụ, hàng rỗng trả None.&#10;    # position(code) là số thứ tự trong hàng, đếm từ 1; không có trả None.&#10;    # cancel(code) trả True nếu hủy được, False nếu không có mã đó.&#10;    def __init__(self):&#10;        self._items = []&#10;&#10;    def join(self, code):&#10;        self._items.append(code)&#10;&#10;    def serve(self):&#10;        return self._items.pop()&#10;&#10;    def position(self, code):&#10;        return self._items.index(code)&#10;&#10;    def cancel(self, code):&#10;        self._items.remove(code)&#10;        return True&#10;&#10;    def size(self):&#10;        return len(self._items)&#10;&#10;&#10;q = RideQueue()&#10;for code in (&quot;YC01&quot;, &quot;YC02&quot;, &quot;YC03&quot;, &quot;YC04&quot;):&#10;    q.join(code)&#10;print(&quot;Phục vụ:&quot;, q.serve(), q.serve())&#10;print(&quot;Vị trí của YC04:&quot;, q.position(&quot;YC04&quot;))&#10;print(&quot;Vị trí của YC09:&quot;, q.position(&quot;YC09&quot;))&#10;print(&quot;Hủy YC03:&quot;, q.cancel(&quot;YC03&quot;), &quot;| hủy YC09:&quot;, q.cancel(&quot;YC09&quot;))&#10;print(&quot;Phục vụ:&quot;, q.serve(), &quot;| tiếp:&quot;, q.serve(), &quot;| còn lại:&quot;, q.size())&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Phục vụ: YC04 YC03&#10;Traceback (most recent call last):&#10;  ...&#10;    return self._items.index(code)&#10;ValueError: 'YC04' is not in list&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: hai lượt phục vụ đầu ra YC04, YC03 (người đến sau cùng); hỏi vị trí YC04 gây <code>ValueError</code> vì YC04 đã bị phục vụ, nên các dòng sau không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay kịch bản với mã hiện tại: ghi nội dung hàng sau mỗi thao tác cho tới dòng gây lỗi. Thao tác nào làm sai thứ tự phục vụ?</li>
+<li>Viết lại <code>serve</code> theo quy định. Thao tác list bạn dùng có Big-O là gì? Với hàng 300 người thì sao, với 200.000 người thì sao?</li>
+<li>Vì sao <code>position</code> trả về số nhỏ hơn thực tế một đơn vị? Khi mã không có trong hàng thì chuyện gì xảy ra?</li>
+<li><code>cancel</code> báo lỗi khi nào? Sửa thế nào để trả <code>False</code>?</li>
+<li>Trong <code>position</code> và <code>cancel</code> bản sửa, mỗi thao tác xét bao nhiêu phần tử trong trường hợp xấu nhất?</li>
+<li>Ghi bốn bộ dữ liệu thử: hàng rỗng, hủy mã không có, mã đứng đầu, mã đứng cuối; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>RideQueue</code> trong <code>hang_cho.py</code>. Không đổi tên lớp, phương thức, tham số và dạng giá trị trả về.</li>
+<li>Chạy <code>python hang_cho.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex03</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-03</a> rồi chép các tệp vào kho: <code>hang_cho.py</code>, <code>test_hang_cho.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>hang_cho.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

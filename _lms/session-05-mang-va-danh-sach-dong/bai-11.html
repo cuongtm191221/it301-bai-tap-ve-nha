@@ -1,0 +1,48 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Hai máy chủ mỗi bên giữ hàng trăm nghìn đơn đã xếp theo giờ; báo cáo cần một danh sách chung, đúng thứ tự, không đơn nào bị ghi hai lần." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-11/minh_hoa.png" /></p>
+<p><em>Hai máy chủ mỗi bên giữ hàng trăm nghìn đơn đã xếp theo giờ; báo cáo cần một danh sách chung, đúng thứ tự, không đơn nào bị ghi hai lần.</em></p>
+<p>Đơn GrabFood được ghi ở <strong>hai máy chủ</strong> (hai khu vực). Mỗi máy chủ xuất một list đơn <strong>đã xếp tăng dần theo giờ đặt</strong>, mỗi đơn là bộ <code>(giờ "HH:MM", mã đơn)</code>:</p>
+<pre><code>Máy chủ A: [(&quot;07:05&quot;, &quot;GF1001&quot;), (&quot;07:20&quot;, &quot;GF1003&quot;), (&quot;08:10&quot;, &quot;GF1006&quot;)]&#10;Máy chủ B: [(&quot;07:10&quot;, &quot;GF1002&quot;), (&quot;07:20&quot;, &quot;GF1004&quot;), (&quot;07:20&quot;, &quot;GF1003&quot;), (&quot;09:00&quot;, &quot;GF1009&quot;)]&#10;</code></pre>
+<p>Bộ phận báo cáo cần <strong>một list chung</strong> xếp theo giờ. Do lỗi đồng bộ, một số đơn được <strong>ghi ở cả hai máy chủ</strong> (cùng giờ, cùng mã, như <code>GF1003</code> ở trên); đơn đó chỉ được tính một lần.</p>
+<p>Báo cáo này được dùng để trả tiền cho nhà hàng và tài xế: đơn bị đếm hai lần là trả tiền hai lần, đơn bị mất là nhà hàng khiếu nại. Thứ tự theo giờ còn dùng để tính thời gian chờ trung bình theo từng khung giờ, nên đơn đứng sai chỗ làm sai cả chỉ số vận hành.</p>
+<p>Mỗi bên có tới <strong>100.000 đơn</strong>, báo cáo chạy mỗi giờ. Một bạn trong nhóm định nối hai list rồi gọi <code>sort()</code>; trưởng nhóm muốn tận dụng việc hai list <strong>đã có thứ tự</strong> để chỉ duyệt mỗi đơn một lần, không sắp xếp lại. Hai list gốc còn dùng cho đối soát nên <strong>không được sửa</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>merge_by_time(first, second)</code></strong>: list <strong>mới</strong> gồm mọi đơn của hai list, xếp tăng dần theo giờ; cùng giờ thì đơn của <code>first</code> đứng trước, các đơn trong cùng một list giữ nguyên thứ tự.</p>
+<p><strong>2.2. <code>merge_unique(first, second)</code></strong>: như trên nhưng bỏ đơn <strong>cùng giờ và cùng mã</strong> với một đơn đã giữ; trả về bộ (list mới, số đơn đã bỏ).</p>
+<p><strong>2.3. <code>merge_report(first, second)</code></strong>: một dòng báo cáo:</p>
+<pre><code>Gộp 6 đơn (bỏ 1 đơn trùng), đơn đầu 07:05 GF1001, đơn cuối 09:00 GF1009.&#10;Không có đơn nào.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Một bên rỗng.</strong> Kết quả là bản sao của bên còn lại (không phải chính list đó). Hai bên rỗng: list rỗng và "Không có đơn nào."</p>
+<p><strong>Bẫy 2 — Cùng giờ.</strong> <code>[("07:00", "A1"), ("07:00", "A2")]</code> gộp với <code>[("07:00", "B1")]</code> ra A1, A2, B1.</p>
+<p><strong>Bẫy 3 — Đơn trùng không đứng liền nhau.</strong> Trong ví dụ, giữa hai bản <code>GF1003</code> có <code>GF1004</code> cùng giờ 07:20; vẫn phải nhận ra trùng.</p>
+<p><strong>Bẫy 4 — Không sửa hai list gốc.</strong></p>
+<p><strong>Bẫy 5 — Dữ liệu lớn.</strong> Hai list 100.000 đơn mỗi bên gộp trong 1 giây, không gọi <code>sort</code>, <code>sorted</code>, <code>pop</code>, <code>insert</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python gop_don.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>[('07:05', 'GF1001'), ('07:10', 'GF1002'), ('07:20', 'GF1003'), ('07:20', 'GF1004'), ('07:20', 'GF1003'), ('08:10', 'GF1006'), ('09:00', 'GF1009')]&#10;Gộp 6 đơn (bỏ 1 đơn trùng), đơn đầu 07:05 GF1001, đơn cuối 09:00 GF1009.&#10;Gộp 1 đơn (bỏ 0 đơn trùng), đơn đầu 06:00 GF0001, đơn cuối 06:00 GF0001.&#10;Không có đơn nào.&#10;Máy chủ A vẫn giữ nguyên: [('07:05', 'GF1001'), ('07:20', 'GF1003'), ('08:10', 'GF1006')]&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: mô tả cách duyệt hai list cùng lúc chỉ một lượt (cần mấy biến chỉ số, mỗi bước so sánh gì, khi một list hết thì làm gì). Chạy tay trên ví dụ ở mục 1, ghi hai chỉ số sau mỗi bước.</li>
+<li>Để nhận ra đơn trùng mà không so với <strong>mọi</strong> đơn đã giữ, cần xét những đơn nào? Vì sao chỉ cần như vậy là đủ?</li>
+<li>So sánh với cách nối hai list rồi <code>sort()</code>: số phép so sánh, Big-O.</li>
+<li>Nếu sau này có thêm máy chủ thứ ba, bạn dùng lại hai hàm đã viết thế nào? Tổng chi phí khi gộp lần lượt ba list có n đơn mỗi list là bao nhiêu?</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của ba hàm theo n, m (số đơn mỗi bên) và k (số đơn nhiều nhất trong cùng một phút).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>gop_don.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Không gọi <code>sort</code>, <code>sorted</code>; không <code>pop</code>, <code>insert</code> trên list; không sửa hai list đầu vào.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python gop_don.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex11</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-11">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-11</a> rồi chép các tệp vào kho: <code>gop_don.py</code>, <code>test_gop_don.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>gop_don.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

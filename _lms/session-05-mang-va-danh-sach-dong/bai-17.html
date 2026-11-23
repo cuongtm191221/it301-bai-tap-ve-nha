@@ -1,0 +1,53 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Giờ cao điểm bộ đệm phình to; hết giờ cao điểm, bộ nhớ vẫn bị giữ nguyên trên chiếc điện thoại cũ của tài xế." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-17/minh_hoa.png" /></p>
+<p><em>Giờ cao điểm bộ đệm phình to; hết giờ cao điểm, bộ nhớ vẫn bị giữ nguyên trên chiếc điện thoại cũ của tài xế.</em></p>
+<p>Ứng dụng tài xế Grab giữ một <strong>bộ đệm cuốc xe</strong> chờ gửi lên máy chủ: lúc mất sóng thì cuốc được thêm vào cuối bộ đệm, có sóng lại thì lấy dần từ cuối ra để gửi. Giờ cao điểm bộ đệm có thể lên hàng nghìn cuốc; hết giờ cao điểm chỉ còn vài cuốc. Nhiều tài xế dùng điện thoại cũ, bộ nhớ ít, nên nhóm muốn bộ đệm <strong>trả bớt bộ nhớ</strong> khi không cần.</p>
+<p>Thiết bị chạy bản Python rút gọn, nên nhóm tự cài lớp <code>ShrinkArray</code> theo Lesson 04, có thêm phần <strong>thu gọn</strong>:</p>
+<ul>
+<li>Đầy thì cấp vùng gấp đôi (như Lesson 04).</li>
+<li>Sau khi lấy một phần tử, nếu số phần tử còn lại <strong>không quá một phần tư</strong> số ô và vùng có hơn 1 ô, thì cấp vùng <strong>bằng một nửa</strong> và chép các phần tử sang.</li>
+</ul>
+<p>Một bạn trong nhóm đề xuất thu gọn ngay khi còn <strong>một nửa</strong> cho tiết kiệm hơn. Trưởng nhóm từ chối và yêu cầu bạn giải thích bằng số liệu vì sao ngưỡng là một phần tư (bẫy 3).</p>
+<p>Bài này tổng hợp kiến thức cả buổi: ADT và kiểm tra chỉ số, mảng động và O(1) khấu hao, chi phí chép khi đổi vùng lưu trữ.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>size()</code>, <code>capacity()</code>, <code>items()</code></strong>: số phần tử; số ô của vùng lưu trữ; list các phần tử theo thứ tự.</p>
+<p><strong>2.2. <code>get(i)</code></strong>: phần tử tại chỉ số i (âm tính từ cuối); chỉ số không phải số nguyên báo <code>TypeError</code>, ngoài phạm vi báo <code>IndexError("Chỉ số ngoài phạm vi phần tử")</code>.</p>
+<p><strong>2.3. <code>append(value)</code>, <code>pop()</code></strong>: thêm vào cuối; lấy và xóa phần tử cuối, rồi thu gọn theo quy tắc trên. Lấy từ mảng rỗng báo <code>IndexError("Mảng rỗng")</code>. <code>copies</code> đếm mọi tham chiếu đã chép khi đổi vùng.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Thu gọn đúng ngưỡng.</strong> 9 phần tử (16 ô), lấy 7 lần còn 2 phần tử trong 4 ô; lấy thêm 1 còn 2 ô; lấy hết còn 1 ô.</p>
+<p><strong>Bẫy 2 — Lấy từ mảng rỗng.</strong> Báo đúng lỗi, mảng giữ nguyên.</p>
+<p><strong>Bẫy 3 — Thêm rồi lấy liên tục ở ngưỡng.</strong> Mảng 8 phần tử (8 ô), lặp 1.000 lần "thêm một, lấy một": tổng số tham chiếu chép thêm không quá 32.</p>
+<p><strong>Bẫy 4 — Không giữ tham chiếu thừa.</strong> Mọi ô từ chỉ số <code>size()</code> trở đi là <code>None</code>.</p>
+<p><strong>Bẫy 5 — Chi phí tuyến tính.</strong> Thêm 100.000 rồi lấy hết: tổng số tham chiếu đã chép không quá 400.000, cuối cùng còn 1 ô.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python mang_thu_gon.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Sau 9 lần thêm: 9 phần tử, 16 ô&#10;Sau 7 lần lấy: ['CX1', 'CX2'] | 4 ô&#10;1.000 lần thêm rồi lấy ở ngưỡng, số tham chiếu chép thêm: 0&#10;Lấy từ mảng rỗng: Mảng rỗng&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Lập bảng <code>size</code>, <code>capacity</code>, số tham chiếu chép thêm qua từng lần lấy ở bẫy 1.</li>
+<li>Với ngưỡng một nửa (thu gọn khi size ≤ capacity / 2), chạy tay bẫy 3 với 8 phần tử trong 8 ô: mỗi lần "thêm một, lấy một" chép bao nhiêu tham chiếu? Tổng sau 1.000 lần? So với ngưỡng một phần tư.</li>
+<li>Giải thích vì sao với ngưỡng một phần tư, sau mỗi lần đổi vùng phải có ít nhất cỡ capacity / 4 thao tác nữa mới đổi vùng lần sau, và từ đó append, pop đều O(1) khấu hao.</li>
+<li>Độ phức tạp: ghi Big-O thời gian (trường hợp xấu nhất và khấu hao) của <code>append</code>, <code>pop</code>, <code>get</code>, và bộ nhớ dự phòng lớn nhất so với số phần tử.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>mang_thu_gon.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Vùng lưu trữ chỉ được đọc, gán từng ô; chỉ <code>_resize</code> tạo vùng mới. Không dùng <code>append</code>, <code>pop</code>, <code>insert</code> trên <code>_data</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python mang_thu_gon.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 7 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu cách list của CPython mở rộng và thu gọn (tài liệu, mã nguồn <code>listobject.c</code> hoặc bài viết giải thích).</li>
+<li>Tạo <code>nghien_cuu.py</code>: dùng <code>sys.getsizeof</code> để in các mốc list đổi kích thước khi append 1 đến 70 phần tử, rồi khi pop hết. CPython tăng theo hệ số bao nhiêu (gần đúng)? Khi nào list thu gọn? So với quy tắc gấp đôi và ngưỡng một phần tư của bạn.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex17</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-17">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-17</a> rồi chép các tệp vào kho: <code>mang_thu_gon.py</code>, <code>test_mang_thu_gon.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>mang_thu_gon.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

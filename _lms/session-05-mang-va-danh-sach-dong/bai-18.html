@@ -1,0 +1,83 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Tổng đài viên gõ lệnh để nhận, giao, hủy cuốc; giờ cao điểm hàng chờ dài và bản cũ dùng pop(0) chậm dần." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-18/minh_hoa.png" /></p>
+<p><em>Tổng đài viên gõ lệnh để nhận, giao, hủy cuốc; giờ cao điểm hàng chờ dài và bản cũ dùng pop(0) chậm dần.</em></p>
+<p>Tổng đài GrabCar nhận cuốc đặt qua điện thoại (khách lớn tuổi, khách doanh nghiệp). Tổng đài viên dùng một <strong>bảng điều phối</strong> gõ lệnh dạng chữ; cuốc nào vào trước được giao cho tài xế trước. Bạn viết lớp <code>DispatchQueue</code> và hàm <code>handle(queue, line)</code> xử lý một dòng lệnh:</p>
+<table>
+<thead>
+<tr>
+<th>Lệnh</th>
+<th>Ý nghĩa</th>
+<th>Phản hồi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ADD &lt;mã&gt;</code></td>
+<td>thêm cuốc vào cuối hàng</td>
+<td><code>Đã nhận GC101.</code> hoặc <code>GC101 đã có trong hàng.</code></td>
+</tr>
+<tr>
+<td><code>NEXT</code></td>
+<td>giao cuốc đầu hàng</td>
+<td><code>Giao GC101.</code> hoặc <code>Không còn cuốc chờ.</code></td>
+</tr>
+<tr>
+<td><code>CANCEL &lt;mã&gt;</code></td>
+<td>hủy cuốc đang chờ</td>
+<td><code>Đã hủy GC103.</code> hoặc <code>Không có GC999 trong hàng.</code></td>
+</tr>
+<tr>
+<td><code>VIEW &lt;k&gt;</code></td>
+<td>xem tối đa k cuốc đầu hàng</td>
+<td><code>Hàng chờ: GC102, GC103</code> hoặc <code>Hàng chờ: (trống)</code></td>
+</tr>
+<tr>
+<td><code>COUNT</code></td>
+<td>đếm cuốc đang chờ</td>
+<td><code>Đang chờ 1 cuốc.</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tổng đài viên gõ vội: lệnh và mã có thể viết thường, thừa khoảng trắng (mã luôn được đổi sang chữ in hoa). Bản cũ lưu hàng bằng list và lấy cuốc bằng <code>pop(0)</code>; ngày mưa, hàng có hàng chục nghìn cuốc và màn hình chậm dần. Lớp <code>DispatchQueue</code> đã có sẵn <code>self._items = []</code>; bạn tự thêm thuộc tính cần thiết.</p>
+<p>Bài này tổng hợp kiến thức cả buổi: chọn cấu trúc cho hàng chờ theo chi phí thao tác, tìm theo giá trị, xóa ở giữa, O(1) khấu hao.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>DispatchQueue</code></strong>: <code>size()</code>, <code>add(code)</code> (trả <code>False</code> nếu mã đang chờ), <code>next()</code> (rỗng trả <code>None</code>), <code>cancel(code)</code>, <code>view(k)</code>. <code>next</code> phải <strong>O(1) khấu hao</strong>, không dồn cả hàng mỗi lần lấy.</p>
+<p><strong>2.2. <code>handle(queue, line)</code></strong>: trả về đúng dòng phản hồi trong bảng; lỗi cú pháp trả <code>Cú pháp: ADD &lt;mã cuốc&gt;</code>, <code>Cú pháp: CANCEL &lt;mã cuốc&gt;</code>, <code>Cú pháp: VIEW &lt;số cuốc lớn hơn 0&gt;</code>; lệnh lạ trả <code>Lệnh không hỗ trợ: &lt;lệnh&gt;</code>; dòng trống trả <code>Lệnh trống.</code></p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Gõ vội.</strong> <code>"  add   gc7 "</code> là <code>ADD GC7</code>.</p>
+<p><strong>Bẫy 2 — Mã trùng.</strong> Thêm mã đang chờ bị từ chối; mã <strong>đã giao</strong> thì được thêm lại (khách đặt cuốc mới).</p>
+<p><strong>Bẫy 3 — Hàng rỗng.</strong> <code>NEXT</code>, <code>VIEW</code> khi rỗng trả đúng phản hồi, không báo lỗi.</p>
+<p><strong>Bẫy 4 — Lệnh sai.</strong> <code>ADD</code>, <code>CANCEL</code> thiếu mã; <code>VIEW 0</code>, <code>VIEW -2</code>, <code>VIEW ba</code>; lệnh lạ; dòng trống.</p>
+<p><strong>Bẫy 5 — 200.000 lượt thêm và giao.</strong> Xong trong 2 giây; không dùng <code>pop(0)</code>, <code>insert(0, ...)</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python dieu_phoi.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>'ADD gc101'      -&gt; Đã nhận GC101.&#10;'add GC102'      -&gt; Đã nhận GC102.&#10;'ADD GC103'      -&gt; Đã nhận GC103.&#10;'ADD GC101'      -&gt; GC101 đã có trong hàng.&#10;'  next  '       -&gt; Giao GC101.&#10;'VIEW 5'         -&gt; Hàng chờ: GC102, GC103&#10;'CANCEL GC103'   -&gt; Đã hủy GC103.&#10;'CANCEL GC999'   -&gt; Không có GC999 trong hàng.&#10;'COUNT'          -&gt; Đang chờ 1 cuốc.&#10;'NEXT'           -&gt; Giao GC102.&#10;'NEXT'           -&gt; Không còn cuốc chờ.&#10;'VIEW 0'         -&gt; Cú pháp: VIEW &lt;số cuốc lớn hơn 0&gt;&#10;'ADD'            -&gt; Cú pháp: ADD &lt;mã cuốc&gt;&#10;'PRINT'          -&gt; Lệnh không hỗ trợ: PRINT&#10;''               -&gt; Lệnh trống.&#10;Đang chờ 50 cuốc. Hàng chờ: GC199950, GC199951&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế cách lưu hàng chờ để <code>next</code> không dồn phần tử: cần thêm thông tin gì, khi nào dọn phần đã giao để bộ nhớ không tăng mãi, vì sao cách dọn đó vẫn cho O(1) khấu hao.</li>
+<li>Liệt kê chi phí của <code>add</code> (kiểm tra trùng), <code>cancel</code>, <code>view</code> theo số cuốc đang chờ; vì sao chấp nhận được với tổng đài.</li>
+<li>Vẽ trạng thái bên trong qua 6 lệnh đầu của kịch bản chạy thử.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của năm thao tác và của <code>handle</code> theo n (số cuốc đang chờ), cả trường hợp khấu hao của <code>next</code>.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>dieu_phoi.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Không dùng <code>pop(0)</code>, <code>insert(0, ...)</code>; không dùng <code>collections</code> trong <code>dieu_phoi.py</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python dieu_phoi.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu <code>collections.deque</code> của thư viện chuẩn: thao tác nào O(1) ở cả hai đầu, truy cập theo chỉ số ở giữa thì sao.</li>
+<li>Tạo <code>nghien_cuu.py</code>: đo bằng <code>timeit</code> thời gian lấy hết n phần tử với n = 25.000, 50.000, 100.000 bằng ba cách: <code>list.pop(0)</code>, <code>DispatchQueue</code> của bạn, <code>deque.popleft()</code>. Giải thích kết quả theo Big-O; khi nào bạn chọn <code>deque</code> cho hệ thống thật?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex18</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-18">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-18</a> rồi chép các tệp vào kho: <code>dieu_phoi.py</code>, <code>test_dieu_phoi.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>dieu_phoi.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

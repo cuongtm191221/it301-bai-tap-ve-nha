@@ -1,0 +1,48 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Đội tài xế muốn biết k giờ liên tiếp nào trong ngày có nhiều chuyến nhất để xếp ca; dữ liệu nhiều năm làm báo cáo chạy rất lâu." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-13/minh_hoa.png" /></p>
+<p><em>Đội tài xế muốn biết k giờ liên tiếp nào trong ngày có nhiều chuyến nhất để xếp ca; dữ liệu nhiều năm làm báo cáo chạy rất lâu.</em></p>
+<p>Mỗi quận có bảng <strong>số chuyến GrabBike theo từng giờ</strong>: phần tử thứ h là số chuyến trong giờ thứ h (giờ 0 là 0:00–0:59). Đội trưởng tài xế muốn biết <strong>k giờ liên tiếp</strong> nào có tổng số chuyến lớn nhất để xếp ca, ví dụ ca 3 giờ hay ca 8 giờ.</p>
+<pre><code>[12, 8, 5, 4, 6, 20, 45, 60, 38, 25, 30, 41, 50, 33, 28, 31, 47, 66, 58, 40, 27, 22, 18, 15]&#10;Khung 3 giờ nhiều chuyến nhất: giờ 16 đến 18, 47 + 66 + 58 = 171 chuyến&#10;</code></pre>
+<p>Kết quả được gửi cho tài xế mỗi sáng qua thông báo đẩy, nên phải chính xác và ổn định: cùng dữ liệu phải luôn cho cùng một khung giờ.</p>
+<p>Nhóm phân tích còn chạy cùng hàm trên dữ liệu <strong>20 năm</strong> (175.200 giờ) với khung 1.000 giờ để tìm mùa cao điểm; báo cáo phải có trong <strong>2 giây</strong>. Cách làm đầu tiên một bạn trong nhóm nghĩ tới là với mỗi giờ bắt đầu, cộng lại k giờ: đúng nhưng với dữ liệu 20 năm phải cộng gần 175 triệu lần. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>busiest_window_v1(trips, k)</code> và <code>busiest_window_v2(trips, k)</code></strong>: mỗi hàm cài một giải pháp, trả về bộ <code>(giờ bắt đầu, tổng số chuyến)</code> của khung k giờ liên tiếp có tổng lớn nhất; <code>k &lt;= 0</code> hoặc <code>k</code> lớn hơn số giờ có dữ liệu thì trả <code>None</code>. Hai hàm cho cùng kết quả nhưng <strong>khác nhau về cách làm</strong>; không sửa list đầu vào.</p>
+<p><strong>2.2. <code>window_message(trips, k)</code></strong>: dùng giải pháp bạn chọn, trả về một trong ba thông báo:</p>
+<pre><code>Cao điểm 3 giờ: từ giờ thứ 16 đến giờ thứ 18, 171 chuyến.&#10;Chưa đủ dữ liệu: cần ít nhất 3 giờ.&#10;Độ dài khung giờ phải lớn hơn 0.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Hai khung bằng nhau.</strong> Chọn khung <strong>sớm hơn</strong>: <code>[5, 9, 9, 5]</code> với k = 2 cho <code>(1, 18)</code>.</p>
+<p><strong>Bẫy 2 — k bằng số giờ.</strong> Khung duy nhất bắt đầu ở giờ 0.</p>
+<p><strong>Bẫy 3 — k không hợp lệ.</strong> k = 0, k âm, k lớn hơn số giờ, dữ liệu rỗng: hàm trả <code>None</code>, thông báo đúng như trên.</p>
+<p><strong>Bẫy 4 — Không sửa dữ liệu.</strong> List số chuyến giữ nguyên sau khi gọi.</p>
+<p><strong>Bẫy 5 — Dữ liệu 20 năm.</strong> 175.200 giờ, khung 1.000 giờ: thông báo trong 2 giây.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python gio_cao_diem.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Cao điểm 3 giờ: từ giờ thứ 16 đến giờ thứ 18, 171 chuyến.&#10;Cao điểm 1 giờ: từ giờ thứ 17 đến giờ thứ 17, 66 chuyến.&#10;Cao điểm 2 giờ: từ giờ thứ 1 đến giờ thứ 2, 18 chuyến.&#10;Chưa đủ dữ liệu: cần ít nhất 3 giờ.&#10;Độ dài khung giờ phải lớn hơn 0.&#10;Cao điểm 1000 giờ: từ giờ thứ 8 đến giờ thứ 1007, 50080 chuyến.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc tìm khung giờ cao điểm. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với n = 20.000, 40.000, 80.000 giờ và k = 100, 1.000; ghi bảng số đo, phiên bản Python và máy đo. Đếm thêm số phép cộng hoặc số tham chiếu phải dịch bằng một biến đếm.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>window_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay <code>[3, 1, 4, 1, 5, 9]</code> với k = 3: ghi tổng của từng khung và số phép cộng đã làm.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>gio_cao_diem.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sửa list đầu vào; không dùng <code>sum()</code> trên lát cắt trong giải pháp thứ hai.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python gio_cao_diem.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 7 test có sẵn (các test về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex13</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-13">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-13</a> rồi chép các tệp vào kho: <code>gio_cao_diem.py</code>, <code>test_gio_cao_diem.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>gio_cao_diem.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

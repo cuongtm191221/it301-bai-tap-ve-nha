@@ -1,0 +1,49 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Tài xế xếp hàng ở bãi chờ sân bay; mỗi lượt khách, người đầu hàng nhận cuốc rồi quay về cuối hàng. Hệ thống cần biết thứ tự sau k lượt." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-16/minh_hoa.png" /></p>
+<p><em>Tài xế xếp hàng ở bãi chờ sân bay; mỗi lượt khách, người đầu hàng nhận cuốc rồi quay về cuối hàng. Hệ thống cần biết thứ tự sau k lượt.</em></p>
+<p>Tại bãi chờ sân bay, tài xế GrabCar xếp thành <strong>hàng ưu tiên</strong>. Mỗi lượt có khách, tài xế <strong>đứng đầu</strong> nhận cuốc, chở xong quay về <strong>cuối hàng</strong>. Để báo trước cho tài xế, hệ thống tính <strong>thứ tự hàng sau k lượt</strong>:</p>
+<pre><code>Hàng: [&quot;An&quot;, &quot;Bình&quot;, &quot;Chi&quot;, &quot;Dũng&quot;, &quot;Em&quot;]&#10;Sau 2 lượt: [&quot;Chi&quot;, &quot;Dũng&quot;, &quot;Em&quot;, &quot;An&quot;, &quot;Bình&quot;]&#10;</code></pre>
+<p>Thứ tự này hiện trên ứng dụng tài xế để mỗi người ước lượng thời gian chờ, và được dùng để giải quyết khiếu nại "chen hàng". Một tài xế bị xếp sai vị trí có thể mất cả giờ chờ, nên kết quả phải khớp tuyệt đối với cách xoay thủ công: lấy người đầu, đưa xuống cuối, lặp lại k lần.</p>
+<p>Bộ phận điều phối đôi khi cần xem <strong>ngược lại</strong> (thứ tự của k lượt trước, nhập k âm). Danh sách gốc dùng cho bảng chấm công nên <strong>không được sửa</strong>; hàm trả về list mới.</p>
+<p>Một sân bay lớn có tới <strong>100.000 lượt tài xế</strong> trong dữ liệu mô phỏng, và hệ thống thường hỏi thứ tự sau gần 100.000 lượt; câu trả lời phải có trong <strong>1 giây</strong>. Bản đầu tiên làm đúng như mô tả: lặp k lần "lấy người đầu, đưa xuống cuối" bằng <code>pop(0)</code> và <code>append</code>. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>rotate_v1(drivers, k)</code> và <code>rotate_v2(drivers, k)</code></strong>: mỗi hàm cài một giải pháp, trả về <strong>list mới</strong> sau khi xoay sang trái k bước (k âm: sang phải). Hai hàm cho cùng kết quả nhưng <strong>khác nhau về cách làm</strong>.</p>
+<p><strong>2.2. <code>next_round_message(drivers, k)</code></strong>: dùng giải pháp bạn chọn:</p>
+<pre><code>Sau 2 lượt, tài xế ưu tiên: Chi, tiếp theo: Dũng, Em&#10;Chưa có tài xế nào trong hàng.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — k bằng 0 hoặc bằng số tài xế.</strong> Hàng không đổi.</p>
+<p><strong>Bẫy 2 — k lớn hơn số tài xế.</strong> 7 lượt với 5 tài xế giống 2 lượt.</p>
+<p><strong>Bẫy 3 — k âm.</strong> −1 lượt: người cuối lên đầu.</p>
+<p><strong>Bẫy 4 — Hàng rỗng, hàng một người; không sửa danh sách gốc.</strong> Hàng một người: phần "tiếp theo" để trống.</p>
+<p><strong>Bẫy 5 — 100.000 tài xế, 99.999 lượt.</strong> Trả lời trong 1 giây. Giải pháp chậm vẫn phải cho kết quả đúng với dữ liệu nhỏ, vì test so sánh hai giải pháp trên nhiều hàng ngẫu nhiên với k từ −30 đến 30; với dữ liệu lớn chỉ giải pháp bạn chọn được dùng.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python xoay_vong.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>['Chi', 'Dũng', 'Em', 'An', 'Bình']&#10;Sau 2 lượt, tài xế ưu tiên: Chi, tiếp theo: Dũng, Em&#10;Sau 7 lượt, tài xế ưu tiên: Chi, tiếp theo: Dũng, Em&#10;Sau -1 lượt, tài xế ưu tiên: Em, tiếp theo: An, Bình&#10;Chưa có tài xế nào trong hàng.&#10;Sau 99999 lượt, tài xế ưu tiên: TX99999, tiếp theo: TX0, TX1 | danh sách gốc: TX0&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc xoay vòng hàng tài xế. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với n = 10.000, 20.000, 40.000 tài xế và k = n − 1; ghi bảng số đo, phiên bản Python và máy đo. Đếm thêm số phép cộng hoặc số tham chiếu phải dịch bằng một biến đếm.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>next_round_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay hàng 5 tài xế với k = 7: ghi hàng sau mỗi bước (hoặc vị trí mà từng tài xế được ghi vào) và số tham chiếu phải dịch.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>xoay_vong.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sửa list <code>drivers</code></li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python xoay_vong.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 6 test có sẵn (các test về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex16</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-16">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-16</a> rồi chép các tệp vào kho: <code>xoay_vong.py</code>, <code>test_xoay_vong.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>xoay_vong.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

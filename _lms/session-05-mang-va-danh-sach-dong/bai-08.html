@@ -1,0 +1,57 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Công cụ ước lượng báo số âm, báo chi phí lấy món cuối còn đắt hơn lấy món đầu, và phóng đại chi phí phục vụ hàng chờ gấp đôi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-08/minh_hoa.png" /></p>
+<p><em>Công cụ ước lượng báo số âm, báo chi phí lấy món cuối còn đắt hơn lấy món đầu, và phóng đại chi phí phục vụ hàng chờ gấp đôi.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm hạ tầng của GrabFood.</p>
+<p>Giờ cao điểm, hàng đơn chờ nhà hàng xác nhận có tới <strong>200.000 đơn</strong>. Trước khi đổi cách xử lý hàng (ví dụ lấy đơn ở đầu bằng <code>pop(0)</code>), nhóm dùng một công cụ <strong>ước lượng số tham chiếu phải dịch</strong> để quyết định. Công cụ có hai hàm:</p>
+<ul>
+<li><code>shift_cost(op, n, i)</code>: số tham chiếu phải dịch khi chạy thao tác trên list n phần tử. <code>op</code> là <code>"append"</code>, <code>"pop_end"</code> (tức <code>pop()</code>), <code>"pop"</code> (tức <code>pop(i)</code>) hoặc <code>"insert"</code> (tức <code>insert(i, x)</code>). Chỉ số âm tính từ cuối như list. <code>pop</code> với chỉ số ngoài khoảng −n đến n − 1 báo <code>ValueError("chỉ số không hợp lệ")</code>; <code>insert</code> với chỉ số vượt khoảng thì kẹp về 0 hoặc n, giống <code>list.insert</code>.</li>
+<li><code>queue_cost(n, k)</code>: tổng số tham chiếu phải dịch khi phục vụ k người đầu hàng (hàng ban đầu n người) bằng k lần <code>pop(0)</code>. Hàng ngắn đi một người sau mỗi lần; k lớn hơn n thì chỉ phục vụ được n người.</li>
+</ul>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): năm phép tính <code>shift_cost</code> trên list 6 phần tử; phục vụ 3 người của hàng 5 người; phục vụ hết hàng 200.000 người.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>pop(0) trên 6 phần tử: 5&#10;pop(-1) trên 6 phần tử: 0&#10;insert(2, x) trên 6 phần tử: 4&#10;insert(-2, x) trên 6 phần tử: 2&#10;insert(99, x) trên 6 phần tử: 0&#10;Phục vụ 3 người đầu hàng 5 người: 9&#10;Phục vụ hết hàng 200.000 người: 19999900000&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhóm hạ tầng phản ánh:</p>
+<ul>
+<li>Công cụ báo <code>pop(-1)</code> (lấy phần tử cuối) dịch <strong>7</strong> tham chiếu, nhiều hơn cả <code>pop(0)</code>.</li>
+<li><code>insert(99, x)</code> trên 6 phần tử bị báo <strong>−1</strong> tham chiếu.</li>
+<li>Con số ước lượng khi phục vụ hết hàng 200.000 người gấp đôi số đo thực tế, làm nhóm suýt mua thêm máy chủ không cần thiết.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03):</p>
+<ul>
+<li><code>pop(i)</code> với 0 ≤ i &lt; n dịch <strong>n − i − 1</strong> tham chiếu (các phần tử sau i dồn trái).</li>
+<li><code>insert(i, x)</code> với 0 ≤ i ≤ n dịch <strong>n − i</strong> tham chiếu (i phần tử đầu giữ nguyên).</li>
+<li><code>append</code> và <code>pop()</code> không dịch tham chiếu nào. Chỉ số âm i tương ứng chỉ số i + n.</li>
+<li>Lấy liên tiếp k người ở đầu hàng: lần thứ t (đếm từ 0) dịch n − t − 1 tham chiếu, vì hàng đã ngắn đi t người.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>chi_phi.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Ước lượng chi phí thao tác trên hàng đơn GrabFood trước khi chạy.&quot;&quot;&quot;&#10;def shift_cost(op, n, i=None):&#10;    # Số tham chiếu phải dịch khi chạy thao tác op trên list n phần tử (Lesson 03).&#10;    # op: &quot;append&quot;, &quot;pop_end&quot; (pop()), &quot;pop&quot; (pop(i)), &quot;insert&quot; (insert(i, x)).&#10;    # i âm tính từ cuối. pop với i ngoài -n đến n - 1: ValueError(&quot;chỉ số không hợp lệ&quot;).&#10;    # insert với i vượt khỏi khoảng thì kẹp vào 0 hoặc n như list.insert.&#10;    if op in (&quot;append&quot;, &quot;pop_end&quot;):&#10;        return 0&#10;    if op == &quot;pop&quot;:&#10;        if not -n &lt;= i &lt; n:&#10;            raise ValueError(&quot;chỉ số không hợp lệ&quot;)&#10;        return n - i&#10;    if op == &quot;insert&quot;:&#10;        if i &gt; n:&#10;            i = n&#10;        return n - i - 1&#10;    raise ValueError(&quot;thao tác không hỗ trợ&quot;)&#10;&#10;&#10;def queue_cost(n, k):&#10;    # Tổng số tham chiếu phải dịch khi phục vụ k người đầu hàng bằng k lần pop(0), hàng ban đầu n người.&#10;    return k * shift_cost(&quot;pop&quot;, n, 0)&#10;&#10;&#10;print(&quot;pop(0) trên 6 phần tử:&quot;, shift_cost(&quot;pop&quot;, 6, 0))&#10;print(&quot;pop(-1) trên 6 phần tử:&quot;, shift_cost(&quot;pop&quot;, 6, -1))&#10;print(&quot;insert(2, x) trên 6 phần tử:&quot;, shift_cost(&quot;insert&quot;, 6, 2))&#10;print(&quot;insert(-2, x) trên 6 phần tử:&quot;, shift_cost(&quot;insert&quot;, 6, -2))&#10;print(&quot;insert(99, x) trên 6 phần tử:&quot;, shift_cost(&quot;insert&quot;, 6, 99))&#10;print(&quot;Phục vụ 3 người đầu hàng 5 người:&quot;, queue_cost(5, 3))&#10;print(&quot;Phục vụ hết hàng 200.000 người:&quot;, queue_cost(200000, 200000))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>pop(0) trên 6 phần tử: 6&#10;pop(-1) trên 6 phần tử: 7&#10;insert(2, x) trên 6 phần tử: 3&#10;insert(-2, x) trên 6 phần tử: 7&#10;insert(99, x) trên 6 phần tử: -1&#10;Phục vụ 3 người đầu hàng 5 người: 15&#10;Phục vụ hết hàng 200.000 người: 40000000000&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: cả bảy dòng đều sai: <code>pop(0)</code> ra 6 thay vì 5, <code>pop(-1)</code> ra 7, <code>insert(99, x)</code> ra −1, và hai tổng hàng chờ đều lớn hơn kết quả đúng.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Với list <code>["A", "B", "C", "D", "E", "F"]</code>, vẽ các tham chiếu phải dịch khi <code>pop(0)</code>, <code>pop(5)</code>, <code>insert(0, x)</code>, <code>insert(6, x)</code>. Từ đó so với công thức trong mã hiện tại.</li>
+<li>Mã hiện tại tính <code>pop(-1)</code> thế nào? Chỉ số -1 phải được đổi thành chỉ số nào trước khi áp công thức?</li>
+<li>Vì sao <code>insert(99, x)</code> ra số âm? Kẹp chỉ số rồi mới áp công thức thì ra bao nhiêu?</li>
+<li>Vì sao <code>queue_cost</code> của mã hiện tại lớn gần gấp đôi kết quả đúng? Viết công thức đóng cho tổng khi k = n.</li>
+<li>Với hàng 200.000 người, so sánh tổng số tham chiếu dịch của hai cách: phục vụ bằng <code>pop(0)</code>, và đảo hàng một lần rồi phục vụ bằng <code>pop()</code>. Ghi Big-O của mỗi cách.</li>
+<li>Ghi bốn bộ dữ liệu thử: list rỗng, chỉ số -n, insert với chỉ số rất âm, k lớn hơn n; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm trong <code>chi_phi.py</code>. Không đổi tên hàm, tham số, thông báo lỗi.</li>
+<li>Chạy <code>python chi_phi.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex08</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-08</a> rồi chép các tệp vào kho: <code>chi_phi.py</code>, <code>test_chi_phi.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>chi_phi.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

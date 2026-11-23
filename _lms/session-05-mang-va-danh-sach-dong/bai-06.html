@@ -1,0 +1,58 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Khách thêm điểm dừng thì điểm đến cuối biến mất, thêm điểm dừng thứ hai thì ứng dụng báo lỗi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-06/minh_hoa.png" /></p>
+<p><em>Khách thêm điểm dừng thì điểm đến cuối biến mất, thêm điểm dừng thứ hai thì ứng dụng báo lỗi.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm tính năng <strong>"Nhiều điểm dừng"</strong> của GrabCar.</p>
+<p>Khách có thể thêm điểm dừng vào <strong>giữa</strong> lộ trình (ghé đón bạn, ghé mua đồ). Lộ trình lưu trong lớp <code>Route</code>, cài bằng mảng động theo Lesson 04 (các phương thức <code>append</code>, <code>_resize</code>, <code>stops</code> đã có và đúng). Nhóm viết thêm <code>insert(index, value)</code> với hành vi giống <code>list.insert</code>:</p>
+<ul>
+<li>Điểm mới có chỉ số <code>index</code>; các điểm từ chỉ số đó trở đi lùi một vị trí, <strong>không mất điểm nào</strong>.</li>
+<li><code>index</code> âm tính từ cuối (<code>-1</code> là chèn trước điểm cuối); nhỏ hơn <code>-len</code> thì chèn đầu; lớn hơn <code>len</code> thì chèn cuối.</li>
+<li>Vùng lưu trữ đầy thì mở rộng gấp đôi trước khi chèn.</li>
+<li><code>moves</code> đếm số tham chiếu đã dịch.</li>
+</ul>
+<p>Tài xế nhìn danh sách điểm dừng để chạy, nên chỉ cần mất một điểm là khách bị bỏ lại giữa đường.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): lộ trình 3 điểm; chèn "Chợ Lớn" vào chỉ số 1; chèn "Quận 3" trước điểm cuối (chỉ số -1); chèn "Đổ xăng" vào đầu; chèn "Về nhà" với chỉ số 99.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Chèn Chợ Lớn vào chỉ số 1: ['Đón khách', 'Chợ Lớn', 'Bến Thành', 'Sân bay'] | dịch: 2&#10;Chèn Quận 3 trước điểm cuối: ['Đón khách', 'Chợ Lớn', 'Bến Thành', 'Quận 3', 'Sân bay']&#10;Chèn Đổ xăng vào đầu: ['Đổ xăng', 'Đón khách', 'Chợ Lớn', 'Bến Thành', 'Quận 3', 'Sân bay']&#10;Chèn cuối: ['Đổ xăng', 'Đón khách', 'Chợ Lớn', 'Bến Thành', 'Quận 3', 'Sân bay', 'Về nhà'] | số điểm: 7&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Tài xế và khách phản ánh:</p>
+<ul>
+<li>Thêm "Chợ Lớn" vào giữa thì điểm <strong>"Sân bay" biến mất</strong>, "Bến Thành" xuất hiện hai lần.</li>
+<li>Thêm điểm dừng thứ hai thì ứng dụng báo <code>IndexError</code>.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03, Lesson 04):</p>
+<ul>
+<li><code>insert(i, x)</code> trên n phần tử dịch <strong>n − i</strong> tham chiếu sang phải để tạo chỗ ở ô i.</li>
+<li>Vòng dịch phải đi <strong>từ cuối về</strong> (<code>j</code> từ <code>size</code> xuống <code>i + 1</code>, gán <code>data[j] = data[j - 1]</code>). Đi từ đầu tới thì mỗi bước ghi đè phần tử chưa kịp dịch: "vòng dịch của insert đi sai chiều" là lỗi thường gặp.</li>
+<li>Trước khi ghi vào ô <code>size</code>, phải chắc vùng lưu trữ còn chỗ; đầy thì <code>_resize</code> trước.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>lo_trinh.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Lộ trình nhiều điểm dừng của GrabCar, lưu bằng mảng động tự cài.&quot;&quot;&quot;&#10;class Route:&#10;    # Lộ trình GrabCar nhiều điểm dừng, lưu bằng mảng động tự cài (Lesson 04).&#10;    # moves đếm số tham chiếu đã dịch khi chèn; copies đếm số tham chiếu đã chép khi mở rộng.&#10;    def __init__(self):&#10;        self._capacity = 1&#10;        self._size = 0&#10;        self._data = [None] * self._capacity&#10;        self.moves = self.copies = 0&#10;&#10;    def __len__(self):&#10;        return self._size&#10;&#10;    def stops(self):&#10;        return [self._data[j] for j in range(self._size)]&#10;&#10;    def _resize(self, new_capacity):&#10;        new_data = [None] * new_capacity&#10;        for j in range(self._size):&#10;            new_data[j] = self._data[j]&#10;            self.copies += 1&#10;        self._data = new_data&#10;        self._capacity = new_capacity&#10;&#10;    def append(self, value):&#10;        if self._size == self._capacity:&#10;            self._resize(2 * self._capacity)&#10;        self._data[self._size] = value&#10;        self._size += 1&#10;&#10;    def insert(self, index, value):&#10;        # Chèn điểm dừng value để nó có chỉ số index; index âm tính từ cuối,&#10;        # index nhỏ hơn -len thì chèn đầu, lớn hơn len thì chèn cuối (giống list.insert).&#10;        if index &gt; self._size:&#10;            index = self._size&#10;        for j in range(index, self._size):&#10;            self._data[j + 1] = self._data[j]&#10;            self.moves += 1&#10;        self._data[index] = value&#10;        self._size += 1&#10;&#10;&#10;route = Route()&#10;for stop in (&quot;Đón khách&quot;, &quot;Bến Thành&quot;, &quot;Sân bay&quot;):&#10;    route.append(stop)&#10;route.insert(1, &quot;Chợ Lớn&quot;)&#10;print(&quot;Chèn Chợ Lớn vào chỉ số 1:&quot;, route.stops(), &quot;| dịch:&quot;, route.moves)&#10;route.insert(-1, &quot;Quận 3&quot;)&#10;print(&quot;Chèn Quận 3 trước điểm cuối:&quot;, route.stops())&#10;route.insert(0, &quot;Đổ xăng&quot;)&#10;print(&quot;Chèn Đổ xăng vào đầu:&quot;, route.stops())&#10;route.insert(99, &quot;Về nhà&quot;)&#10;print(&quot;Chèn cuối:&quot;, route.stops(), &quot;| số điểm:&quot;, len(route))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Chèn Chợ Lớn vào chỉ số 1: ['Đón khách', 'Chợ Lớn', 'Bến Thành', 'Bến Thành'] | dịch: 2&#10;Traceback (most recent call last):&#10;  ...&#10;    self._data[j + 1] = self._data[j]&#10;IndexError: list assignment index out of range&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: sau lần chèn đầu, "Sân bay" mất và "Bến Thành" bị lặp; lần chèn thứ hai gây <code>IndexError</code>, nên các dòng sau không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay lần chèn "Chợ Lớn" vào chỉ số 1 của mã hiện tại: ghi <code>_data</code> sau mỗi vòng dịch. Vòng nào làm mất "Sân bay"?</li>
+<li>Viết lại vòng dịch theo đúng chiều; chạy tay lại và đếm số lần dịch.</li>
+<li>Vì sao lần chèn thứ hai báo <code>IndexError</code>? <code>_capacity</code> và <code>_size</code> lúc đó là bao nhiêu?</li>
+<li>Mã hiện tại xử lý <code>index = -1</code> thế nào? Theo đặc tả phải thành chỉ số nào? <code>index = -99</code> thì sao?</li>
+<li>Lập bảng số tham chiếu phải dịch khi chèn vào chỉ số 0, 2, len với lộ trình 6 điểm. Ghi Big-O của <code>insert</code> trong trường hợp xấu nhất và tốt nhất.</li>
+<li>Ghi bốn bộ dữ liệu thử: lộ trình rỗng, chèn khi đầy, chỉ số âm, chỉ số vượt; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa phương thức <code>insert</code> trong <code>lo_trinh.py</code>. Không đổi tên lớp, phương thức, thuộc tính; không dùng <code>list.insert</code> hay cắt list trên <code>_data</code>.</li>
+<li>Chạy <code>python lo_trinh.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex06</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-06</a> rồi chép các tệp vào kho: <code>lo_trinh.py</code>, <code>test_lo_trinh.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>lo_trinh.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

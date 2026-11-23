@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Ghi nhật ký 100.000 chuyến làm máy chủ treo, báo cáo dung lượng thấp bất thường, mô phỏng đếm sai số lần chép." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-02/minh_hoa.png" /></p>
+<p><em>Ghi nhật ký 100.000 chuyến làm máy chủ treo, báo cáo dung lượng thấp bất thường, mô phỏng đếm sai số lần chép.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm dữ liệu của Grab.</p>
+<p>Mỗi tối, hệ thống gom <strong>nhật ký chuyến đi</strong> GrabBike trong ngày vào một list theo đúng thứ tự (một điểm đón lớn có hơn 100.000 chuyến), rồi báo cáo <strong>dung lượng bộ nhớ</strong> của nhật ký để nhóm hạ tầng dự trù máy chủ.</p>
+<p>Để giải thích cho nhóm hạ tầng vì sao list Python ghi thêm nhanh, nhóm viết thêm hàm <code>simulate_append(n, capacity=1)</code> mô phỏng mảng động như Lesson 02: khi đầy, cấp vùng mới <strong>gấp đôi</strong> và <strong>chép mọi tham chiếu đang có</strong> sang vùng mới. Hàm trả về (capacity cuối, tổng số tham chiếu đã chép). Ví dụ 5 lần append: capacity đi từ 1 lên 2, 4, 8; các lần chép 1 + 2 + 4 = 7 tham chiếu.</p>
+<p>Ba hàm trong <code>nhat_ky.py</code>:</p>
+<ul>
+<li><code>simulate_append(n, capacity=1)</code>: mô phỏng như trên.</li>
+<li><code>build_log(events)</code>: list mới chứa các sự kiện theo thứ tự.</li>
+<li><code>log_bytes(log)</code>: tổng số byte của nhật ký, gồm <strong>phần list và mọi bản ghi</strong> trong đó.</li>
+</ul>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): mô phỏng 1, 5, 10, 1.000 lần append; ghi nhật ký 5 chuyến; dung lượng của nhật ký có một bản ghi dài; ghi nhật ký 100.000 chuyến.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>1 lần append: (capacity, số tham chiếu đã chép) = (1, 0)&#10;5 lần append: (capacity, số tham chiếu đã chép) = (8, 7)&#10;10 lần append: (capacity, số tham chiếu đã chép) = (16, 15)&#10;1000 lần append: (capacity, số tham chiếu đã chép) = (1024, 1023)&#10;Nhật ký 5 chuyến: ['GB2000', 'GB2001', 'GB2002', 'GB2003', 'GB2004']&#10;Byte của nhật ký 1 bản ghi dài lớn hơn 400: True&#10;Nhật ký 100.000 chuyến: 100000 dòng&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhóm hạ tầng phản ánh:</p>
+<ul>
+<li>Bản mô phỏng báo 1.000 lần append chỉ chép <strong>10</strong> tham chiếu: con số quá đẹp, không khớp lý thuyết.</li>
+<li>Nhật ký một bản ghi dài hơn 400 ký tự lại được báo dung lượng chưa tới 400 byte.</li>
+<li>Gom nhật ký 100.000 chuyến làm tác vụ tối <strong>chạy mãi không xong</strong>, trong khi gom 1.000 chuyến thì rất nhanh.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li>list lưu <strong>tham chiếu</strong> trong một vùng liền nhau. Khi đầy, CPython cấp vùng lớn hơn và chép các tham chiếu sang; nhờ vùng tăng theo cấp số nhân, <code>append</code> là <strong>O(1) khấu hao</strong>.</li>
+<li><code>a = a + [x]</code> tạo <strong>list mới</strong> và chép toàn bộ a mỗi lần: n lần là O(n²).</li>
+<li><code>sys.getsizeof(list)</code> chỉ đo phần list (vùng tham chiếu), <strong>không</strong> gồm các đối tượng mà list trỏ tới.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>nhat_ky.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Nhật ký chuyến đi GrabBike và mô phỏng mảng động.&quot;&quot;&quot;&#10;import sys&#10;&#10;&#10;def simulate_append(n, capacity=1):&#10;    # Mô phỏng n lần append vào mảng động: đầy thì cấp vùng gấp đôi và chép mọi tham chiếu đang có sang.&#10;    # Trả về (capacity cuối, tổng số tham chiếu đã chép).&#10;    size = 0&#10;    copies = 0&#10;    for _ in range(n):&#10;        if size == capacity:&#10;            copies += 1&#10;            capacity *= 2&#10;        size += 1&#10;    return capacity, copies&#10;&#10;&#10;def build_log(events):&#10;    # Nhật ký chuyến đi: list mới chứa các sự kiện theo đúng thứ tự.&#10;    log = []&#10;    for event in events:&#10;        log = log + [event]&#10;    return log&#10;&#10;&#10;def log_bytes(log):&#10;    # Tổng số byte của nhật ký: phần list và mọi bản ghi trong đó.&#10;    return sys.getsizeof(log)&#10;&#10;&#10;for n in (1, 5, 10, 1000):&#10;    print(f&quot;{n} lần append:&quot;, &quot;(capacity, số tham chiếu đã chép) =&quot;, simulate_append(n))&#10;log = build_log([f&quot;GB{2000 + k}&quot; for k in range(5)])&#10;print(&quot;Nhật ký 5 chuyến:&quot;, log)&#10;record = &quot;GB2001 | Nguyễn Văn An | Quận 1 -&gt; Quận 7 | &quot; + &quot;ghi chú &quot; * 50&#10;print(&quot;Byte của nhật ký 1 bản ghi dài lớn hơn 400:&quot;, log_bytes([record]) &gt; 400)&#10;print(&quot;Nhật ký 100.000 chuyến:&quot;, len(build_log([f&quot;GB{k}&quot; for k in range(100000)])), &quot;dòng&quot;)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>1 lần append: (capacity, số tham chiếu đã chép) = (1, 0)&#10;5 lần append: (capacity, số tham chiếu đã chép) = (8, 3)&#10;10 lần append: (capacity, số tham chiếu đã chép) = (16, 4)&#10;1000 lần append: (capacity, số tham chiếu đã chép) = (1024, 10)&#10;Nhật ký 5 chuyến: ['GB2000', 'GB2001', 'GB2002', 'GB2003', 'GB2004']&#10;Byte của nhật ký 1 bản ghi dài lớn hơn 400: False&#10;(chương trình đứng yên, không in thêm gì; phải bấm Ctrl + C để dừng)&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: capacity đúng nhưng số tham chiếu đã chép sai từ 5 lần append trở lên; dung lượng báo <code>False</code>; dòng 100.000 chuyến phải chờ rất lâu mới in ra (trong lần chạy thử, quá 3 giây vẫn chưa xong).</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Lập bảng các lần mở rộng khi mô phỏng 10 lần append: lúc đó size là bao nhiêu, phải chép bao nhiêu tham chiếu. Dòng nào trong <code>simulate_append</code> đếm sai?</li>
+<li>Với n = 2ᵏ lần append, tổng số tham chiếu đã chép là bao nhiêu? Từ đó giải thích "O(1) khấu hao".</li>
+<li>Mỗi lần <code>log = log + [event]</code> chép bao nhiêu tham chiếu? Tổng cho 100.000 sự kiện khoảng bao nhiêu? Ghi Big-O.</li>
+<li>Đo thời gian <code>build_log</code> của mã hiện tại với 5.000, 10.000, 20.000 sự kiện. Thời gian tăng thế nào khi n gấp đôi?</li>
+<li><code>sys.getsizeof(log)</code> đo phần nào của nhật ký? Vì sao list chứa một bản ghi 1.000 ký tự vẫn có <code>getsizeof</code> nhỏ?</li>
+<li>Ghi ba bộ dữ liệu thử bạn dùng cho <code>simulate_append</code> và <code>log_bytes</code>, kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa ba hàm trong <code>nhat_ky.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về.</li>
+<li>Ghi nhật ký 100.000 chuyến phải xong trong 1 giây.</li>
+<li>Chạy <code>python nhat_ky.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex02</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-02</a> rồi chép các tệp vào kho: <code>nhat_ky.py</code>, <code>test_nhat_ky.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>nhat_ky.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

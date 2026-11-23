@@ -1,0 +1,50 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Báo cáo cuối ca tính tiền thu, số cuốc hủy và các cuốc gần nhất; bản cũ chậm tới mức tài xế chạy nhiều cuốc phải chờ cả phút." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-20/minh_hoa.png" /></p>
+<p><em>Báo cáo cuối ca tính tiền thu, số cuốc hủy và các cuốc gần nhất; bản cũ chậm tới mức tài xế chạy nhiều cuốc phải chờ cả phút.</em></p>
+<p>Cuối ca, ứng dụng tài xế GrabBike hiện <strong>báo cáo ca</strong>: tổng tiền các cuốc hoàn thành, số cuốc bị hủy, và mã của <code>top</code> cuốc hoàn thành <strong>gần nhất</strong> (mới nhất trước). Mỗi cuốc là bộ <code>(mã, trạng thái, tiền)</code>; trạng thái là <code>"DONE"</code>, <code>"CANCELLED"</code> hoặc trạng thái khác (vẫn được tính như cuốc hoàn thành).</p>
+<p>Hàm <code>summary_slow(trips, top)</code> (có sẵn trong tệp, <strong>không được sửa</strong>) là bản đang chạy: kết quả đúng, nhưng tài xế đối tác lớn có báo cáo tháng <strong>200.000 cuốc</strong> thì phải chờ rất lâu. Đọc kỹ bản cũ, bạn sẽ thấy nó dùng gần như mọi thao tác "đắt" đã học trong buổi.</p>
+<p>Nhóm sản phẩm đã nhận nhiều đánh giá một sao với nội dung "mở báo cáo là treo máy". Với 2.000 cuốc, bản cũ chỉ mất vài phần nghìn giây nên không ai phát hiện khi thử nghiệm; chỉ khi đối tác lớn chạy báo cáo tháng thì vấn đề mới lộ ra. Đây là lý do nhóm yêu cầu kèm <strong>số đo ở nhiều kích thước dữ liệu</strong>, không chỉ một lần chạy với dữ liệu mẫu nhỏ, và yêu cầu bản mới phải khớp bản cũ tới từng con số, vì báo cáo ca được dùng để đối soát tiền với tài xế.</p>
+<p>Bạn viết <code>summary_fast(trips, top)</code> cho <strong>kết quả giống hệt</strong> <code>summary_slow</code> với mọi dữ liệu, chạy 200.000 cuốc trong <strong>1 giây</strong>, và dùng số đo để chứng minh với nhóm sản phẩm rằng bản mới tốt hơn cả về thời gian lẫn bộ nhớ.</p>
+<p>Bài này tổng hợp kiến thức cả buổi: chi phí của <code>+</code> trên list, <code>remove</code>, <code>pop(0)</code>, <code>insert(0, ...)</code>; O(1) khấu hao của <code>append</code>; đọc ngược theo chỉ số.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>summary_fast(trips, top)</code></strong>: trả về bộ <code>(tổng tiền, số cuốc hủy, list mã top cuốc hoàn thành mới nhất trước)</code> giống <code>summary_slow</code>; không sửa <code>trips</code>.</p>
+<p><strong>2.2. <code>shift_report(trips, top)</code></strong>: dùng <code>summary_fast</code>, trả về một dòng:</p>
+<pre><code>Thu 75.000đ, hủy 2 cuốc, gần nhất: BK4, BK3&#10;Thu 0đ, hủy 0 cuốc, gần nhất: (không có)&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ với dữ liệu ngẫu nhiên.</strong> Test so sánh hai bản trên 200 bộ dữ liệu ngẫu nhiên.</p>
+<p><strong>Bẫy 2 — top ở biên.</strong> <code>top = 0</code>; <code>top</code> lớn hơn số cuốc hoàn thành; ca không có cuốc nào.</p>
+<p><strong>Bẫy 3 — Trạng thái khác và mã trùng.</strong> Cuốc <code>"PENDING"</code>; hai cuốc cùng mã, cùng trạng thái, cùng tiền.</p>
+<p><strong>Bẫy 4 — Không sửa dữ liệu đầu vào.</strong></p>
+<p><strong>Bẫy 5 — 200.000 cuốc trong 1 giây.</strong> Bản cũ với cùng dữ liệu chạy rất lâu, nên đừng chạy <code>summary_slow</code> với 200.000 cuốc khi thử.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python bao_cao_ca.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>(75000, 2, ['BK4', 'BK3'])&#10;(75000, 2, ['BK4', 'BK3'])&#10;Thu 75.000đ, hủy 2 cuốc, gần nhất: BK4, BK3&#10;Thu 0đ, hủy 0 cuốc, gần nhất: (không có)&#10;Thu 3.771.418.000đ, hủy 28572 cuốc, gần nhất: BK199999, BK199998, BK199996&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Lập bảng các đoạn của <code>summary_slow</code>: mỗi đoạn làm gì, thao tác list nào được dùng, số tham chiếu phải chép hoặc dịch theo n, Big-O. Đoạn nào tốn nhất?</li>
+<li>Bản cũ dùng <code>done.remove(trip)</code> khi có hai cuốc giống hệt nhau: có làm kết quả khác đi không? Bản của bạn bảo đảm khớp ở trường hợp này thế nào?</li>
+<li>Thiết kế <code>summary_fast</code>: mỗi đoạn của bản cũ được thay bằng gì.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của <code>summary_slow</code> và <code>summary_fast</code> theo n (số cuốc) và top.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>bao_cao_ca.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li><code>summary_fast</code> không gọi <code>summary_slow</code>; không dùng <code>pop(0)</code>, <code>insert(0, ...)</code>, <code>remove</code>, <code>+</code> để nối list trong vòng lặp; không dùng <code>set</code>, <code>dict</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python bao_cao_ca.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 7 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu module <code>tracemalloc</code> (đo bộ nhớ Python cấp phát, <code>get_traced_memory</code> trả về hiện tại và đỉnh).</li>
+<li>Tạo <code>nghien_cuu.py</code>: với n = 2.000, 4.000, 8.000 cuốc, đo thời gian (<code>timeit</code>) và bộ nhớ đỉnh (<code>tracemalloc</code>) của hai bản. n gấp đôi thì mỗi số đo tăng bao nhiêu lần? Đối chiếu với Big-O ở phần (1) và viết đoạn giải thích gửi nhóm sản phẩm.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex20</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-20">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-20</a> rồi chép các tệp vào kho: <code>bao_cao_ca.py</code>, <code>test_bao_cao_ca.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>bao_cao_ca.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

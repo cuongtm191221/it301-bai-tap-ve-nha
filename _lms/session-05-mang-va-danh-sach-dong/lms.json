@@ -1,0 +1,142 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Lỗi bảng giá cước GrabBike theo từng km",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6927
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Lỗi nhật ký chuyến đi GrabBike và bản mô phỏng mảng động",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7623
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Lỗi hàng chờ đặt xe GrabCar tại sân bay",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7073
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Lỗi lịch trực tài xế GrabBike tại điểm đón",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6827
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Lỗi bộ đệm điểm GPS của tài xế Grab",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7364
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Lỗi chèn điểm dừng vào lộ trình GrabCar",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7831
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Lỗi bỏ món khỏi giỏ hàng GrabFood",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7790
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Lỗi công cụ ước lượng chi phí thao tác trên hàng đơn GrabFood",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7620
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Bảng giá cước GrabCar theo vùng viết theo đặc tả",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6951
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Hàng chờ đơn GrabFood ở bếp trung tâm với số chỗ cố định",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6424
+ },
+ {
+  "n": 11,
+  "t": "Bài 11: Gộp danh sách đơn GrabFood từ hai máy chủ theo giờ đặt",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6540
+ },
+ {
+  "n": 12,
+  "t": "Bài 12: Dọn danh sách đơn của nhà hàng GrabFood tại chỗ",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6310
+ },
+ {
+  "n": 13,
+  "t": "Bài 13: Tìm khung giờ cao điểm cho đội tài xế GrabBike",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5978
+ },
+ {
+  "n": 14,
+  "t": "Bài 14: Hiện hoạt động mới nhất trước trên ứng dụng Grab",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6250
+ },
+ {
+  "n": 15,
+  "t": "Bài 15: Phản biện mã do AI viết: mảng động lưu đơn giao ghép GrabFood",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6836
+ },
+ {
+  "n": 16,
+  "t": "Bài 16: Xoay vòng lượt ưu tiên tài xế GrabCar tại sân bay",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6159
+ },
+ {
+  "n": 17,
+  "t": "Bài 17: Mảng động biết thu gọn cho bộ đệm cuốc xe của tài xế Grab",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6361
+ },
+ {
+  "n": 18,
+  "t": "Bài 18: Bảng điều phối cuốc xe GrabCar nhận lệnh dạng chữ",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7420
+ },
+ {
+  "n": 19,
+  "t": "Bài 19: Quản lý bãi đỗ xe điện GrabBike nhiều hàng",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6286
+ },
+ {
+  "n": 20,
+  "t": "Bài 20: Tối ưu báo cáo cuối ca của tài xế GrabBike",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6723
+ }
+]

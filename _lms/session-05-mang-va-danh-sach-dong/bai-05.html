@@ -1,0 +1,57 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Ứng dụng báo tài xế có 7 điểm GPS dù chỉ ghi 6, và máy chủ chép hàng chục triệu tham chiếu chỉ để ghi 10.000 điểm." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-05/minh_hoa.png" /></p>
+<p><em>Ứng dụng báo tài xế có 7 điểm GPS dù chỉ ghi 6, và máy chủ chép hàng chục triệu tham chiếu chỉ để ghi 10.000 điểm.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm bản đồ của Grab.</p>
+<p>Trong một chuyến, ứng dụng tài xế ghi <strong>điểm GPS</strong> vài giây một lần vào bộ đệm, rồi gửi về máy chủ để vẽ đường đi và tính quãng đường. Thiết bị tài xế chạy bản Python rút gọn, nên nhóm tự cài lớp <code>DynamicArray</code> theo Lesson 04 thay cho list:</p>
+<ul>
+<li><code>append(value)</code>: ghi thêm một điểm; khi vùng lưu trữ đầy thì cấp vùng mới <strong>gấp đôi</strong> và chép các tham chiếu sang (<code>copies</code> đếm số tham chiếu đã chép).</li>
+<li><code>len(points)</code>: <strong>số điểm đã ghi</strong>.</li>
+<li><code>points[i]</code>: điểm tại chỉ số i, i âm tính từ cuối; i ngoài khoảng phần tử báo <code>IndexError("Chỉ số ngoài phạm vi phần tử")</code>.</li>
+</ul>
+<p>Một chuyến dài có hơn 10.000 điểm. Số điểm còn được dùng để tính phụ phí chờ, nên đếm sai là tính sai tiền của khách.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): ghi 6 điểm; in số điểm, điểm cuối; đọc điểm thứ 7 (không có); ghi 10.000 điểm và in số tham chiếu đã chép.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Số điểm GPS: 6&#10;Điểm cuối: GPS6&#10;Điểm thứ 7: Chỉ số ngoài phạm vi phần tử&#10;10.000 điểm, số tham chiếu đã chép: 16383&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhóm bản đồ phản ánh:</p>
+<ul>
+<li>Tài xế ghi 6 điểm nhưng ứng dụng báo <strong>7 điểm</strong>; đọc "điểm thứ 7" nhận được <code>None</code> thay vì báo lỗi, làm bản đồ vẽ một đoạn thẳng về gốc tọa độ.</li>
+<li>Chuyến dài làm máy tài xế nóng và chậm: ghi 10.000 điểm mà phải chép <strong>25 triệu</strong> tham chiếu.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02, Lesson 04):</p>
+<ul>
+<li><code>_data</code> là vùng lưu trữ có <code>_capacity</code> ô; chỉ <code>_size</code> ô đầu là <strong>phần tử thật</strong>, các ô còn lại là <strong>ô dự phòng</strong>. Mọi thao tác trả lời "có bao nhiêu phần tử", "chỉ số nào hợp lệ" phải dựa vào <code>_size</code>, không dựa vào <code>_capacity</code>.</li>
+<li>Mở rộng <strong>gấp đôi</strong>: tổng số tham chiếu phải chép sau n lần append nhỏ hơn 2n, nên <code>append</code> là O(1) khấu hao. Mở rộng thêm một số ô cố định (+1, +2...): tổng số lần chép cỡ n²/c, append trung bình O(n).</li>
+<li>"Đếm ô dự phòng thành phần tử" là lỗi thường gặp khi tự cài mảng động.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>mang_dong.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Bộ đệm điểm GPS của tài xế Grab, lưu bằng mảng động tự cài.&quot;&quot;&quot;&#10;class DynamicArray:&#10;    # Mảng động tự cài (Lesson 04): _data là vùng lưu trữ có _capacity ô, chỉ _size ô đầu là phần tử thật.&#10;    # copies đếm số tham chiếu đã chép khi mở rộng.&#10;    def __init__(self):&#10;        self._capacity = 1&#10;        self._size = 0&#10;        self._data = [None] * self._capacity&#10;        self.copies = 0&#10;&#10;    def __len__(self):&#10;        return self._capacity&#10;&#10;    def _normalize_index(self, index):&#10;        if index &lt; 0:&#10;            index += self._size&#10;        if not 0 &lt;= index &lt; self._capacity:&#10;            raise IndexError(&quot;Chỉ số ngoài phạm vi phần tử&quot;)&#10;        return index&#10;&#10;    def __getitem__(self, index):&#10;        return self._data[self._normalize_index(index)]&#10;&#10;    def _resize(self, new_capacity):&#10;        new_data = [None] * new_capacity&#10;        for j in range(self._size):&#10;            new_data[j] = self._data[j]&#10;            self.copies += 1&#10;        self._data = new_data&#10;        self._capacity = new_capacity&#10;&#10;    def append(self, value):&#10;        if self._size == self._capacity:&#10;            self._resize(self._capacity + 2)&#10;        self._data[self._size] = value&#10;        self._size += 1&#10;&#10;&#10;points = DynamicArray()&#10;for k in range(6):&#10;    points.append(f&quot;GPS{k + 1}&quot;)&#10;print(&quot;Số điểm GPS:&quot;, len(points))&#10;print(&quot;Điểm cuối:&quot;, points[-1])&#10;try:&#10;    print(&quot;Điểm thứ 7:&quot;, points[6])&#10;except IndexError as error:&#10;    print(&quot;Điểm thứ 7:&quot;, error)&#10;track = DynamicArray()&#10;for k in range(10000):&#10;    track.append(k)&#10;print(&quot;10.000 điểm, số tham chiếu đã chép:&quot;, track.copies)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Số điểm GPS: 7&#10;Điểm cuối: GPS6&#10;Điểm thứ 7: None&#10;10.000 điểm, số tham chiếu đã chép: 25000000&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: điểm cuối đúng, nhưng số điểm là 7, điểm thứ 7 là <code>None</code>, và số tham chiếu đã chép là 25.000.000 thay vì 16.383.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Ghi <code>_size</code>, <code>_capacity</code> sau mỗi lần append trong 6 lần đầu của mã hiện tại. Vì sao <code>len</code> ra 7?</li>
+<li>Với 6 điểm, những chỉ số nào <code>_normalize_index</code> của mã hiện tại cho qua? Chỉ số nào trong đó trỏ vào ô dự phòng?</li>
+<li>Tính tổng số tham chiếu đã chép sau n lần append khi mỗi lần mở rộng thêm 2 ô; kiểm tra với n = 10.000 (25.000.000). Ghi Big-O của một lần append trung bình.</li>
+<li>Sau khi đổi sang gấp đôi, liệt kê các lần mở rộng khi ghi 10 điểm và tổng số tham chiếu đã chép. Vì sao 10.000 điểm chép 16.383 tham chiếu?</li>
+<li>Bộ nhớ dự phòng lớn nhất của cách gấp đôi là bao nhiêu ô so với số phần tử? Đánh đổi gì để có O(1) khấu hao?</li>
+<li>Ghi bốn bộ dữ liệu thử: mảng rỗng, đọc chỉ số size, đọc chỉ số -size, 8 lần append (đúng lúc đầy); kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>DynamicArray</code> trong <code>mang_dong.py</code>. Không đổi tên lớp, phương thức, thuộc tính, thông báo lỗi; không dùng list Python làm phần tử thay cho vùng lưu trữ (không <code>append</code> vào <code>_data</code>).</li>
+<li>Chạy <code>python mang_dong.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex05</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-05</a> rồi chép các tệp vào kho: <code>mang_dong.py</code>, <code>test_mang_dong.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>mang_dong.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

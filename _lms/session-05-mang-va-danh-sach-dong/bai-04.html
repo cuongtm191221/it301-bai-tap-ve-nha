@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Xếp An trực ngày đầu thì An có tên trong cả ba ngày; xóa hai tài xế vắng liền nhau thì một người vẫn còn." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-04/minh_hoa.png" /></p>
+<p><em>Xếp An trực ngày đầu thì An có tên trong cả ba ngày; xóa hai tài xế vắng liền nhau thì một người vẫn còn.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm điều phối tài xế của Grab tại một điểm đón lớn.</p>
+<p>Điểm đón có <strong>lịch trực</strong> nhiều ngày; mỗi ngày là một list tên tài xế. Nhóm viết bốn hàm:</p>
+<ul>
+<li><code>make_board(days)</code>: tạo lịch trống <code>days</code> ngày, <strong>mỗi ngày một list riêng</strong>.</li>
+<li><code>assign(board, day, driver)</code>: xếp tài xế vào ngày <code>day</code> (chỉ số từ 0).</li>
+<li><code>count_shifts(board, driver)</code>: số ca trực của tài xế trong cả lịch.</li>
+<li><code>remove_absent(drivers, absent)</code>: xóa <strong>tại chỗ</strong> khỏi list <code>drivers</code> mọi tài xế có tên trong <code>absent</code>, giữ thứ tự những người còn lại. List <code>drivers</code> được màn hình điều phối dùng chung, nên phải sửa chính list đó chứ không trả về list mới.</li>
+</ul>
+<p>Ví dụ lịch 3 ngày, xếp An ngày đầu và Bình ngày thứ hai: <code>[["An"], ["Bình"], []]</code>. Lịch trực dùng để tính thưởng chuyên cần cuối tháng, nên đếm ca sai là trả thưởng sai.</p>
+<p>Danh sách tài xế đang trực còn được dùng để chia cuốc xe: tài xế vắng mà vẫn còn trong danh sách sẽ được giao cuốc, khách chờ không có xe tới và cuốc bị hủy. Bộ phận điều phối cần bản sửa trước kỳ tính thưởng cuối tháng.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): tạo lịch 3 ngày, xếp hai tài xế, in lịch và số ca của An; xóa hai tài xế vắng (Bình và Chi, đứng liền nhau) khỏi danh sách đang trực.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Lịch 3 ngày: [['An'], ['Bình'], []]&#10;Số ca của An: 1&#10;Tài xế còn trực: ['An', 'Dũng', 'Em']&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Bộ phận điều phối phản ánh:</p>
+<ul>
+<li>Xếp An trực <strong>một</strong> ngày thì lịch hiện An ở <strong>cả ba</strong> ngày, và An được tính 3 ca.</li>
+<li>Báo vắng Bình và Chi thì Bình bị xóa nhưng <strong>Chi vẫn còn</strong> trong danh sách trực.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03):</p>
+<ul>
+<li><code>[[]] * k</code> tạo một list ngoài có k tham chiếu tới <strong>cùng một</strong> list con: sửa một "ngày" là sửa tất cả. Mỗi phần tử phải là một list con mới.</li>
+<li>Xóa phần tử khỏi chính list đang duyệt làm các phần tử phía sau dồn trái một ô, trong khi vòng lặp vẫn tiến tới chỉ số kế tiếp: phần tử ngay sau phần tử bị xóa bị bỏ qua.</li>
+<li><code>remove</code> xóa lần khớp đầu và dịch phần sau, O(n); gọi trong vòng lặp có thể thành O(n²).</li>
+<li><code>a[:] = b</code> thay toàn bộ nội dung của chính list a, mọi nơi đang giữ a đều thấy nội dung mới.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>lich_truc.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Lịch trực và danh sách tài xế GrabBike của một điểm đón.&quot;&quot;&quot;&#10;def make_board(days):&#10;    # Lịch trực: mỗi ngày một list tài xế riêng.&#10;    return [[]] * days&#10;&#10;&#10;def assign(board, day, driver):&#10;    board[day].append(driver)&#10;&#10;&#10;def count_shifts(board, driver):&#10;    total = 0&#10;    for day in board:&#10;        total += day.count(driver)&#10;    return total&#10;&#10;&#10;def remove_absent(drivers, absent):&#10;    # Xóa tại chỗ khỏi drivers mọi tài xế có tên trong absent, giữ thứ tự những người còn lại.&#10;    for name in drivers:&#10;        if name in absent:&#10;            drivers.remove(name)&#10;&#10;&#10;board = make_board(3)&#10;assign(board, 0, &quot;An&quot;)&#10;assign(board, 1, &quot;Bình&quot;)&#10;print(&quot;Lịch 3 ngày:&quot;, board)&#10;print(&quot;Số ca của An:&quot;, count_shifts(board, &quot;An&quot;))&#10;drivers = [&quot;An&quot;, &quot;Bình&quot;, &quot;Chi&quot;, &quot;Dũng&quot;, &quot;Em&quot;]&#10;remove_absent(drivers, [&quot;Bình&quot;, &quot;Chi&quot;])&#10;print(&quot;Tài xế còn trực:&quot;, drivers)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Lịch 3 ngày: [['An', 'Bình'], ['An', 'Bình'], ['An', 'Bình']]&#10;Số ca của An: 3&#10;Tài xế còn trực: ['An', 'Chi', 'Dũng', 'Em']&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: cả ba ngày đều có An và Bình; An có 3 ca thay vì 1; Chi vẫn còn trong danh sách trực.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Vẽ sơ đồ tham chiếu của <code>make_board(3)</code> trong mã hiện tại: list ngoài có mấy ô, các ô trỏ tới mấy list con? Kiểm chứng bằng <code>board[0] is board[1]</code>.</li>
+<li>Viết lại <code>make_board</code> để mỗi ngày là một list riêng; kiểm chứng lại bằng <code>is</code>.</li>
+<li>Chạy tay <code>remove_absent(["An", "Bình", "Chi", "Dũng", "Em"], ["Bình", "Chi"])</code> của mã hiện tại: ghi chỉ số vòng lặp đang xét và nội dung list sau mỗi lượt. Vì sao Chi bị bỏ qua?</li>
+<li>Với danh sách <code>["An", "An", "Bình", "An"]</code> và vắng An, mã hiện tại cho kết quả gì?</li>
+<li>Sửa <code>remove_absent</code> để vẫn sửa <strong>chính list</strong> được truyền vào. Kiểm chứng bằng <code>is</code> trước và sau khi gọi. Ghi Big-O của bản sửa.</li>
+<li>Ghi bốn bộ dữ liệu thử: vắng hai người liền nhau, tên trùng nhiều lần, không ai vắng, cả danh sách vắng; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa <code>make_board</code> và <code>remove_absent</code> trong <code>lich_truc.py</code>. Không đổi tên hàm, tham số; <code>remove_absent</code> vẫn sửa tại chỗ và không trả về list mới.</li>
+<li>Chạy <code>python lich_truc.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex04</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-04">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-04</a> rồi chép các tệp vào kho: <code>lich_truc.py</code>, <code>test_lich_truc.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>lich_truc.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

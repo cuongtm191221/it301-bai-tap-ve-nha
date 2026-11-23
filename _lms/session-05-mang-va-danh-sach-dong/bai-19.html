@@ -1,0 +1,55 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trạm sạc có bãi đỗ nhiều hàng, nhiều cột; xe đỗ một ô mà bản đồ trạm hiện xe ở cả cột đó của mọi hàng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-19/minh_hoa.png" /></p>
+<p><em>Trạm sạc có bãi đỗ nhiều hàng, nhiều cột; xe đỗ một ô mà bản đồ trạm hiện xe ở cả cột đó của mọi hàng.</em></p>
+<p>Grab thử nghiệm <strong>xe máy điện</strong>: tài xế trả xe vào <strong>trạm sạc</strong> có bãi đỗ <code>rows</code> hàng × <code>cols</code> cột. Ứng dụng của trạm hiện bản đồ bãi; mỗi ô chứa mã xe hoặc <code>None</code> (trống). Vạch sơn trên mặt bãi đánh <strong>số ô</strong> từ 1, theo từng hàng, từ trái sang phải (hàng 0 có ô 1 đến <code>cols</code>, hàng 1 bắt đầu từ <code>cols + 1</code>...).</p>
+<p>Quy tắc của trạm:</p>
+<ul>
+<li>Xe vào được xếp vào <strong>ô trống đầu tiên</strong>, xét hàng 0 từ trái sang phải, rồi hàng 1...</li>
+<li>Một xe chỉ được đỗ <strong>một ô</strong>; xe đã có trong bãi mà quét lại thì từ chối.</li>
+<li>Xe rời bãi thì ô trở về trống và được dùng cho xe tiếp theo.</li>
+</ul>
+<p>Bản thử đầu tiên tạo bãi bằng <code>[[None] * cols] * rows</code>: đỗ một xe thì bản đồ hiện xe ở cùng cột của <strong>mọi hàng</strong>.</p>
+<p>Bài này tổng hợp kiến thức cả buổi: mảng hai chiều, tham chiếu trong list lồng nhau, tính vị trí từ chỉ số (như tính địa chỉ ô ở Lesson 01), chi phí tìm theo giá trị.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>make_lot(rows, cols)</code></strong>: bãi trống, mỗi hàng một list riêng; kích thước không phải số nguyên dương báo <code>ValueError("Kích thước bãi không hợp lệ")</code>.</p>
+<p><strong>2.2. <code>find(lot, code)</code>, <code>park(lot, code)</code>, <code>leave(lot, code)</code></strong>: vị trí <code>(hàng, cột)</code> của xe hoặc <code>None</code>; đỗ xe theo quy tắc, trả vị trí hoặc <code>None</code> (xe đã có, bãi đầy); xe rời bãi, trả <code>True</code> / <code>False</code>.</p>
+<p><strong>2.3. <code>slot_number(lot, row, col)</code></strong>: số ô in trên vạch sơn; ô ngoài bãi báo <code>IndexError("Ô ngoài bãi")</code>.</p>
+<p><strong>2.4. <code>occupancy(lot)</code></strong>: list số xe đang đỗ ở từng hàng.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Các hàng dùng chung.</strong> Ghi vào hàng 0 không được làm đổi hàng khác.</p>
+<p><strong>Bẫy 2 — Kích thước sai.</strong> <code>(0, 3)</code>, <code>(2, -1)</code>, <code>(2.0, 3)</code>, <code>("2", 3)</code>.</p>
+<p><strong>Bẫy 3 — Xe trùng, bãi đầy.</strong> Trả <code>None</code>, bãi giữ nguyên.</p>
+<p><strong>Bẫy 4 — Ô trống ở giữa.</strong> Xe rời ô (0, 1) thì xe tiếp theo vào đúng ô đó, không phải ô cuối của bãi.</p>
+<p><strong>Bẫy 5 — Số ô.</strong> Bãi 3 × 4: ô (1, 0) là số 5, ô (2, 3) là số 12; ô (3, 0) báo lỗi.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python bai_xe.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>XE01 đỗ tại (0, 0), ô số 1&#10;XE02 đỗ tại (0, 1), ô số 2&#10;XE03 đỗ tại (0, 2), ô số 3&#10;XE04 đỗ tại (1, 0), ô số 4&#10;Đỗ lại XE02: None&#10;XE02 rời bãi: True | XE09 rời bãi: False&#10;XE05 đỗ tại: (0, 1) | số xe mỗi hàng: [3, 1]&#10;XE06, XE07 đỗ tại: (1, 1) (1, 2) | bãi: [['XE01', 'XE05', 'XE03'], ['XE04', 'XE06', 'XE07']]&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Vẽ sơ đồ tham chiếu của <code>[[None] * 3] * 2</code> và của cách tạo bãi bạn dùng; kiểm chứng bằng <code>is</code>.</li>
+<li>Viết công thức số ô từ (hàng, cột) và công thức ngược từ số ô ra (hàng, cột); kiểm tra với bãi 3 × 4.</li>
+<li><code>park</code> vừa kiểm tra xe trùng vừa tìm ô trống: mỗi việc xét bao nhiêu ô trong trường hợp xấu nhất? Có cách nào chỉ duyệt bãi một lần cho cả hai việc không?</li>
+<li>Độ phức tạp: ghi Big-O thời gian của sáu hàm theo R (số hàng) và C (số cột), và bộ nhớ của bãi.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>bai_xe.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Mỗi hàng là một list riêng; <code>occupancy</code> không dùng <code>count</code> trên cả bãi gộp lại thành một list mới.</li>
+<li>Xử lý đủ 5 bẫy; <code>python bai_xe.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 6 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu hai cách lưu bảng hai chiều trong Python: list lồng nhau và <strong>một list phẳng</strong> với chỉ số <code>hàng * cols + cột</code> (cách các mảng hai chiều được lưu liền nhau trong bộ nhớ).</li>
+<li>Tạo <code>nghien_cuu.py</code>: với bãi 200 × 50, so sánh bộ nhớ (<code>sys.getsizeof</code> của list ngoài cộng các list hàng, so với list phẳng) và thời gian đọc một ô 1 triệu lần bằng <code>timeit</code>. Giải thích kết quả; cách nào bạn chọn cho trạm sạc, vì sao?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex19</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-19">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-19</a> rồi chép các tệp vào kho: <code>bai_xe.py</code>, <code>test_bai_xe.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>bai_xe.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,48 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Cuối ngày, danh sách đơn của nhà hàng phải bỏ đơn hủy và chỉ giữ các đơn mới nhất, mà không làm mất danh sách đang hiển thị." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-12/minh_hoa.png" /></p>
+<p><em>Cuối ngày, danh sách đơn của nhà hàng phải bỏ đơn hủy và chỉ giữ các đơn mới nhất, mà không làm mất danh sách đang hiển thị.</em></p>
+<p>Ứng dụng <strong>GrabMerchant</strong> của nhà hàng giữ một list đơn trong ngày, mỗi đơn là bộ <code>(mã, trạng thái)</code>. Cuối ngày, ứng dụng <strong>dọn danh sách</strong>: bỏ mọi đơn đã hủy, rồi chỉ giữ <code>k</code> đơn mới nhất (ở cuối list) để màn hình nhẹ.</p>
+<p>List này đang được <strong>màn hình và bộ đếm doanh thu cùng tham chiếu</strong>, nên phải sửa <strong>tại chỗ</strong> (cùng một list), không được tạo list mới rồi trả về. Trạng thái do nhiều phiên bản ứng dụng ghi nên có dạng <code>"CANCELLED"</code>, <code>" cancelled "</code>, <code>"Cancelled"</code>; hàm <code>is_cancelled(status)</code> (có sẵn) đã xử lý việc này.</p>
+<p>Ví dụ trong kịch bản chạy thử có 7 đơn, trong đó ba đơn đã hủy (hai đơn đứng liền nhau); sau khi bỏ đơn hủy và giữ 3 đơn mới nhất, màn hình chỉ còn <code>GF4</code>, <code>GF5</code>, <code>GF7</code>. Số đơn bị xóa còn được gửi về bộ phận chất lượng để theo dõi tỉ lệ hủy của nhà hàng, nên con số trả về phải chính xác.</p>
+<p>Một nhà hàng lớn có <strong>200.000 đơn</strong> trong đợt khuyến mãi. Bản cũ duyệt list và gọi <code>remove</code> mỗi khi gặp đơn hủy: vừa bỏ sót đơn hủy đứng liền nhau, vừa chậm vì mỗi lần <code>remove</code> phải tìm lại từ đầu và dồn phần sau. Nhóm yêu cầu cả thao tác dọn chạy trong <strong>1 giây</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>remove_cancelled(orders)</code></strong>: xóa tại chỗ mọi đơn đã hủy, giữ thứ tự các đơn còn lại; trả về số đơn đã xóa.</p>
+<p><strong>2.2. <code>keep_last(orders, k)</code></strong>: chỉ giữ tại chỗ <code>k</code> đơn cuối list theo đúng thứ tự; trả về số đơn đã bỏ.</p>
+<p><strong>2.3. <code>cleanup_message(orders, k)</code></strong>: chạy hai bước trên, trả về:</p>
+<pre><code>Đã xóa 3 đơn hủy, bỏ 1 đơn cũ, còn 3 đơn.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Đơn hủy đứng liền nhau.</strong> Ví dụ trong kịch bản có <code>GF2</code>, <code>GF3</code> cùng hủy liền nhau; không được bỏ sót.</p>
+<p><strong>Bẫy 2 — Không có đơn hủy, hoặc toàn bộ đều hủy.</strong> Trả 0 và list giữ nguyên; hoặc list thành rỗng.</p>
+<p><strong>Bẫy 3 — k ở biên.</strong> <code>k</code> lớn hơn hoặc bằng số đơn: giữ nguyên, trả 0; <code>k</code> bằng 0 hoặc âm: list thành rỗng.</p>
+<p><strong>Bẫy 4 — Sửa tại chỗ.</strong> Sau khi gọi, biến giữ list ban đầu vẫn trỏ tới chính list đã được dọn (<code>is</code>).</p>
+<p><strong>Bẫy 5 — 200.000 đơn trong 1 giây.</strong> Không gọi <code>remove</code>, <code>pop</code>, <code>insert</code> trong hai hàm dọn.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python loc_don.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Xóa đơn hủy: 3 | [('GF1', 'DONE'), ('GF4', 'DONE'), ('GF5', 'PENDING'), ('GF7', 'DONE')]&#10;Giữ 3 đơn mới nhất: 1 | [('GF4', 'DONE'), ('GF5', 'PENDING'), ('GF7', 'DONE')]&#10;Vẫn là cùng một list: True&#10;Đã xóa 66667 đơn hủy, bỏ 132333 đơn cũ, còn 1000 đơn. | đơn đầu: GF198500&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: chạy tay bản cũ (duyệt và <code>remove</code>) trên ví dụ để chỉ ra vì sao bỏ sót đơn hủy liền nhau, và đếm số tham chiếu phải dịch.</li>
+<li>Mô tả cách dọn chỉ duyệt mỗi đơn một lần mà vẫn sửa tại chỗ (cần những biến chỉ số nào, mỗi bước làm gì, cuối cùng xử lý phần thừa ở đuôi thế nào). Chạy tay trên ví dụ.</li>
+<li><code>keep_last</code> dời k đơn cuối lên đầu: có bị ghi đè đơn chưa kịp dời không? Vì sao?</li>
+<li>Một bạn đề xuất viết <code>orders = [o for o in orders if not is_cancelled(o[1])]</code> bên trong hàm. Cách này có đáp ứng yêu cầu sửa tại chỗ không? Kiểm chứng bằng <code>is</code> và giải thích.</li>
+<li>Lệnh cắt đuôi cuối cùng (xóa phần thừa sau chỉ số ghi) tốn bao nhiêu thao tác? Vì sao không làm thay đổi Big-O của cả hàm?</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của bản cũ và của hai hàm bạn viết theo n (số đơn) và k.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>loc_don.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Sửa tại chỗ; không gọi <code>remove</code>, <code>pop</code>, <code>insert</code> trong <code>remove_cancelled</code> và <code>keep_last</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python loc_don.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 7 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex12</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-12">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-12</a> rồi chép các tệp vào kho: <code>loc_don.py</code>, <code>test_loc_don.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>loc_don.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

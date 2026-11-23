@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Đọc giá mức cuối làm ứng dụng báo lỗi, sửa giá một km thì bảng giá dài thêm một mức." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-01/minh_hoa.png" /></p>
+<p><em>Đọc giá mức cuối làm ứng dụng báo lỗi, sửa giá một km thì bảng giá dài thêm một mức.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm định giá của Grab.</p>
+<p>Giá cước GrabBike được tính theo <strong>từng km</strong>: km đầu tiên một giá, km thứ hai một giá khác, càng đi xa giá mỗi km càng giảm. Nhóm lưu bảng giá trong lớp <code>FareTable</code> và viết <strong>đặc tả</strong> (ADT) trước khi viết mã:</p>
+<ul>
+<li><code>get(i)</code>: giá của km thứ i + 1 (chỉ số bắt đầu từ 0).</li>
+<li><code>set(i, value)</code>: thay giá tại chỉ số i; <strong>số mức giá và các giá khác giữ nguyên</strong>.</li>
+<li><code>size()</code>: số mức giá đang lưu.</li>
+<li><code>last()</code>: giá của mức cuối cùng (áp dụng cho mọi km vượt quá bảng).</li>
+<li><code>get</code>, <code>set</code> với i ngoài khoảng 0 đến size() − 1 báo <code>IndexError</code> với thông báo <code>Chỉ số ngoài phạm vi bảng giá</code>.</li>
+</ul>
+<p>Các nhóm khác (ứng dụng tài xế, màn hình báo giá) chỉ gọi các thao tác trên, không đọc thẳng <code>_data</code>. Vì vậy chỉ cần lớp làm đúng đặc tả thì mọi nơi đều đúng; ngược lại, một lỗi trong lớp lan ra mọi màn hình.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): bảng 4 mức giá; đọc km đầu, số mức, mức cuối; sửa giá km thứ hai; đọc mức thứ năm (không có).</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Giá km đầu: 12000&#10;Số mức giá: 4&#10;Giá mức cuối: 8000&#10;Sau khi sửa giá km thứ hai: [12000, 11000, 9000, 8000] | số mức: 4&#10;Đọc mức thứ năm: Chỉ số ngoài phạm vi bảng giá&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhóm vận hành phản ánh:</p>
+<ul>
+<li>Màn hình báo giá <strong>sập</strong> khi hiện "giá cho km vượt bảng".</li>
+<li>Sau khi sửa giá km thứ hai, bảng giá <strong>có thêm một mức</strong> và giá các km sau bị lùi một vị trí: khách đi 4 km bị tính sai.</li>
+<li>Một số màn hình đọc nhầm chỉ số bằng số mức giá nhưng không nhận được thông báo <code>Chỉ số ngoài phạm vi bảng giá</code> như đặc tả, mà nhận lỗi khó hiểu của Python.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01, Lesson 03):</p>
+<ul>
+<li>ADT mô tả <strong>thao tác và ý nghĩa</strong>, gồm cả cách xử lý đầu vào sai; cấu trúc dữ liệu là cách triển khai. Mã bên ngoài chỉ dựa vào đặc tả.</li>
+<li>Với n phần tử, chỉ số hợp lệ là 0 đến n − 1. Dùng độ dài làm chỉ số phần tử cuối là lỗi thường gặp.</li>
+<li>Gán <code>a[i] = x</code> thay tại chỗ, O(1); <code>a.insert(i, x)</code> chèn thêm phần tử, dịch n − i tham chiếu sang phải.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>bang_gia.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Bảng giá cước GrabBike theo từng km.&quot;&quot;&quot;&#10;class FareTable:&#10;    # Bảng giá cước GrabBike theo từng km: get(i) là giá của km thứ i + 1 (chỉ số từ 0).&#10;    # Đặc tả: get, set với i ngoài 0 đến size() - 1 báo IndexError(&quot;Chỉ số ngoài phạm vi bảng giá&quot;);&#10;    # set chỉ thay giá, không đổi số mức.&#10;    def __init__(self, fares):&#10;        self._data = list(fares)&#10;&#10;    def _check(self, i):&#10;        if i &lt; 0 or i &gt; self.size():&#10;            raise IndexError(&quot;Chỉ số ngoài phạm vi bảng giá&quot;)&#10;&#10;    def get(self, i):&#10;        self._check(i)&#10;        return self._data[i]&#10;&#10;    def set(self, i, value):&#10;        self._check(i)&#10;        self._data.insert(i, value)&#10;&#10;    def size(self):&#10;        return len(self._data)&#10;&#10;    def last(self):&#10;        return self.get(self.size())&#10;&#10;&#10;table = FareTable([12000, 10000, 9000, 8000])&#10;print(&quot;Giá km đầu:&quot;, table.get(0))&#10;print(&quot;Số mức giá:&quot;, table.size())&#10;print(&quot;Giá mức cuối:&quot;, table.last())&#10;table.set(1, 11000)&#10;print(&quot;Sau khi sửa giá km thứ hai:&quot;, [table.get(i) for i in range(table.size())], &quot;| số mức:&quot;, table.size())&#10;try:&#10;    table.get(4)&#10;except IndexError as error:&#10;    print(&quot;Đọc mức thứ năm:&quot;, error)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Giá km đầu: 12000&#10;Số mức giá: 4&#10;Traceback (most recent call last):&#10;  ...&#10;    return self._data[i]&#10;IndexError: list index out of range&#10;</code></pre>
+<p>Dòng đầu và dòng thứ hai đúng. <code>last()</code> gây lỗi <code>IndexError: list index out of range</code> (lỗi của list, không phải thông báo của đặc tả), nên các dòng sau không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Với bảng 4 mức, <code>last()</code> gọi <code>get</code> với chỉ số nào? Chỉ số đó có hợp lệ theo đặc tả không? Sửa thế nào?</li>
+<li>Điều kiện trong <code>_check</code> cho qua những chỉ số nào? So với đặc tả, chỉ số nào bị cho qua sai? Vì sao lỗi nhận được lại là <code>list index out of range</code> chứ không phải thông báo của đặc tả?</li>
+<li>Ghi nội dung <code>_data</code> và <code>size()</code> sau <code>set(1, 11000)</code> của mã hiện tại. Thao tác nào gây ra? Nó dịch bao nhiêu tham chiếu, Big-O là gì?</li>
+<li>Chi phí Big-O của <code>get</code>, <code>set</code>, <code>size</code>, <code>last</code> sau khi sửa.</li>
+<li>Vì sao các màn hình khác không nên đọc thẳng <code>table._data[-1]</code> để lấy giá mức cuối, dù cách này chạy được?</li>
+<li>Ghi bốn bộ dữ liệu thử: bảng 1 mức, chỉ số bằng size(), chỉ số âm, sửa giá mức cuối; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>FareTable</code> trong <code>bang_gia.py</code>. Không đổi tên lớp, phương thức, tham số; không đổi thông báo lỗi.</li>
+<li>Chạy <code>python bang_gia.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex01</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-01</a> rồi chép các tệp vào kho: <code>bang_gia.py</code>, <code>test_bang_gia.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>bang_gia.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

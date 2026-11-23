@@ -1,0 +1,46 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhiều nhóm cùng dùng một bảng giá: chỉ cần bảng giá nhận một chỉ số lạ hay một giá sai là cả hệ thống tính tiền sai." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-09/minh_hoa.png" /></p>
+<p><em>Nhiều nhóm cùng dùng một bảng giá: chỉ cần bảng giá nhận một chỉ số lạ hay một giá sai là cả hệ thống tính tiền sai.</em></p>
+<p>Giá cước GrabCar khác nhau theo <strong>vùng</strong> (nội thành, ven đô, sân bay...). Bảng giá được ứng dụng khách, ứng dụng tài xế và hệ thống khuyến mãi cùng dùng, nên nhóm định giá chốt <strong>đặc tả (ADT)</strong> trước, rồi giao bạn viết lớp <code>ZoneFares</code> đúng đặc tả. Mọi nơi khác <strong>chỉ gọi thao tác</strong>, không đọc thẳng dữ liệu bên trong.</p>
+<p>Dữ liệu đến từ nhiều hệ thống: chỉ số có thể là chuỗi <code>"1"</code> (đọc từ biểu mẫu web), số thực <code>1.0</code> (từ bảng tính), thậm chí <code>True</code>; giá có thể là <code>0</code>, số âm hoặc số lẻ. Đặc tả phải chặn tất cả ngay tại bảng giá. Giờ cao điểm, hệ thống tạo <strong>bảng giá tạm</strong> tăng theo phần trăm; bảng gốc phải giữ nguyên để quay lại sau giờ cao điểm.</p>
+<p>Hàm <code>money(amount)</code> (có sẵn) in số tiền có dấu chấm.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>ZoneFares(fares)</code></strong>: tạo bảng từ list giá; mọi giá phải là <strong>số nguyên dương</strong>, nếu không báo <code>ValueError("Giá phải là số nguyên dương")</code>. Bảng giữ <strong>bản sao</strong>: list truyền vào bị sửa sau đó không ảnh hưởng bảng.</p>
+<p><strong>2.2. <code>size()</code>, <code>get(i)</code>, <code>set(i, value)</code></strong>: số vùng; giá vùng i (i âm tính từ cuối như list); thay giá vùng i, số vùng giữ nguyên. Chỉ số không phải số nguyên báo <code>TypeError("Chỉ số phải là số nguyên")</code>; ngoài phạm vi báo <code>IndexError("Chỉ số ngoài phạm vi bảng giá")</code>; giá mới sai báo <code>ValueError</code> như trên và bảng giữ nguyên.</p>
+<p><strong>2.3. <code>surge(percent)</code></strong>: trả về bảng giá <strong>mới</strong> sau khi tăng <code>percent</code> phần trăm (số nguyên từ 0 đến 100), mỗi giá làm tròn <strong>xuống</strong> tới 1.000đ và không nhỏ hơn 1.000đ; sai thì báo <code>ValueError("Mức tăng phải từ 0 đến 100")</code>.</p>
+<p><strong>2.4. <code>report(board)</code></strong>: một dòng mô tả bảng, <strong>chỉ dùng <code>size()</code> và <code>get()</code></strong>:</p>
+<pre><code>Vùng 1: 25.000đ | Vùng 2: 32.000đ | Vùng 3: 41.000đ&#10;Chưa có vùng nào.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chỉ số âm và ngoài phạm vi.</strong> <code>get(-1)</code> là vùng cuối; <code>get(3)</code>, <code>get(-4)</code> với 3 vùng báo <code>IndexError</code>.</p>
+<p><strong>Bẫy 2 — Chỉ số không phải số nguyên.</strong> <code>"1"</code>, <code>1.0</code>, <code>True</code>, <code>None</code> đều báo <code>TypeError</code>. Lưu ý trong Python <code>True</code> cũng được coi là số nguyên 1 nếu chỉ kiểm tra bằng <code>isinstance</code>.</p>
+<p><strong>Bẫy 3 — Giá sai.</strong> <code>0</code>, <code>-1000</code>, <code>12000.5</code>, <code>"12000"</code>, <code>True</code> đều báo <code>ValueError</code>, cả khi tạo bảng và khi <code>set</code>.</p>
+<p><strong>Bẫy 4 — Bảng gốc và bản sao.</strong> <code>surge</code> không sửa bảng gốc; sửa list đầu vào sau khi tạo bảng không làm bảng đổi.</p>
+<p><strong>Bẫy 5 — Mã bên ngoài chỉ dùng thao tác.</strong> <code>report</code> phải chạy đúng với <strong>bất kỳ đối tượng nào</strong> có <code>size()</code> và <code>get()</code>, kể cả không phải <code>ZoneFares</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python bang_gia_vung.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Vùng 1: 25.000đ | Vùng 2: 32.000đ | Vùng 3: 41.000đ&#10;Vùng cuối: 41000&#10;Giờ cao điểm +15%: Vùng 1: 28.000đ | Vùng 2: 37.000đ | Vùng 3: 47.000đ&#10;Bảng gốc giữ nguyên: Vùng 1: 25.000đ | Vùng 2: 33.000đ | Vùng 3: 41.000đ&#10;get(3): IndexError - Chỉ số ngoài phạm vi bảng giá&#10;get('1'): TypeError - Chỉ số phải là số nguyên&#10;get(True): TypeError - Chỉ số phải là số nguyên&#10;set(0, 0): Giá phải là số nguyên dương&#10;Chưa có vùng nào.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: viết bảng đặc tả (thao tác, đầu vào hợp lệ, kết quả, lỗi) cho bốn thao tác; chỉ rõ thứ tự kiểm tra trong <code>get</code> (kiểu trước hay phạm vi trước) và lý do.</li>
+<li>Vì sao bảng phải giữ bản sao của list đầu vào? Vẽ sơ đồ tham chiếu khi giữ bản sao và khi không.</li>
+<li>Vì sao <code>report</code> chỉ được gọi <code>size()</code> và <code>get()</code>? Nếu sau này đổi cách lưu bên trong (ví dụ sang <code>DynamicArray</code> tự cài) thì phải sửa những gì?</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của <code>get</code>, <code>set</code>, <code>size</code>, <code>surge</code>, <code>report</code> và Big-O bộ nhớ phụ của <code>surge</code> theo n (số vùng).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>bang_gia_vung.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Không để mã ngoài lớp đọc thẳng dữ liệu bên trong; <code>report</code> chỉ dùng <code>size()</code> và <code>get()</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python bang_gia_vung.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex09</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-09</a> rồi chép các tệp vào kho: <code>bang_gia_vung.py</code>, <code>test_bang_gia_vung.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>bang_gia_vung.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

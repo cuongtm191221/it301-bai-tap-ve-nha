@@ -1,0 +1,47 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Bếp trung tâm nhận hàng trăm nghìn đơn mỗi ngày; hàng chờ trên màn hình bếp chỉ có 50 chỗ và không được chậm dần theo thời gian." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-10/minh_hoa.png" /></p>
+<p><em>Bếp trung tâm nhận hàng trăm nghìn đơn mỗi ngày; hàng chờ trên màn hình bếp chỉ có 50 chỗ và không được chậm dần theo thời gian.</em></p>
+<p>Bếp trung tâm của GrabFood (một bếp nấu cho nhiều thương hiệu) có màn hình <strong>hàng chờ đơn</strong>: đơn vào trước được nấu trước. Màn hình chạy trên thiết bị nhỏ, <strong>bộ nhớ cấp sẵn đúng <code>capacity</code> chỗ</strong> (ví dụ 50) và không được cấp thêm; hàng đầy thì đơn mới bị từ chối để hệ thống chuyển sang bếp khác.</p>
+<p>Bản cũ dùng list Python và <code>pop(0)</code> để lấy đơn đầu hàng; mỗi lần lấy phải dồn mọi đơn còn lại lên một ô. Một ngày bếp nhận <strong>200.000 đơn</strong>, nhóm muốn mỗi thao tác lấy đơn và thêm đơn đều <strong>O(1)</strong>, không dồn phần tử nào.</p>
+<p>Đầu bếp nhìn màn hình để biết món nào nấu tiếp; nếu màn hình đưa sai thứ tự, đơn đặt trước bị nấu sau, khách chờ quá 30 phút và được hoàn tiền theo chính sách của GrabFood. Nhóm vận hành cũng ghi nhận thiết bị chậm dần vào cuối ca, đúng lúc hàng chờ dài nhất. Đó là lý do nhóm muốn mỗi thao tác tốn thời gian như nhau dù hàng đã có bao nhiêu đơn, và không bao giờ cấp thêm bộ nhớ.</p>
+<p>Lớp <code>KitchenQueue</code> đã có sẵn phần tạo vùng lưu trữ cố định <code>_data = [None] * capacity</code>. Bạn tự thêm các thuộc tính cần thiết vào <code>__init__</code> và viết các phương thức.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>KitchenQueue(capacity)</code></strong>: <code>capacity</code> phải là số nguyên dương, nếu không báo <code>ValueError("Sức chứa phải là số nguyên dương")</code>.</p>
+<p><strong>2.2. <code>enqueue(code)</code></strong>: thêm đơn vào cuối hàng, trả <code>True</code>; hàng đầy trả <code>False</code> và hàng giữ nguyên.</p>
+<p><strong>2.3. <code>dequeue()</code></strong>: lấy và xóa đơn đứng đầu, trả mã đơn; hàng rỗng trả <code>None</code>.</p>
+<p><strong>2.4. <code>peek()</code>, <code>size()</code>, <code>is_full()</code>, <code>to_list()</code></strong>: đơn đứng đầu (không xóa, rỗng trả <code>None</code>); số đơn đang chờ; hàng đã đầy chưa; list các đơn từ đầu tới cuối hàng.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Đầy và rỗng.</strong> Hàng 2 chỗ: thêm đơn thứ ba trả <code>False</code>; lấy khi rỗng trả <code>None</code>.</p>
+<p><strong>Bẫy 2 — Chỗ trống ở đầu vùng lưu trữ.</strong> Hàng 3 chỗ đã đầy, lấy 2 đơn, thêm 2 đơn mới: các đơn mới phải dùng <strong>chỗ trống ở đầu vùng</strong>, thứ tự vẫn là đơn cũ trước, đơn mới sau.</p>
+<p><strong>Bẫy 3 — Hàng 1 chỗ.</strong> Thêm, lấy xen kẽ nhiều lần vẫn đúng.</p>
+<p><strong>Bẫy 4 — Không giữ tham chiếu thừa.</strong> Sau khi lấy hết đơn, mọi ô trong <code>_data</code> là <code>None</code>.</p>
+<p><strong>Bẫy 5 — Không dồn, không thêm bớt ô.</strong> Không dùng <code>pop</code>, <code>insert</code>, <code>append</code>, <code>remove</code>, <code>del</code> trên vùng lưu trữ; 200.000 lượt thêm và lấy phải xong trong 1 giây.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python hang_cho_vong.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Thêm 4 đơn: [True, True, True, False]&#10;Nấu: GF1 | đầu hàng: GF2 | hàng: ['GF2', 'GF3']&#10;Thêm GF5: True | hàng: ['GF2', 'GF3', 'GF5'] | đầy: True&#10;Nấu hết: ['GF2', 'GF3', 'GF5', None] | còn: 0&#10;200.000 đơn, đã nấu: 199960 | đang chờ: 40 | đầu hàng: GF199960&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: cần lưu thêm những thông tin nào để biết đơn đầu hàng ở ô nào và đơn mới phải ghi vào ô nào, mà không dồn phần tử? Vẽ vùng lưu trữ 3 ô qua từng bước của bẫy 2.</li>
+<li>Viết công thức tính ô ghi đơn mới và ô của đơn đầu hàng sau khi lấy; giải thích cách "quay về đầu vùng" khi chạm ô cuối.</li>
+<li>So sánh với bản cũ dùng list và <code>pop(0)</code>: số tham chiếu phải dịch khi lấy 200.000 đơn từ hàng 50 chỗ.</li>
+<li>Nếu sau này bếp được cấp thêm bộ nhớ và muốn hàng tự mở rộng khi đầy (như mảng động), việc chép sang vùng mới phải giữ đúng thứ tự đơn thế nào khi đơn đầu hàng không nằm ở ô 0?</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của sáu thao tác và bộ nhớ phụ theo capacity.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>hang_cho_vong.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Vùng lưu trữ cố định <code>capacity</code> ô: không <code>pop</code>, <code>insert</code>, <code>append</code>, <code>remove</code>, <code>del</code> trên <code>_data</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python hang_cho_vong.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex10</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-10</a> rồi chép các tệp vào kho: <code>hang_cho_vong.py</code>, <code>test_hang_cho_vong.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>hang_cho_vong.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

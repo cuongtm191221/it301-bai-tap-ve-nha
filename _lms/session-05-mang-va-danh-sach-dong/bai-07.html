@@ -1,0 +1,57 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Khách bỏ một món thì giỏ vẫn đủ số món và món cuối bị nhân đôi; bỏ một ly trà đá thì mất sạch các món phía sau." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-05-mang-va-danh-sach-dong/bai-07/minh_hoa.png" /></p>
+<p><em>Khách bỏ một món thì giỏ vẫn đủ số món và món cuối bị nhân đôi; bỏ một ly trà đá thì mất sạch các món phía sau.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm giỏ hàng của GrabFood.</p>
+<p>Giỏ món lưu trong lớp <code>Basket</code>, cài bằng mảng động theo Lesson 04 (<code>__init__</code>, <code>__len__</code>, <code>items</code>, <code>_normalize_index</code> đã có và đúng). Nhóm viết hai phương thức theo đặc tả giống list:</p>
+<ul>
+<li><code>pop(index=-1)</code>: lấy và <strong>xóa</strong> món tại <code>index</code> (mặc định món cuối), trả về món đó; các món phía sau dồn lên; ô cuối vừa bỏ trống đặt về <code>None</code> để không giữ tham chiếu thừa; chỉ số sai báo <code>IndexError</code>.</li>
+<li><code>remove(value)</code>: xóa <strong>lần xuất hiện đầu tiên</strong> của món; không có thì báo <code>ValueError("không tìm thấy món")</code>.</li>
+</ul>
+<p><code>moves</code> đếm số tham chiếu đã dịch, <code>checks</code> đếm số lượt so sánh trong <code>remove</code>. Giỏ hàng quyết định số tiền khách trả, nên mỗi lần bỏ món phải chính xác.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): giỏ 5 món (hai ly "Trà đá"); lấy món cuối; lấy món đầu; bỏ một "Trà đá"; bỏ "Cơm tấm" (không có).</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Lấy món cuối: Chè | giỏ: ['Phở bò', 'Trà đá', 'Bánh mì', 'Trà đá']&#10;Lấy món đầu: Phở bò | giỏ: ['Trà đá', 'Bánh mì', 'Trà đá']&#10;Bỏ một Trà đá: ['Bánh mì', 'Trà đá'] | số món: 2&#10;Bỏ Cơm tấm: không tìm thấy món&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Khách và nhà hàng phản ánh:</p>
+<ul>
+<li>Bỏ món cuối thì món đó <strong>vẫn nằm trong giỏ</strong>, số món không giảm.</li>
+<li>Bỏ một ly trà đá thì giỏ chỉ còn món đầu và món cuối lặp lại nhiều lần; khách bị tính tiền sai.</li>
+<li>Bỏ món không có trong giỏ thì không có thông báo gì.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03, Lesson 04):</p>
+<ul>
+<li><code>pop(i)</code> dồn <strong>n − i − 1</strong> tham chiếu sang trái, rồi <strong>giảm size</strong> và bỏ tham chiếu ở ô cuối; quên giảm size thì phần tử cuối "còn sống" hai lần.</li>
+<li><code>remove</code> xét từ đầu, <strong>dừng ở lần khớp đầu</strong>, xóa bằng <code>pop</code>; không thấy thì báo <code>ValueError</code>.</li>
+<li>Sau khi xóa phần tử j, phần tử đứng sau dồn lên chỉ số j; vòng lặp tiếp tục tăng j sẽ bỏ qua nó.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>gio_mon.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Giỏ món GrabFood, lưu bằng mảng động tự cài.&quot;&quot;&quot;&#10;class Basket:&#10;    # Giỏ món GrabFood, lưu bằng mảng động tự cài (Lesson 04). moves đếm tham chiếu đã dịch, checks đếm lượt so sánh.&#10;    def __init__(self, items=()):&#10;        self._capacity = max(1, len(items))&#10;        self._size = 0&#10;        self._data = [None] * self._capacity&#10;        self.moves = self.checks = 0&#10;        for item in items:&#10;            self._data[self._size] = item&#10;            self._size += 1&#10;&#10;    def __len__(self):&#10;        return self._size&#10;&#10;    def items(self):&#10;        return [self._data[j] for j in range(self._size)]&#10;&#10;    def _normalize_index(self, index):&#10;        if index &lt; 0:&#10;            index += self._size&#10;        if not 0 &lt;= index &lt; self._size:&#10;            raise IndexError(&quot;Chỉ số ngoài phạm vi phần tử&quot;)&#10;        return index&#10;&#10;    def pop(self, index=-1):&#10;        # Lấy và xóa món tại index (mặc định món cuối), trả về món đó.&#10;        index = self._normalize_index(index)&#10;        value = self._data[index]&#10;        for j in range(index, self._size - 1):&#10;            self._data[j] = self._data[j + 1]&#10;            self.moves += 1&#10;        return value&#10;&#10;    def remove(self, value):&#10;        # Xóa lần xuất hiện đầu tiên của value; không có thì báo ValueError(&quot;không tìm thấy món&quot;).&#10;        for j in range(self._size):&#10;            self.checks += 1&#10;            if self._data[j] == value:&#10;                self.pop(j)&#10;&#10;&#10;basket = Basket([&quot;Phở bò&quot;, &quot;Trà đá&quot;, &quot;Bánh mì&quot;, &quot;Trà đá&quot;, &quot;Chè&quot;])&#10;print(&quot;Lấy món cuối:&quot;, basket.pop(), &quot;| giỏ:&quot;, basket.items())&#10;print(&quot;Lấy món đầu:&quot;, basket.pop(0), &quot;| giỏ:&quot;, basket.items())&#10;basket.remove(&quot;Trà đá&quot;)&#10;print(&quot;Bỏ một Trà đá:&quot;, basket.items(), &quot;| số món:&quot;, len(basket))&#10;try:&#10;    basket.remove(&quot;Cơm tấm&quot;)&#10;except ValueError as error:&#10;    print(&quot;Bỏ Cơm tấm:&quot;, error)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Lấy món cuối: Chè | giỏ: ['Phở bò', 'Trà đá', 'Bánh mì', 'Trà đá', 'Chè']&#10;Lấy món đầu: Phở bò | giỏ: ['Trà đá', 'Bánh mì', 'Trà đá', 'Chè', 'Chè']&#10;Bỏ một Trà đá: ['Bánh mì', 'Chè', 'Chè', 'Chè', 'Chè'] | số món: 5&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: giỏ không bao giờ ngắn đi, món cuối bị lặp; bỏ "Trà đá" làm hỏng cả giỏ; bỏ "Cơm tấm" không có dòng thông báo nào.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay <code>pop(0)</code> trên giỏ <code>["A", "B", "C"]</code> của mã hiện tại: ghi <code>_data</code>, <code>_size</code> sau vòng dịch. Thiếu những bước nào so với đặc tả?</li>
+<li>Vì sao lần gọi <code>pop()</code> đầu tiên trả đúng "Chè" nhưng giỏ vẫn còn "Chè"?</li>
+<li>Chạy tay <code>remove("Trà đá")</code> của mã hiện tại trên giỏ <code>["Trà đá", "Bánh mì", "Trà đá", "Chè", "Chè"]</code> (sau hai lần pop). Ghi j, <code>_size</code>, <code>_data</code> ở mỗi vòng. Vì sao vòng lặp không dừng sau lần khớp đầu?</li>
+<li>Sau khi sửa <code>pop</code>, nếu <code>remove</code> vẫn không dừng sau lần khớp đầu thì xóa hai ly "Trà đá" liền nhau sẽ ra sao?</li>
+<li>Ghi số lượt so sánh (<code>checks</code>) và số tham chiếu dịch (<code>moves</code>) của <code>remove</code> khi món ở đầu, ở cuối, không có. Ghi Big-O.</li>
+<li>Ghi bốn bộ dữ liệu thử: giỏ một món, pop trên giỏ rỗng, hai món trùng liền nhau, bỏ món không có; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa <code>pop</code> và <code>remove</code> trong <code>gio_mon.py</code>. Không đổi tên lớp, phương thức, thuộc tính, thông báo lỗi; không dùng <code>list.pop</code>, <code>list.remove</code> trên <code>_data</code>.</li>
+<li>Chạy <code>python gio_mon.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session05_Ex07</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-05-mang-va-danh-sach-dong/bai-07</a> rồi chép các tệp vào kho: <code>gio_mon.py</code>, <code>test_gio_mon.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>gio_mon.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
