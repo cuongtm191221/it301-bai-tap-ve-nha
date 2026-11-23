@@ -4,10 +4,7 @@
 <p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
 <p>Danh sách phát của mỗi người nghe được lưu bằng <strong>danh sách liên kết đơn</strong> có <code>head</code> (bài sẽ phát đầu tiên), <code>tail</code> (bài cuối danh sách) và <code>size</code> (số bài).</p>
 <p>Ví dụ danh sách phát có ba bài:</p>
-<pre><code>head                         tail
- |                            |
-ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None        size = 3
-</code></pre>
+<pre><code>head                         tail&#10; |                            |&#10;ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None        size = 3&#10;</code></pre>
 <p>Trong lúc nghe nhạc có hai thao tác lấy bài ra khỏi danh sách:</p>
 <ul>
 <li><strong>Phát xong một bài</strong>: ứng dụng lấy bài ở <strong>đầu</strong> danh sách ra để phát (<code>remove_first</code>), trả về mã bài đó.</li>
@@ -16,16 +13,7 @@ ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None        size = 3
 <p>Sau mỗi thao tác, <code>head</code>, <code>tail</code> và <code>size</code> phải đúng với danh sách thật. Khi danh sách đã hết bài mà ứng dụng vẫn gọi phát tiếp, <code>remove_first</code> phải báo <code>IndexError("danh sách phát đang trống")</code> để phần giao diện hiện thông báo, thay vì làm treo ứng dụng.</p>
 <p>Kịch bản kiểm tra của nhóm: danh sách gồm <code>"ZM001"</code>, <code>"ZM002"</code>, <code>"ZM003"</code>; bỏ <code>"ZM003"</code> rồi thêm <code>"ZM004"</code> vào cuối; bỏ <code>"ZM001"</code>; phát lần lượt hai bài còn lại; in số bài và bài cuối; cuối cùng gọi phát tiếp khi danh sách đã trống.</p>
 <p>Kết quả đúng cần hiển thị:</p>
-<pre><code>Bỏ ZM003: True
-Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None
-Bỏ ZM001: True
-Danh sách phát: ZM002 -&gt; ZM004 -&gt; None
-Phát xong: ZM002
-Phát xong: ZM004
-Số bài còn lại: 0
-Bài cuối danh sách: None
-Không phát được: danh sách phát đang trống
-</code></pre>
+<pre><code>Bỏ ZM003: True&#10;Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None&#10;Bỏ ZM001: True&#10;Danh sách phát: ZM002 -&gt; ZM004 -&gt; None&#10;Phát xong: ZM002&#10;Phát xong: ZM004&#10;Số bài còn lại: 0&#10;Bài cuối danh sách: None&#10;Không phát được: danh sách phát đang trống&#10;</code></pre>
 <h2><strong>2. Vấn đề hiện tại</strong></h2>
 <p>Người nghe phản ánh: bỏ bài cuối rồi thêm bài mới thì <strong>bài mới không hiện ra</strong>; bấm bỏ bài đang đứng đầu thì <strong>không có gì xảy ra</strong>; số bài hiển thị <strong>không giảm</strong> khi nghe hết; và nghe hết danh sách thì ứng dụng <strong>bị treo</strong>.</p>
 <p>Lập trình viên trước đã viết <code>remove_first</code> và <code>remove</code>, nhưng bỏ sót các trường hợp biên của thao tác xóa trên danh sách liên kết đơn có <code>tail</code>:</p>
@@ -38,88 +26,9 @@ Không phát được: danh sách phát đang trống
 </ul>
 <h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
 <p>Tệp <code>playlist.py</code> trong thư mục khởi đầu (<code>add_last</code> và <code>to_text</code> đã đúng, không cần sửa):</p>
-<pre><code>class Node:
-    def __init__(self, value, next=None):
-        self.value = value
-        self.next = next
-
-
-class Playlist:
-    def __init__(self):
-        self.head = None    # bài sẽ phát đầu tiên
-        self.tail = None    # bài cuối danh sách
-        self.size = 0       # số bài trong danh sách
-
-    def add_last(self, code):
-        # Cho sẵn, đã đúng: thêm bài vào cuối danh sách
-        node = Node(code)
-        if self.head is None:
-            self.head = node
-            self.tail = node
-        else:
-            self.tail.next = node
-            self.tail = node
-        self.size += 1
-
-    def to_text(self):
-        # Cho sẵn, đã đúng
-        parts = []
-        current = self.head
-        while current is not None:
-            parts.append(current.value)
-            current = current.next
-        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
-
-    def remove_first(self):
-        # Phát xong bài đầu: lấy bài đầu ra khỏi danh sách và trả về mã bài
-        code = self.head.value
-        self.head = self.head.next
-        return code
-
-    def remove(self, code):
-        # Người nghe bỏ một bài: xóa bài có mã code, trả True nếu xóa được
-        prev = self.head
-        while prev.next is not None:
-            if prev.next.value == code:
-                prev.next = prev.next.next
-                self.size -= 1
-                return True
-            prev = prev.next
-        return False
-
-
-playlist = Playlist()
-for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;]:
-    playlist.add_last(code)
-# Người nghe bỏ bài cuối, rồi thêm một bài mới
-print(&quot;Bỏ ZM003:&quot;, playlist.remove(&quot;ZM003&quot;))
-playlist.add_last(&quot;ZM004&quot;)
-print(&quot;Danh sách phát:&quot;, playlist.to_text())
-# Người nghe bỏ bài đang đứng đầu
-print(&quot;Bỏ ZM001:&quot;, playlist.remove(&quot;ZM001&quot;))
-print(&quot;Danh sách phát:&quot;, playlist.to_text())
-# Phát lần lượt cho tới hết danh sách
-print(&quot;Phát xong:&quot;, playlist.remove_first())
-print(&quot;Phát xong:&quot;, playlist.remove_first())
-print(&quot;Số bài còn lại:&quot;, playlist.size)
-print(&quot;Bài cuối danh sách:&quot;, playlist.tail)
-# Danh sách đã hết bài nhưng ứng dụng vẫn gọi phát tiếp
-playlist.remove_first()
-</code></pre>
+<pre><code>class Node:&#10;    def __init__(self, value, next=None):&#10;        self.value = value&#10;        self.next = next&#10;&#10;&#10;class Playlist:&#10;    def __init__(self):&#10;        self.head = None    # bài sẽ phát đầu tiên&#10;        self.tail = None    # bài cuối danh sách&#10;        self.size = 0       # số bài trong danh sách&#10;&#10;    def add_last(self, code):&#10;        # Cho sẵn, đã đúng: thêm bài vào cuối danh sách&#10;        node = Node(code)&#10;        if self.head is None:&#10;            self.head = node&#10;            self.tail = node&#10;        else:&#10;            self.tail.next = node&#10;            self.tail = node&#10;        self.size += 1&#10;&#10;    def to_text(self):&#10;        # Cho sẵn, đã đúng&#10;        parts = []&#10;        current = self.head&#10;        while current is not None:&#10;            parts.append(current.value)&#10;            current = current.next&#10;        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])&#10;&#10;    def remove_first(self):&#10;        # Phát xong bài đầu: lấy bài đầu ra khỏi danh sách và trả về mã bài&#10;        code = self.head.value&#10;        self.head = self.head.next&#10;        return code&#10;&#10;    def remove(self, code):&#10;        # Người nghe bỏ một bài: xóa bài có mã code, trả True nếu xóa được&#10;        prev = self.head&#10;        while prev.next is not None:&#10;            if prev.next.value == code:&#10;                prev.next = prev.next.next&#10;                self.size -= 1&#10;                return True&#10;            prev = prev.next&#10;        return False&#10;&#10;&#10;playlist = Playlist()&#10;for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;]:&#10;    playlist.add_last(code)&#10;# Người nghe bỏ bài cuối, rồi thêm một bài mới&#10;print(&quot;Bỏ ZM003:&quot;, playlist.remove(&quot;ZM003&quot;))&#10;playlist.add_last(&quot;ZM004&quot;)&#10;print(&quot;Danh sách phát:&quot;, playlist.to_text())&#10;# Người nghe bỏ bài đang đứng đầu&#10;print(&quot;Bỏ ZM001:&quot;, playlist.remove(&quot;ZM001&quot;))&#10;print(&quot;Danh sách phát:&quot;, playlist.to_text())&#10;# Phát lần lượt cho tới hết danh sách&#10;print(&quot;Phát xong:&quot;, playlist.remove_first())&#10;print(&quot;Phát xong:&quot;, playlist.remove_first())&#10;print(&quot;Số bài còn lại:&quot;, playlist.size)&#10;print(&quot;Bài cuối danh sách:&quot;, playlist.tail)&#10;# Danh sách đã hết bài nhưng ứng dụng vẫn gọi phát tiếp&#10;playlist.remove_first()&#10;</code></pre>
 <p>Kết quả hiển thị trên Console:</p>
-<pre><code>Bỏ ZM003: True
-Danh sách phát: ZM001 -&gt; ZM002 -&gt; None
-Bỏ ZM001: False
-Danh sách phát: ZM001 -&gt; ZM002 -&gt; None
-Phát xong: ZM001
-Phát xong: ZM002
-Số bài còn lại: 3
-Bài cuối danh sách: &lt;__main__.Node object at 0x...&gt;
-Traceback (most recent call last):
-  ...
-    code = self.head.value
-AttributeError: 'NoneType' object has no attribute 'value'
-</code></pre>
+<pre><code>Bỏ ZM003: True&#10;Danh sách phát: ZM001 -&gt; ZM002 -&gt; None&#10;Bỏ ZM001: False&#10;Danh sách phát: ZM001 -&gt; ZM002 -&gt; None&#10;Phát xong: ZM001&#10;Phát xong: ZM002&#10;Số bài còn lại: 3&#10;Bài cuối danh sách: &lt;__main__.Node object at 0x...&gt;&#10;Traceback (most recent call last):&#10;  ...&#10;    code = self.head.value&#10;AttributeError: 'NoneType' object has no attribute 'value'&#10;</code></pre>
 <p>Chương trình dừng ở lệnh <code>remove_first()</code> cuối cùng. Trước đó, các dòng đã in cũng sai so với kết quả đúng:</p>
 <ul>
 <li>Bài <code>ZM004</code> vừa thêm không có trong danh sách phát.</li>
@@ -145,16 +54,7 @@ AttributeError: 'NoneType' object has no attribute 'value'
 <li>Ở đoạn chạy thử cuối tệp, bọc lệnh <code>remove_first()</code> cuối cùng bằng <code>try</code> / <code>except IndexError</code> để in ra dòng <code>Không phát được: ...</code>.</li>
 <li>Chạy <code>python playlist.py</code> phải cho đúng kết quả:</li>
 </ul>
-<pre><code>Bỏ ZM003: True
-Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None
-Bỏ ZM001: True
-Danh sách phát: ZM002 -&gt; ZM004 -&gt; None
-Phát xong: ZM002
-Phát xong: ZM004
-Số bài còn lại: 0
-Bài cuối danh sách: None
-Không phát được: danh sách phát đang trống
-</code></pre>
+<pre><code>Bỏ ZM003: True&#10;Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None&#10;Bỏ ZM001: True&#10;Danh sách phát: ZM002 -&gt; ZM004 -&gt; None&#10;Phát xong: ZM002&#10;Phát xong: ZM004&#10;Số bài còn lại: 0&#10;Bài cuối danh sách: None&#10;Không phát được: danh sách phát đang trống&#10;</code></pre>
 <ul>
 <li>Chạy <code>pytest -q</code> phải xanh cả 5 test.</li>
 </ul>

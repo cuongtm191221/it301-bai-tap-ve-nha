@@ -39,14 +39,14 @@ Người vận hành gõ vội: thiếu tên bài, sai mã, thừa khoảng tr�
 
 **2.2. Hàm `handle(playlist, line)`**
 
-Tên lệnh không phân biệt hoa thường. Mã bài được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.
+Lệnh `THEM` và `DAU` viết theo dạng `LỆNH <mã> | <tên>`; lệnh `BO` và `TIM` theo dạng `LỆNH <mã>`. Tên lệnh không phân biệt hoa thường. Mã bài được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.
 
 | Lệnh | Ý nghĩa | Thông báo khi thành công |
 |---|---|---|
-| `THEM <mã> \| <tên>` | Thêm vào cuối | `Đã thêm vào cuối: ZM001 - Bình minh trên phố` |
-| `DAU <mã> \| <tên>` | Thêm vào đầu | `Đã thêm vào đầu: ZM003 - Đường về nhà` |
-| `BO <mã>` | Bỏ một bài | `Đã bỏ: ZM002 - Mưa đêm` |
-| `TIM <mã>` | Tìm vị trí | `Bài ZM002 - Mưa đêm đang ở vị trí 3.` |
+| `THEM` | Thêm vào cuối | `Đã thêm vào cuối: ZM001 - Bình minh trên phố` |
+| `DAU` | Thêm vào đầu | `Đã thêm vào đầu: ZM003 - Đường về nhà` |
+| `BO` | Bỏ một bài | `Đã bỏ: ZM002 - Mưa đêm` |
+| `TIM` | Tìm vị trí | `Bài ZM002 - Mưa đêm đang ở vị trí 3.` |
 | `XEM` | Hiển thị | Các dòng `1. ...`, `2. ...` nối với nhau bằng ký tự xuống dòng |
 | `DEM` | Đếm | `Danh sách phát có 3 bài.` |
 

@@ -3,33 +3,15 @@
 <p><em>Trợ lý AI viết xong hàm lọc bài trùng trong vài giây, ba test đều xanh. Kỹ sư có nên đưa lên bản chính thức?</em></p>
 <p>Trong ứng dụng nghe nhạc Zing MP3, khi người nghe gộp nhiều danh sách phát, cùng một bài có thể xuất hiện nhiều lần. Nhóm cần chức năng <strong>"Lọc bài trùng"</strong>: với mỗi mã bài, giữ lại <strong>lần xuất hiện đầu tiên</strong>, bỏ các lần sau, các bài còn lại giữ nguyên thứ tự.</p>
 <p>Danh sách phát là <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>, mỗi node giữ một mã bài:</p>
-<pre><code>Trước khi lọc:  ZM001 -&gt; ZM002 -&gt; ZM001 -&gt; ZM003 -&gt; ZM002 -&gt; None     (5 bài)
-Sau khi lọc:    ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None                       (3 bài, đã bỏ 2)
-</code></pre>
+<pre><code>Trước khi lọc:  ZM001 -&gt; ZM002 -&gt; ZM001 -&gt; ZM003 -&gt; ZM002 -&gt; None     (5 bài)&#10;Sau khi lọc:    ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None                       (3 bài, đã bỏ 2)&#10;</code></pre>
 <p>Sau khi lọc, hàm trả về <strong>số bài đã bỏ</strong>; <code>size</code> phải bằng số bài còn lại; <code>tail</code> phải là node cuối và <code>tail.next</code> là <code>None</code>, để các chức năng khác (thêm bài, đếm bài) tiếp tục chạy đúng.</p>
 <p>Một đồng nghiệp đã nhờ trợ lý AI viết hàm này. AI trả về đoạn mã kèm ba test, cả ba đều xanh, và đồng nghiệp đề nghị đưa lên bản chính thức ngay hôm nay. Bạn là người <strong>duyệt mã</strong>. Quy định của nhóm: mã do AI sinh chỉ được dùng khi người duyệt đã tự chạy thử với dữ liệu của mình và chịu trách nhiệm về nó.</p>
 <h2><strong>2. Mã do AI sinh</strong></h2>
 <p>Tệp <code>loc_trung.py</code> trong thư mục khởi đầu có sẵn lớp <code>Node</code>, lớp <code>Playlist</code> (<code>add_last</code>, <code>to_text</code> đã đúng, không cần sửa) và hàm do AI viết:</p>
-<pre><code>def remove_duplicates(playlist):
-    &quot;&quot;&quot;Bỏ các bài trùng mã, giữ lại lần xuất hiện đầu tiên. Trả về số bài đã bỏ.&quot;&quot;&quot;
-    removed = 0
-    current = playlist.head
-    while current is not None:
-        runner = current
-        while runner.next is not None:
-            if runner.next.value == current.value:
-                runner.next = runner.next.next
-                removed += 1
-            runner = runner.next
-        current = current.next
-    return removed
-</code></pre>
+<pre><code>def remove_duplicates(playlist):&#10;    &quot;&quot;&quot;Bỏ các bài trùng mã, giữ lại lần xuất hiện đầu tiên. Trả về số bài đã bỏ.&quot;&quot;&quot;&#10;    removed = 0&#10;    current = playlist.head&#10;    while current is not None:&#10;        runner = current&#10;        while runner.next is not None:&#10;            if runner.next.value == current.value:&#10;                runner.next = runner.next.next&#10;                removed += 1&#10;            runner = runner.next&#10;        current = current.next&#10;    return removed&#10;</code></pre>
 <p>Lời giải thích AI gửi kèm: "Hàm dùng hai vòng lặp lồng nhau: <code>current</code> lần lượt đứng ở từng bài, <code>runner</code> đi qua các bài phía sau và gỡ những node có cùng mã. Độ phức tạp O(n²), không dùng thêm bộ nhớ. Đã kiểm tra với ba test."</p>
 <p>Ba test của AI nằm trong <code>test_loc_trung.py</code>: danh sách không có bài trùng, danh sách có một bài trùng ở giữa, danh sách trống. Chạy thử đoạn cuối tệp:</p>
-<pre><code>Trước khi lọc: ZM001 -&gt; ZM002 -&gt; ZM001 -&gt; ZM003 -&gt; None
-Số bài đã bỏ: 1
-Sau khi lọc: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None
-</code></pre>
+<pre><code>Trước khi lọc: ZM001 -&gt; ZM002 -&gt; ZM001 -&gt; ZM003 -&gt; None&#10;Số bài đã bỏ: 1&#10;Sau khi lọc: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None&#10;</code></pre>
 <p>Kết quả trông đúng. Đoạn chạy thử này nằm ở cuối tệp; bạn sẽ sửa nó để thử các bộ dữ liệu khác. Nhiệm vụ của bạn là tìm ra những dữ liệu mà đoạn mã này <strong>không</strong> xử lý đúng.</p>
 <h2><strong>3. Các hướng cần kiểm chứng</strong></h2>
 <p>Ba test của AI đều dùng dữ liệu "đẹp". Hãy kiểm chứng đoạn mã với những tình huống có thật trong nghiệp vụ dưới đây. Đề không cho biết tình huống nào làm lộ lỗi; bạn phải tự chạy tay hoặc chạy thử để biết.</p>

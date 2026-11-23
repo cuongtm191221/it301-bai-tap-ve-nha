@@ -5,18 +5,11 @@
 <ul>
 <li>Mỗi bài trong danh sách phát được lưu dưới dạng chuỗi:</li>
 </ul>
-<pre><code>&quot;MÃ_BÀI - TÊN_BÀI - CA_SĨ&quot;
-</code></pre>
+<pre><code>&quot;MÃ_BÀI - TÊN_BÀI - CA_SĨ&quot;&#10;</code></pre>
 <ul>
 <li>Ví dụ một danh sách phát có sáu bài (tên ca sĩ trong bài là tên giả định):</li>
 </ul>
-<pre><code>ZM001 - Bình minh trên phố - Hoàng Lan
-ZM002 - Mưa đêm - Hoàng Lan
-ZM003 - Đường về nhà - Minh Khôi
-ZM004 - Phố cũ - Hoàng Lan
-ZM005 - Gió qua thềm - Thu An
-ZM006 - Ngày nắng - Thu An
-</code></pre>
+<pre><code>ZM001 - Bình minh trên phố - Hoàng Lan&#10;ZM002 - Mưa đêm - Hoàng Lan&#10;ZM003 - Đường về nhà - Minh Khôi&#10;ZM004 - Phố cũ - Hoàng Lan&#10;ZM005 - Gió qua thềm - Thu An&#10;ZM006 - Ngày nắng - Thu An&#10;</code></pre>
 <p>Danh sách phát được lưu bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>. Bỏ một bài thì các buổi học đã làm; khó ở đây là bỏ <strong>nhiều bài trong một lần duyệt</strong>: các bài của cùng một ca sĩ có thể đứng liền nhau, đứng ngay đầu, đứng ở cuối, hoặc chiếm cả danh sách.</p>
 <p>Bạn được giao viết lớp <code>ArtistPlaylist</code> cho tính năng này.</p>
 <h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
@@ -28,32 +21,25 @@ ZM006 - Ngày nắng - Thu An
 <li>Chuyển mã bài thành chữ hoa; chuyển tên ca sĩ về dạng viết hoa chữ cái đầu mỗi từ (phương thức <code>title()</code> của chuỗi).</li>
 <li>Ghép thành chuỗi <code>"MÃ_BÀI - TÊN_BÀI - CA_SĨ"</code>, thêm vào <strong>cuối</strong> danh sách phát trong O(1) và trả về:</li>
 </ul>
-<pre><code>Đã thêm: ZM001 - Bình minh trên phố - Hoàng Lan
-</code></pre>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố - Hoàng Lan&#10;</code></pre>
 <p><strong>2.2. Đếm số bài của một ca sĩ: <code>count_by_artist(artist)</code></strong></p>
 <p>Chuẩn hóa tên ca sĩ như mục 2.1 rồi trả về <strong>một số nguyên</strong>: số bài của ca sĩ đó trong danh sách phát. Với ví dụ ở mục 1, <code>count_by_artist("Hoàng Lan")</code> trả về <code>3</code>. Ca sĩ không có bài nào, hoặc danh sách trống, trả về <code>0</code>.</p>
 <p>Gợi ý về dữ liệu: tên ca sĩ là phần thứ ba khi tách chuỗi của node theo <code>" - "</code>.</p>
 <p><strong>2.3. Bỏ mọi bài của một ca sĩ: <code>remove_by_artist(artist)</code></strong></p>
 <p>Chuẩn hóa tên ca sĩ, gỡ mọi node có ca sĩ đó <strong>trong một lần duyệt</strong> (O(n)), giữ nguyên thứ tự các bài còn lại và trả về:</p>
-<pre><code>Đã bỏ 3 bài của Hoàng Lan.
-</code></pre>
+<pre><code>Đã bỏ 3 bài của Hoàng Lan.&#10;</code></pre>
 <p><strong>2.4. Hiển thị danh sách phát: <code>to_lines()</code></strong></p>
 <p>Trả về một list các dòng, đánh số từ 1:</p>
-<pre><code>1. ZM003 - Đường về nhà - Minh Khôi
-2. ZM005 - Gió qua thềm - Thu An
-3. ZM006 - Ngày nắng - Thu An
-</code></pre>
+<pre><code>1. ZM003 - Đường về nhà - Minh Khôi&#10;2. ZM005 - Gió qua thềm - Thu An&#10;3. ZM006 - Ngày nắng - Thu An&#10;</code></pre>
 <p>Nếu danh sách phát không có bài nào, trả về list chỉ có một dòng:</p>
-<pre><code>Danh sách phát đang trống.
-</code></pre>
+<pre><code>Danh sách phát đang trống.&#10;</code></pre>
 <p>Sau mọi chức năng, <code>size</code> phải bằng đúng số bài, <code>tail</code> phải là node cuối (hoặc <code>None</code> khi danh sách rỗng) và <code>tail.next</code> phải là <code>None</code>.</p>
 <h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
 <p><strong>Bẫy 1 — Tên ca sĩ viết không thống nhất</strong></p>
 <ul>
 <li>Gọi <code>add_song("  zm002 ", " Mưa đêm ", "  hoàng lan ")</code>, hệ thống vẫn phải lưu và trả về đúng chuẩn:</li>
 </ul>
-<pre><code>Đã thêm: ZM002 - Mưa đêm - Hoàng Lan
-</code></pre>
+<pre><code>Đã thêm: ZM002 - Mưa đêm - Hoàng Lan&#10;</code></pre>
 <ul>
 <li>Khi đếm và khi bỏ, <code>" HOÀNG LAN "</code>, <code>"hoàng lan"</code> và <code>"Hoàng Lan"</code> đều là cùng một ca sĩ. Thông báo trả về luôn dùng tên đã chuẩn hóa.</li>
 </ul>
@@ -69,33 +55,14 @@ ZM006 - Ngày nắng - Thu An
 <ul>
 <li>Danh sách chỉ có hai bài của Hoàng Lan. Sau khi bỏ, hệ thống không được báo lỗi; <code>head</code> và <code>tail</code> đều là <code>None</code>, <code>size</code> là 0, và thêm bài mới sau đó vẫn hoạt động. Hệ thống trả về:</li>
 </ul>
-<pre><code>Đã bỏ 2 bài của Hoàng Lan.
-</code></pre>
+<pre><code>Đã bỏ 2 bài của Hoàng Lan.&#10;</code></pre>
 <p><strong>Bẫy 5 — Ca sĩ không có bài nào</strong></p>
 <ul>
 <li>Gọi <code>remove_by_artist("Lê Vy")</code> (kể cả khi danh sách trống), danh sách giữ nguyên và hệ thống trả về:</li>
 </ul>
-<pre><code>Không có bài nào của Lê Vy.
-</code></pre>
+<pre><code>Không có bài nào của Lê Vy.&#10;</code></pre>
 <p><strong>Kịch bản chạy thử.</strong> Chạy <code>python loc_ca_si.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
-<pre><code>Đã thêm: ZM001 - Bình minh trên phố - Hoàng Lan
-Đã thêm: ZM002 - Mưa đêm - Hoàng Lan
-Đã thêm: ZM003 - Đường về nhà - Minh Khôi
-Đã thêm: ZM004 - Phố cũ - Hoàng Lan
-Đã thêm: ZM005 - Gió qua thềm - Thu An
-Đã thêm: ZM006 - Ngày nắng - Thu An
-Số bài của Hoàng Lan: 3
-Đã bỏ 3 bài của Hoàng Lan.
-1. ZM003 - Đường về nhà - Minh Khôi
-2. ZM005 - Gió qua thềm - Thu An
-3. ZM006 - Ngày nắng - Thu An
-Không có bài nào của Hoàng Lan.
-Đã bỏ 2 bài của Thu An.
-Số bài: 1 | bài cuối: ZM003 - Đường về nhà - Minh Khôi
-Đã thêm: ZM007 - Đêm thành phố - Minh Khôi
-Đã bỏ 2 bài của Minh Khôi.
-Danh sách phát đang trống.
-</code></pre>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố - Hoàng Lan&#10;Đã thêm: ZM002 - Mưa đêm - Hoàng Lan&#10;Đã thêm: ZM003 - Đường về nhà - Minh Khôi&#10;Đã thêm: ZM004 - Phố cũ - Hoàng Lan&#10;Đã thêm: ZM005 - Gió qua thềm - Thu An&#10;Đã thêm: ZM006 - Ngày nắng - Thu An&#10;Số bài của Hoàng Lan: 3&#10;Đã bỏ 3 bài của Hoàng Lan.&#10;1. ZM003 - Đường về nhà - Minh Khôi&#10;2. ZM005 - Gió qua thềm - Thu An&#10;3. ZM006 - Ngày nắng - Thu An&#10;Không có bài nào của Hoàng Lan.&#10;Đã bỏ 2 bài của Thu An.&#10;Số bài: 1 | bài cuối: ZM003 - Đường về nhà - Minh Khôi&#10;Đã thêm: ZM007 - Đêm thành phố - Minh Khôi&#10;Đã bỏ 2 bài của Minh Khôi.&#10;Danh sách phát đang trống.&#10;</code></pre>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
 <p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>

@@ -4,14 +4,7 @@
 <p>Trong ứng dụng nghe nhạc Zing MP3, màn hình trình phát có nút <strong>"Nghe lại"</strong>: người nghe chọn một số <code>k</code>, ứng dụng mở lại bài đã nghe <strong>cách đây k lượt</strong>. <code>k = 1</code> là bài vừa nghe xong gần nhất, <code>k = 2</code> là bài trước đó.</p>
 <p>Máy chủ gửi về <strong>nhật ký nghe</strong> của phiên hiện tại dưới dạng một <strong>danh sách liên kết đơn</strong>, bài nghe <strong>sớm nhất đứng đầu</strong>, bài vừa nghe đứng cuối. Mỗi node giữ chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code>. Ứng dụng chỉ nhận được <strong>node đầu</strong> (<code>head</code>): không có <code>tail</code>, không có <code>size</code>, không có liên kết <code>prev</code>.</p>
 <p>Ví dụ nhật ký có năm lượt nghe (một bài có thể được nghe nhiều lần):</p>
-<pre><code>head
- |
-ZM001 - Bình minh trên phố -&gt; ZM002 - Mưa đêm -&gt; ZM003 - Đường về nhà -&gt; ZM002 - Mưa đêm -&gt; ZM004 - Phố cũ -&gt; None
-
-k = 1: ZM004 - Phố cũ
-k = 2: ZM002 - Mưa đêm
-k = 5: ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>head&#10; |&#10;ZM001 - Bình minh trên phố -&gt; ZM002 - Mưa đêm -&gt; ZM003 - Đường về nhà -&gt; ZM002 - Mưa đêm -&gt; ZM004 - Phố cũ -&gt; None&#10;&#10;k = 1: ZM004 - Phố cũ&#10;k = 2: ZM002 - Mưa đêm&#10;k = 5: ZM001 - Bình minh trên phố&#10;</code></pre>
 <p>Vấn đề: bài cần lấy được tính <strong>từ cuối</strong>, nhưng danh sách liên kết đơn chỉ đi được <strong>từ đầu</strong>, và ứng dụng không biết trước nhật ký dài bao nhiêu. Nhật ký của một phiên nghe dài có thể tới hàng nghìn lượt, nên nhóm không chấp nhận cách chép cả nhật ký sang list Python rồi lấy phần tử <code>[-k]</code>.</p>
 <p>Bạn được giao thiết kế và viết chức năng này. Vì có nhiều cách làm, trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, so sánh rồi mới chọn.</p>
 <h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
@@ -25,27 +18,23 @@ k = 5: ZM001 - Bình minh trên phố
 </ul>
 <p><strong>2.2. Thông báo cho giao diện: <code>replay_message(head, k)</code></strong></p>
 <p>Dùng một trong hai hàm trên (hàm bạn đã chọn ở phần phân tích) và trả về thông báo:</p>
-<pre><code>Bài cách đây 2 lượt nghe: ZM002 - Mưa đêm
-</code></pre>
+<pre><code>Bài cách đây 2 lượt nghe: ZM002 - Mưa đêm&#10;</code></pre>
 <h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
 <p><strong>Bẫy 1 — <code>k</code> lớn hơn số lượt nghe</strong></p>
 <ul>
 <li>Nhật ký có 5 lượt, người nghe chọn <code>k = 6</code>. Hai hàm tìm bài trả về <code>None</code>, không được báo lỗi. <code>replay_message</code> trả về:</li>
 </ul>
-<pre><code>Không có bài cách đây 6 lượt nghe.
-</code></pre>
+<pre><code>Không có bài cách đây 6 lượt nghe.&#10;</code></pre>
 <p><strong>Bẫy 2 — <code>k</code> bằng 0 hoặc âm</strong></p>
 <ul>
 <li>Hai hàm tìm bài trả về <code>None</code>. <code>replay_message</code> trả về:</li>
 </ul>
-<pre><code>Số lượt phải từ 1 trở lên.
-</code></pre>
+<pre><code>Số lượt phải từ 1 trở lên.&#10;</code></pre>
 <p><strong>Bẫy 3 — Nhật ký trống hoặc chỉ có một lượt nghe</strong></p>
 <ul>
 <li><code>head</code> là <code>None</code>: hai hàm tìm bài trả về <code>None</code> với mọi <code>k</code>. <code>replay_message</code> trả về thông báo dưới đây, kể cả khi <code>k</code> không hợp lệ:</li>
 </ul>
-<pre><code>Nhật ký nghe đang trống.
-</code></pre>
+<pre><code>Nhật ký nghe đang trống.&#10;</code></pre>
 <ul>
 <li>Nhật ký có đúng một lượt: <code>k = 1</code> trả về bài đó, <code>k = 2</code> trả về <code>None</code>.</li>
 </ul>
@@ -58,14 +47,7 @@ k = 5: ZM001 - Bình minh trên phố
 <li><code>k</code> bằng đúng số lượt nghe (ví dụ <code>k = 5</code> với nhật ký năm lượt) phải trả về node đầu. Đây là chỗ dễ lệch một đơn vị: thử cả <code>k = 4</code>, <code>k = 5</code>, <code>k = 6</code> khi chạy tay.</li>
 </ul>
 <p><strong>Kịch bản chạy thử.</strong> Chạy <code>python nghe_lai.py</code> (đoạn chạy thử có sẵn ở cuối tệp, dùng nhật ký ở mục 1 với <code>k</code> lần lượt là 1, 2, 5, 6, 0, rồi một nhật ký trống) phải in ra đúng:</p>
-<pre><code>Bài cách đây 1 lượt nghe: ZM004 - Phố cũ
-Bài cách đây 2 lượt nghe: ZM002 - Mưa đêm
-Bài cách đây 5 lượt nghe: ZM001 - Bình minh trên phố
-Không có bài cách đây 6 lượt nghe.
-Số lượt phải từ 1 trở lên.
-Nhật ký nghe đang trống.
-Giải pháp 1: ZM003 - Đường về nhà | Giải pháp 2: ZM003 - Đường về nhà
-</code></pre>
+<pre><code>Bài cách đây 1 lượt nghe: ZM004 - Phố cũ&#10;Bài cách đây 2 lượt nghe: ZM002 - Mưa đêm&#10;Bài cách đây 5 lượt nghe: ZM001 - Bình minh trên phố&#10;Không có bài cách đây 6 lượt nghe.&#10;Số lượt phải từ 1 trở lên.&#10;Nhật ký nghe đang trống.&#10;Giải pháp 1: ZM003 - Đường về nhà | Giải pháp 2: ZM003 - Đường về nhà&#10;</code></pre>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
 <p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>

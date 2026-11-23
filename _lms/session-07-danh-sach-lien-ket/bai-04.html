@@ -4,10 +4,7 @@
 <p>Bạn là kỹ sư phần mềm trong nhóm xây dựng mục "Nghe gần đây" của ứng dụng nghe nhạc Zing MP3.</p>
 <p>Mỗi lần người nghe nghe xong một bài, mã bài được ghi vào <strong>lịch sử nghe</strong>. Mục "Nghe gần đây" hiện các bài <strong>từ mới về cũ</strong>, còn trang thống kê hiện <strong>từ cũ đến mới</strong>. Vì phải đi được cả hai chiều, nhóm lưu lịch sử bằng <strong>danh sách liên kết đôi</strong>: mỗi node có <code>prev</code> (bài nghe ngay trước) và <code>next</code> (bài nghe ngay sau); <code>head</code> là bài nghe cũ nhất, <code>tail</code> là bài nghe mới nhất.</p>
 <p>Ví dụ lịch sử có ba bài:</p>
-<pre><code>head                              tail
- |                                 |
-ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003          size = 3
-</code></pre>
+<pre><code>head                              tail&#10; |                                 |&#10;ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003          size = 3&#10;</code></pre>
 <p>Hai thao tác làm thay đổi lịch sử:</p>
 <ul>
 <li>Nghe xong một bài: ghi bài đó vào <strong>cuối</strong> lịch sử (<code>add_last</code>).</li>
@@ -15,13 +12,7 @@ ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003          size = 3
 </ul>
 <p>Kịch bản kiểm tra của nhóm: ghi lần lượt <code>"ZM001"</code>, <code>"ZM002"</code>, <code>"ZM003"</code>, <code>"ZM004"</code>; in lịch sử theo hai chiều; bỏ bài cũ nhất; in lại từ mới về cũ; in node đứng trước bài cũ nhất (phải là <code>None</code>); cuối cùng, với một lịch sử chỉ có một bài, bỏ bài đó rồi in bài mới nhất.</p>
 <p>Kết quả đúng cần hiển thị:</p>
-<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
-Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None
-Bỏ bài cũ nhất: ZM001
-Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; None
-Bài đứng trước bài cũ nhất: None
-Bài mới nhất sau khi xóa hết: None
-</code></pre>
+<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None&#10;Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None&#10;Bỏ bài cũ nhất: ZM001&#10;Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; None&#10;Bài đứng trước bài cũ nhất: None&#10;Bài mới nhất sau khi xóa hết: None&#10;</code></pre>
 <h2><strong>2. Vấn đề hiện tại</strong></h2>
 <p>Người nghe phản ánh: mục "Nghe gần đây" <strong>chỉ hiện đúng một bài</strong>, dù trang thống kê (từ cũ đến mới) vẫn hiện đủ. Nhóm kiểm thử báo thêm: sau khi lịch sử bị xóa hết, ứng dụng vẫn hiện một bài "ma" ở mục này.</p>
 <p>Lập trình viên trước đã viết <code>add_last</code> và <code>remove_first</code> giống hệt bản của danh sách liên kết đơn, nên bỏ sót phần riêng của danh sách liên kết đôi:</p>
@@ -33,80 +24,9 @@ Bài mới nhất sau khi xóa hết: None
 <p>Lưu ý: lỗi thứ hai đang bị lỗi thứ nhất che mất. Sau khi sửa <code>add_last</code>, hãy chạy lại để thấy lỗi của <code>remove_first</code> lộ ra.</p>
 <h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
 <p>Tệp <code>history.py</code> trong thư mục khởi đầu (<code>to_text</code> và <code>to_text_backward</code> đã đúng, không cần sửa):</p>
-<pre><code>class Node:
-    def __init__(self, value):
-        self.value = value
-        self.prev = None
-        self.next = None
-
-
-class History:
-    def __init__(self):
-        self.head = None    # bài nghe cũ nhất
-        self.tail = None    # bài nghe mới nhất
-        self.size = 0       # số bài trong lịch sử
-
-    def add_last(self, code):
-        # Ghi bài vừa nghe vào cuối lịch sử
-        node = Node(code)
-        if self.tail is None:
-            self.head = node
-            self.tail = node
-        else:
-            self.tail.next = node
-            self.tail = node
-        self.size += 1
-
-    def remove_first(self):
-        # Bỏ bài nghe cũ nhất, trả về mã bài
-        code = self.head.value
-        self.head = self.head.next
-        self.size -= 1
-        return code
-
-    def to_text(self):
-        # Cho sẵn, đã đúng: từ cũ đến mới
-        parts = []
-        current = self.head
-        while current is not None:
-            parts.append(current.value)
-            current = current.next
-        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
-
-    def to_text_backward(self):
-        # Cho sẵn, đã đúng: từ mới về cũ, đi theo prev
-        parts = []
-        current = self.tail
-        while current is not None:
-            parts.append(current.value)
-            current = current.prev
-        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
-
-
-history = History()
-for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;, &quot;ZM004&quot;]:
-    history.add_last(code)
-print(&quot;Từ cũ đến mới:&quot;, history.to_text())
-print(&quot;Từ mới về cũ:&quot;, history.to_text_backward())
-# Lịch sử chỉ giữ 3 bài gần nhất: bỏ bài cũ nhất
-print(&quot;Bỏ bài cũ nhất:&quot;, history.remove_first())
-print(&quot;Từ mới về cũ:&quot;, history.to_text_backward())
-print(&quot;Bài đứng trước bài cũ nhất:&quot;, history.head.prev)
-
-# Lịch sử chỉ có một bài rồi bị xóa hết
-single = History()
-single.add_last(&quot;ZM010&quot;)
-single.remove_first()
-print(&quot;Bài mới nhất sau khi xóa hết:&quot;, single.tail)
-</code></pre>
+<pre><code>class Node:&#10;    def __init__(self, value):&#10;        self.value = value&#10;        self.prev = None&#10;        self.next = None&#10;&#10;&#10;class History:&#10;    def __init__(self):&#10;        self.head = None    # bài nghe cũ nhất&#10;        self.tail = None    # bài nghe mới nhất&#10;        self.size = 0       # số bài trong lịch sử&#10;&#10;    def add_last(self, code):&#10;        # Ghi bài vừa nghe vào cuối lịch sử&#10;        node = Node(code)&#10;        if self.tail is None:&#10;            self.head = node&#10;            self.tail = node&#10;        else:&#10;            self.tail.next = node&#10;            self.tail = node&#10;        self.size += 1&#10;&#10;    def remove_first(self):&#10;        # Bỏ bài nghe cũ nhất, trả về mã bài&#10;        code = self.head.value&#10;        self.head = self.head.next&#10;        self.size -= 1&#10;        return code&#10;&#10;    def to_text(self):&#10;        # Cho sẵn, đã đúng: từ cũ đến mới&#10;        parts = []&#10;        current = self.head&#10;        while current is not None:&#10;            parts.append(current.value)&#10;            current = current.next&#10;        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])&#10;&#10;    def to_text_backward(self):&#10;        # Cho sẵn, đã đúng: từ mới về cũ, đi theo prev&#10;        parts = []&#10;        current = self.tail&#10;        while current is not None:&#10;            parts.append(current.value)&#10;            current = current.prev&#10;        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])&#10;&#10;&#10;history = History()&#10;for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;, &quot;ZM004&quot;]:&#10;    history.add_last(code)&#10;print(&quot;Từ cũ đến mới:&quot;, history.to_text())&#10;print(&quot;Từ mới về cũ:&quot;, history.to_text_backward())&#10;# Lịch sử chỉ giữ 3 bài gần nhất: bỏ bài cũ nhất&#10;print(&quot;Bỏ bài cũ nhất:&quot;, history.remove_first())&#10;print(&quot;Từ mới về cũ:&quot;, history.to_text_backward())&#10;print(&quot;Bài đứng trước bài cũ nhất:&quot;, history.head.prev)&#10;&#10;# Lịch sử chỉ có một bài rồi bị xóa hết&#10;single = History()&#10;single.add_last(&quot;ZM010&quot;)&#10;single.remove_first()&#10;print(&quot;Bài mới nhất sau khi xóa hết:&quot;, single.tail)&#10;</code></pre>
 <p>Kết quả hiển thị trên Console:</p>
-<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
-Từ mới về cũ: ZM004 -&gt; None
-Bỏ bài cũ nhất: ZM001
-Từ mới về cũ: ZM004 -&gt; None
-Bài đứng trước bài cũ nhất: None
-Bài mới nhất sau khi xóa hết: &lt;__main__.Node object at 0x...&gt;
-</code></pre>
+<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None&#10;Từ mới về cũ: ZM004 -&gt; None&#10;Bỏ bài cũ nhất: ZM001&#10;Từ mới về cũ: ZM004 -&gt; None&#10;Bài đứng trước bài cũ nhất: None&#10;Bài mới nhất sau khi xóa hết: &lt;__main__.Node object at 0x...&gt;&#10;</code></pre>
 <p>Chương trình không báo lỗi nào, nhưng ba dòng sai so với kết quả đúng:</p>
 <ul>
 <li>Hai lần in "Từ mới về cũ" chỉ có <code>ZM004</code>.</li>
@@ -130,13 +50,7 @@ Bài mới nhất sau khi xóa hết: &lt;__main__.Node object at 0x...&gt;
 <li>Sửa hai phương thức <code>add_last</code> và <code>remove_first</code> trong <code>history.py</code>. Không đổi tên lớp, tên phương thức; không dùng list Python để lưu lịch sử.</li>
 <li>Chạy <code>python history.py</code> phải cho đúng kết quả:</li>
 </ul>
-<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
-Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None
-Bỏ bài cũ nhất: ZM001
-Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; None
-Bài đứng trước bài cũ nhất: None
-Bài mới nhất sau khi xóa hết: None
-</code></pre>
+<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None&#10;Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None&#10;Bỏ bài cũ nhất: ZM001&#10;Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; None&#10;Bài đứng trước bài cũ nhất: None&#10;Bài mới nhất sau khi xóa hết: None&#10;</code></pre>
 <ul>
 <li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
 </ul>

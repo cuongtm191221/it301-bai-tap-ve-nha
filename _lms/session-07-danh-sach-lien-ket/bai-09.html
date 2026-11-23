@@ -5,13 +5,11 @@
 <ul>
 <li>Mỗi bài trong hàng chờ được lưu dưới dạng chuỗi:</li>
 </ul>
-<pre><code>&quot;MÃ_BÀI - TÊN_BÀI&quot;
-</code></pre>
+<pre><code>&quot;MÃ_BÀI - TÊN_BÀI&quot;&#10;</code></pre>
 <ul>
 <li>Ví dụ một hàng chờ có ba bài:</li>
 </ul>
-<pre><code>ZM001 - Bình minh trên phố  -&gt;  ZM002 - Mưa đêm  -&gt;  ZM003 - Đường về nhà  -&gt;  None
-</code></pre>
+<pre><code>ZM001 - Bình minh trên phố  -&gt;  ZM002 - Mưa đêm  -&gt;  ZM003 - Đường về nhà  -&gt;  None&#10;</code></pre>
 <p>Người nghe liên tục thêm bài vào cuối hàng chờ, ứng dụng liên tục lấy bài ở đầu ra để phát, và người nghe có thể bỏ một bài bất kỳ. Nếu lưu bằng list Python thì mỗi lần lấy bài ở đầu phải dời mọi phần tử còn lại (Session 05). Vì vậy nhóm quyết định lưu hàng chờ bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>: <code>head</code> là bài sẽ phát tiếp theo, <code>tail</code> là bài cuối hàng chờ, <code>size</code> là số bài đang chờ.</p>
 <p>Bạn được giao viết lớp <code>PlayQueue</code> cho hàng chờ này.</p>
 <h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
@@ -24,45 +22,35 @@
 <li>Ghép thành chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code> và thêm vào <strong>cuối</strong> hàng chờ trong O(1).</li>
 <li>Trả về:</li>
 </ul>
-<pre><code>Đã thêm: ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố&#10;</code></pre>
 <p><strong>2.2. Phát bài tiếp theo: <code>play_next()</code></strong></p>
 <p>Hệ thống cần lấy bài ở <strong>đầu</strong> hàng chờ ra khỏi hàng chờ trong O(1) và trả về:</p>
-<pre><code>Đang phát: ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>Đang phát: ZM001 - Bình minh trên phố&#10;</code></pre>
 <p><strong>2.3. Bỏ một bài khỏi hàng chờ: <code>remove_song(code)</code></strong></p>
 <p>Người nghe nhập mã bài cần bỏ. Hệ thống chuẩn hóa mã (xóa khoảng trắng, chữ hoa), tìm bài có mã đó, gỡ node khỏi hàng chờ và trả về:</p>
-<pre><code>Đã bỏ: ZM003 - Đường về nhà
-</code></pre>
+<pre><code>Đã bỏ: ZM003 - Đường về nhà&#10;</code></pre>
 <p><strong>2.4. Hiển thị hàng chờ: <code>to_lines()</code></strong></p>
 <p>Trả về một list các dòng, đánh số từ 1 theo thứ tự sẽ phát:</p>
-<pre><code>1. ZM001 - Bình minh trên phố
-2. ZM002 - Mưa đêm
-3. ZM004 - Phố cũ
-</code></pre>
+<pre><code>1. ZM001 - Bình minh trên phố&#10;2. ZM002 - Mưa đêm&#10;3. ZM004 - Phố cũ&#10;</code></pre>
 <p>Nếu hàng chờ không có bài nào, trả về list chỉ có một dòng:</p>
-<pre><code>Hàng chờ đang trống.
-</code></pre>
+<pre><code>Hàng chờ đang trống.&#10;</code></pre>
 <p>Sau mọi chức năng, <code>size</code> phải bằng đúng số bài đang chờ, <code>tail</code> phải là node cuối (hoặc <code>None</code> khi hàng chờ rỗng).</p>
 <h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
 <p><strong>Bẫy 1 — Mã bài hoặc tên bài bị thừa khoảng trắng, mã viết thường</strong></p>
 <ul>
 <li>Gọi <code>add_song("  zm002 ", " Mưa đêm ")</code>, hệ thống vẫn phải lưu và trả về đúng chuẩn:</li>
 </ul>
-<pre><code>Đã thêm: ZM002 - Mưa đêm
-</code></pre>
+<pre><code>Đã thêm: ZM002 - Mưa đêm&#10;</code></pre>
 <p><strong>Bẫy 2 — Thêm bài đã có trong hàng chờ</strong></p>
 <ul>
 <li>Hàng chờ đã có <code>ZM001</code>. Gọi <code>add_song("zm001", "Bình minh trên phố")</code>, hệ thống không thêm và trả về:</li>
 </ul>
-<pre><code>Bài ZM001 đã có trong hàng chờ.
-</code></pre>
+<pre><code>Bài ZM001 đã có trong hàng chờ.&#10;</code></pre>
 <p><strong>Bẫy 3 — Phát khi hàng chờ đã hết bài</strong></p>
 <ul>
 <li>Hệ thống không được báo lỗi mà trả về:</li>
 </ul>
-<pre><code>Hàng chờ đang trống, không có bài để phát.
-</code></pre>
+<pre><code>Hàng chờ đang trống, không có bài để phát.&#10;</code></pre>
 <ul>
 <li>Sau khi phát bài cuối cùng, <code>head</code> và <code>tail</code> đều phải là <code>None</code>.</li>
 </ul>
@@ -70,34 +58,14 @@
 <ul>
 <li>Gọi <code>remove_song("ZM999")</code>, hàng chờ giữ nguyên và hệ thống trả về:</li>
 </ul>
-<pre><code>Không tìm thấy bài ZM999 trong hàng chờ.
-</code></pre>
+<pre><code>Không tìm thấy bài ZM999 trong hàng chờ.&#10;</code></pre>
 <p><strong>Bẫy 5 — Bỏ bài đang đứng cuối, rồi thêm bài mới</strong></p>
 <ul>
 <li>Hàng chờ có <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>. Bỏ <code>ZM003</code> rồi thêm <code>ZM004</code>. Nếu <code>tail</code> không lùi về <code>ZM002</code> khi bỏ bài cuối, bài <code>ZM004</code> sẽ bị nối vào một node đã bị gỡ và biến mất khỏi hàng chờ. Kết quả hiển thị đúng:</li>
 </ul>
-<pre><code>1. ZM001 - Bình minh trên phố
-2. ZM002 - Mưa đêm
-3. ZM004 - Phố cũ
-</code></pre>
+<pre><code>1. ZM001 - Bình minh trên phố&#10;2. ZM002 - Mưa đêm&#10;3. ZM004 - Phố cũ&#10;</code></pre>
 <p><strong>Kịch bản chạy thử.</strong> Chạy <code>python hang_cho.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
-<pre><code>Đã thêm: ZM001 - Bình minh trên phố
-Đã thêm: ZM002 - Mưa đêm
-Đã thêm: ZM003 - Đường về nhà
-Bài ZM001 đã có trong hàng chờ.
-Không tìm thấy bài ZM999 trong hàng chờ.
-Đã bỏ: ZM003 - Đường về nhà
-Đã thêm: ZM004 - Phố cũ
-1. ZM001 - Bình minh trên phố
-2. ZM002 - Mưa đêm
-3. ZM004 - Phố cũ
-Số bài đang chờ: 3
-Đang phát: ZM001 - Bình minh trên phố
-Đang phát: ZM002 - Mưa đêm
-Đang phát: ZM004 - Phố cũ
-Hàng chờ đang trống, không có bài để phát.
-Hàng chờ đang trống.
-</code></pre>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố&#10;Đã thêm: ZM002 - Mưa đêm&#10;Đã thêm: ZM003 - Đường về nhà&#10;Bài ZM001 đã có trong hàng chờ.&#10;Không tìm thấy bài ZM999 trong hàng chờ.&#10;Đã bỏ: ZM003 - Đường về nhà&#10;Đã thêm: ZM004 - Phố cũ&#10;1. ZM001 - Bình minh trên phố&#10;2. ZM002 - Mưa đêm&#10;3. ZM004 - Phố cũ&#10;Số bài đang chờ: 3&#10;Đang phát: ZM001 - Bình minh trên phố&#10;Đang phát: ZM002 - Mưa đêm&#10;Đang phát: ZM004 - Phố cũ&#10;Hàng chờ đang trống, không có bài để phát.&#10;Hàng chờ đang trống.&#10;</code></pre>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
 <p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>

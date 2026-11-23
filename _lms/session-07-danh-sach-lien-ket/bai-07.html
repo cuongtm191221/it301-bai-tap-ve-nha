@@ -4,9 +4,7 @@
 <p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng chia sẻ danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
 <p>Khi một người bạn chia sẻ danh sách phát, người nghe có nút <strong>"Thêm tất cả vào danh sách phát của tôi"</strong>. Mỗi danh sách phát là một <strong>danh sách liên kết đơn</strong> có <code>head</code>, <code>tail</code>, <code>size</code>; mỗi node giữ mã một bài.</p>
 <p>Ví dụ:</p>
-<pre><code>Danh sách của tôi (mine):     ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None
-Danh sách của bạn (shared):   ZM003  -&gt;  ZM004  -&gt;  ZM005  -&gt;  None
-</code></pre>
+<pre><code>Danh sách của tôi (mine):     ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None&#10;Danh sách của bạn (shared):   ZM003  -&gt;  ZM004  -&gt;  ZM005  -&gt;  None&#10;</code></pre>
 <p>Hàm <code>append_all(target, source)</code> chép các bài của <code>source</code> vào cuối <code>target</code> theo ba quy tắc nghiệp vụ:</p>
 <ul>
 <li><strong>Không thêm bài đã có</strong>: <code>ZM003</code> đã có trong danh sách của tôi nên bị bỏ qua. Hàm trả về <strong>số bài thật sự được thêm</strong>.</li>
@@ -16,14 +14,7 @@ Danh sách của bạn (shared):   ZM003  -&gt;  ZM004  -&gt;  ZM005  -&gt;  Non
 <p>Sau khi gộp, <code>head</code>, <code>tail</code>, <code>size</code> của <code>target</code> phải đúng; <code>target</code> đang rỗng cũng phải gộp được.</p>
 <p>Kịch bản kiểm tra của nhóm: gộp <code>shared</code> vào <code>mine</code> như ví dụ; in danh sách của tôi, số bài, bài cuối; bạn bè thêm <code>ZM006</code> vào danh sách của họ; in lại cả hai danh sách; cuối cùng gộp danh sách của bạn vào một danh sách mới tạo.</p>
 <p>Kết quả đúng cần hiển thị:</p>
-<pre><code>Số bài đã thêm: 2
-Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
-Số bài: 5 | bài cuối: ZM005
-Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
-Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
-Số bài đã thêm vào danh sách mới: 4
-Danh sách mới: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
-</code></pre>
+<pre><code>Số bài đã thêm: 2&#10;Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None&#10;Số bài: 5 | bài cuối: ZM005&#10;Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None&#10;Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None&#10;Số bài đã thêm vào danh sách mới: 4&#10;Danh sách mới: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None&#10;</code></pre>
 <h2><strong>2. Vấn đề hiện tại</strong></h2>
 <p>Người nghe phản ánh: sau khi bấm "Thêm tất cả", danh sách của họ có <strong>bài bị trùng</strong>; vài hôm sau danh sách đó <strong>tự mọc thêm bài</strong> mà họ không hề thêm; và nếu danh sách của họ đang trống thì ứng dụng <strong>bị treo</strong>.</p>
 <p>Lập trình viên trước đã chọn cách nhanh nhất: nối thẳng <code>tail</code> của danh sách đích vào <code>head</code> của danh sách nguồn. Cách này chỉ tốn O(1), nhưng sai với nghiệp vụ:</p>
@@ -35,46 +26,9 @@ Danh sách mới: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
 </ul>
 <h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
 <p>Tệp <code>gop_danh_sach.py</code> trong thư mục khởi đầu có sẵn lớp <code>Node</code>, lớp <code>Playlist</code> (các phương thức <code>add_first</code>, <code>add_last</code>, <code>find</code>, <code>to_text</code> đã đúng, không cần sửa). Phần cần xem xét là hàm <code>append_all</code> và đoạn chạy thử:</p>
-<pre><code>def append_all(target, source):
-    # Chép các bài của source vào cuối target, bỏ qua bài target đã có. Trả về số bài đã thêm.
-    target.tail.next = source.head
-    target.size += source.size
-    return source.size
-
-
-mine = Playlist()
-for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;]:
-    mine.add_last(code)
-shared = Playlist()
-for code in [&quot;ZM003&quot;, &quot;ZM004&quot;, &quot;ZM005&quot;]:
-    shared.add_last(code)
-
-print(&quot;Số bài đã thêm:&quot;, append_all(mine, shared))
-print(&quot;Danh sách của tôi:&quot;, mine.to_text())
-print(&quot;Số bài:&quot;, mine.size, &quot;| bài cuối:&quot;, mine.tail.value)
-
-# Bạn bè thêm một bài vào danh sách của họ: danh sách của tôi không được đổi theo
-shared.add_last(&quot;ZM006&quot;)
-print(&quot;Danh sách của bạn:&quot;, shared.to_text())
-print(&quot;Danh sách của tôi:&quot;, mine.to_text())
-
-# Danh sách mới tạo nhận bài từ danh sách của bạn
-new_list = Playlist()
-print(&quot;Số bài đã thêm vào danh sách mới:&quot;, append_all(new_list, shared))
-print(&quot;Danh sách mới:&quot;, new_list.to_text())
-
-</code></pre>
+<pre><code>def append_all(target, source):&#10;    # Chép các bài của source vào cuối target, bỏ qua bài target đã có. Trả về số bài đã thêm.&#10;    target.tail.next = source.head&#10;    target.size += source.size&#10;    return source.size&#10;&#10;&#10;mine = Playlist()&#10;for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;]:&#10;    mine.add_last(code)&#10;shared = Playlist()&#10;for code in [&quot;ZM003&quot;, &quot;ZM004&quot;, &quot;ZM005&quot;]:&#10;    shared.add_last(code)&#10;&#10;print(&quot;Số bài đã thêm:&quot;, append_all(mine, shared))&#10;print(&quot;Danh sách của tôi:&quot;, mine.to_text())&#10;print(&quot;Số bài:&quot;, mine.size, &quot;| bài cuối:&quot;, mine.tail.value)&#10;&#10;# Bạn bè thêm một bài vào danh sách của họ: danh sách của tôi không được đổi theo&#10;shared.add_last(&quot;ZM006&quot;)&#10;print(&quot;Danh sách của bạn:&quot;, shared.to_text())&#10;print(&quot;Danh sách của tôi:&quot;, mine.to_text())&#10;&#10;# Danh sách mới tạo nhận bài từ danh sách của bạn&#10;new_list = Playlist()&#10;print(&quot;Số bài đã thêm vào danh sách mới:&quot;, append_all(new_list, shared))&#10;print(&quot;Danh sách mới:&quot;, new_list.to_text())&#10;&#10;</code></pre>
 <p>Kết quả hiển thị trên Console:</p>
-<pre><code>Số bài đã thêm: 3
-Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
-Số bài: 6 | bài cuối: ZM003
-Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
-Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
-Traceback (most recent call last):
-  ...
-    target.tail.next = source.head
-AttributeError: 'NoneType' object has no attribute 'next'
-</code></pre>
+<pre><code>Số bài đã thêm: 3&#10;Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None&#10;Số bài: 6 | bài cuối: ZM003&#10;Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None&#10;Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None&#10;Traceback (most recent call last):&#10;  ...&#10;    target.tail.next = source.head&#10;AttributeError: 'NoneType' object has no attribute 'next'&#10;</code></pre>
 <p>Chương trình dừng ở lần gộp vào danh sách mới. Trước đó, đối chiếu với kết quả đúng: số bài đã thêm là 3 thay vì 2; danh sách của tôi có hai bài <code>ZM003</code>; số bài là 6 và bài cuối là <code>ZM003</code> thay vì 5 và <code>ZM005</code>; sau khi bạn bè thêm <code>ZM006</code>, danh sách của tôi cũng có <code>ZM006</code>.</p>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
@@ -94,14 +48,7 @@ AttributeError: 'NoneType' object has no attribute 'next'
 <li>Viết lại hàm <code>append_all</code> trong <code>gop_danh_sach.py</code>. Không đổi tên hàm, tham số; không sửa lớp <code>Playlist</code>; không dùng list Python hay <code>set</code> để lưu các bài.</li>
 <li>Chạy <code>python gop_danh_sach.py</code> phải cho đúng kết quả:</li>
 </ul>
-<pre><code>Số bài đã thêm: 2
-Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
-Số bài: 5 | bài cuối: ZM005
-Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
-Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
-Số bài đã thêm vào danh sách mới: 4
-Danh sách mới: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
-</code></pre>
+<pre><code>Số bài đã thêm: 2&#10;Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None&#10;Số bài: 5 | bài cuối: ZM005&#10;Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None&#10;Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None&#10;Số bài đã thêm vào danh sách mới: 4&#10;Danh sách mới: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None&#10;</code></pre>
 <ul>
 <li>Chạy <code>pytest -q</code> phải xanh cả 5 test.</li>
 </ul>

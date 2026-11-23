@@ -3,14 +3,7 @@
 <p><em>Nhóm vận hành cần một công cụ gõ lệnh để sửa nhanh danh sách phát; người gõ lệnh thì hay gõ thiếu, gõ sai.</em></p>
 <p>Nhóm vận hành nội dung của Zing MP3 mỗi ngày phải chỉnh hàng chục danh sách phát tuyển chọn. Giao diện quản trị trên web chậm, nên nhóm đề nghị một <strong>công cụ dòng lệnh</strong>: gõ một lệnh ngắn, nhận ngay một dòng thông báo.</p>
 <p>Ví dụ một phiên làm việc:</p>
-<pre><code>&gt; THEM ZM001 | Bình minh trên phố
-Đã thêm vào cuối: ZM001 - Bình minh trên phố
-&gt; DAU ZM003 | Đường về nhà
-Đã thêm vào đầu: ZM003 - Đường về nhà
-&gt; XEM
-1. ZM003 - Đường về nhà
-2. ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>&gt; THEM ZM001 | Bình minh trên phố&#10;Đã thêm vào cuối: ZM001 - Bình minh trên phố&#10;&gt; DAU ZM003 | Đường về nhà&#10;Đã thêm vào đầu: ZM003 - Đường về nhà&#10;&gt; XEM&#10;1. ZM003 - Đường về nhà&#10;2. ZM001 - Bình minh trên phố&#10;</code></pre>
 <p>Công cụ gồm hai tầng. Tầng dưới là lớp <code>Playlist</code>: một <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>, mỗi node giữ chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code>. Tầng trên là hàm <code>handle(playlist, line)</code>: nhận một dòng lệnh, kiểm tra, gọi tầng dưới và <strong>trả về</strong> thông báo. Vòng lặp nhập lệnh <code>main()</code> (có lệnh <code>THOAT</code>) đã có sẵn.</p>
 <p>Người vận hành gõ vội: thiếu tên bài, sai mã, thừa khoảng trắng, gõ lệnh không tồn tại. Công cụ <strong>không được dừng vì lỗi</strong> trong bất kỳ trường hợp nào, và dữ liệu sai không được lọt vào danh sách phát. Bạn được giao viết trọn công cụ này.</p>
 <h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
@@ -57,7 +50,7 @@
 </tbody>
 </table>
 <p><strong>2.2. Hàm <code>handle(playlist, line)</code></strong></p>
-<p>Tên lệnh không phân biệt hoa thường. Mã bài được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.</p>
+<p>Lệnh <code>THEM</code> và <code>DAU</code> viết theo dạng <code>LỆNH &lt;mã&gt; | &lt;tên&gt;</code>; lệnh <code>BO</code> và <code>TIM</code> theo dạng <code>LỆNH &lt;mã&gt;</code>. Tên lệnh không phân biệt hoa thường. Mã bài được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.</p>
 <table>
 <thead>
 <tr>
@@ -68,22 +61,22 @@
 </thead>
 <tbody>
 <tr>
-<td><code>THEM &lt;mã&gt; | &lt;tên&gt;</code></td>
+<td><code>THEM</code></td>
 <td>Thêm vào cuối</td>
 <td><code>Đã thêm vào cuối: ZM001 - Bình minh trên phố</code></td>
 </tr>
 <tr>
-<td><code>DAU &lt;mã&gt; | &lt;tên&gt;</code></td>
+<td><code>DAU</code></td>
 <td>Thêm vào đầu</td>
 <td><code>Đã thêm vào đầu: ZM003 - Đường về nhà</code></td>
 </tr>
 <tr>
-<td><code>BO &lt;mã&gt;</code></td>
+<td><code>BO</code></td>
 <td>Bỏ một bài</td>
 <td><code>Đã bỏ: ZM002 - Mưa đêm</code></td>
 </tr>
 <tr>
-<td><code>TIM &lt;mã&gt;</code></td>
+<td><code>TIM</code></td>
 <td>Tìm vị trí</td>
 <td><code>Bài ZM002 - Mưa đêm đang ở vị trí 3.</code></td>
 </tr>
@@ -100,35 +93,25 @@
 </tbody>
 </table>
 <p>Dấu <code>|</code> <strong>đầu tiên</strong> của dòng ngăn cách mã và tên. Các trường hợp không thành công:</p>
-<pre><code>Bài ZM001 đã có trong danh sách phát.        (THEM, DAU: trùng mã)
-Không tìm thấy bài ZM009.                    (BO, TIM: không có bài)
-Danh sách phát đang trống.                   (XEM: chưa có bài)
-</code></pre>
+<pre><code>Bài ZM001 đã có trong danh sách phát.        (THEM, DAU: trùng mã)&#10;Không tìm thấy bài ZM009.                    (BO, TIM: không có bài)&#10;Danh sách phát đang trống.                   (XEM: chưa có bài)&#10;</code></pre>
 <h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
 <p><strong>Bẫy 1 — Lệnh viết thường, thừa khoảng trắng</strong></p>
 <ul>
 <li><code>"  them   zm002 |  Mưa đêm  "</code> vẫn là một lệnh thêm hợp lệ:</li>
 </ul>
-<pre><code>Đã thêm vào cuối: ZM002 - Mưa đêm
-</code></pre>
+<pre><code>Đã thêm vào cuối: ZM002 - Mưa đêm&#10;</code></pre>
 <p><strong>Bẫy 2 — Thiếu thông tin</strong></p>
 <ul>
 <li>Thiếu mã bài (<code>"THEM"</code>, <code>"THEM | Phố cũ"</code>, <code>"BO"</code>) hoặc thiếu tên bài (<code>"THEM ZM004"</code>). Thông báo nêu đúng cú pháp của lệnh đang gõ:</li>
 </ul>
-<pre><code>Thiếu mã bài. Cú pháp: THEM &lt;mã bài&gt; | &lt;tên bài&gt;
-Thiếu tên bài. Cú pháp: DAU &lt;mã bài&gt; | &lt;tên bài&gt;
-Thiếu mã bài. Cú pháp: BO &lt;mã bài&gt;
-</code></pre>
+<pre><code>Thiếu mã bài. Cú pháp: THEM &lt;mã bài&gt; | &lt;tên bài&gt;&#10;Thiếu tên bài. Cú pháp: DAU &lt;mã bài&gt; | &lt;tên bài&gt;&#10;Thiếu mã bài. Cú pháp: BO &lt;mã bài&gt;&#10;</code></pre>
 <p><strong>Bẫy 3 — Lệnh không tồn tại, dòng trống</strong></p>
-<pre><code>Lệnh không hợp lệ: PHAT        (gõ &quot;phat zm001&quot;)
-Chưa nhập lệnh.                (dòng rỗng hoặc chỉ có khoảng trắng)
-</code></pre>
+<pre><code>Lệnh không hợp lệ: PHAT        (gõ &quot;phat zm001&quot;)&#10;Chưa nhập lệnh.                (dòng rỗng hoặc chỉ có khoảng trắng)&#10;</code></pre>
 <p><strong>Bẫy 4 — Mã bài sai định dạng</strong></p>
 <ul>
 <li>Mã bài hợp lệ gồm đúng 5 ký tự: <code>ZM</code> và ba chữ số. Các mã <code>M4</code>, <code>ZM0004</code>, <code>ZMABC</code>, <code>12345</code>, <code>ZM1</code> đều bị từ chối, ở mọi lệnh có mã:</li>
 </ul>
-<pre><code>Mã bài không hợp lệ: M4
-</code></pre>
+<pre><code>Mã bài không hợp lệ: M4&#10;</code></pre>
 <ul>
 <li>Thứ tự kiểm tra của <code>THEM</code> và <code>DAU</code>: thiếu mã, mã sai định dạng, thiếu tên, trùng mã.</li>
 </ul>
@@ -138,35 +121,7 @@ Chưa nhập lệnh.                (dòng rỗng hoặc chỉ có khoảng tr�
 <li>Bỏ bài duy nhất: <code>head</code> và <code>tail</code> đều là <code>None</code>; thêm bài sau đó vẫn đúng.</li>
 </ul>
 <p><strong>Kịch bản chạy thử.</strong> Chạy <code>python quan_ly.py demo</code> phải in ra đúng:</p>
-<pre><code>&gt; THEM ZM001 | Bình minh trên phố
-Đã thêm vào cuối: ZM001 - Bình minh trên phố
-&gt;   them   zm002 |  Mưa đêm  
-Đã thêm vào cuối: ZM002 - Mưa đêm
-&gt; DAU ZM003 | Đường về nhà
-Đã thêm vào đầu: ZM003 - Đường về nhà
-&gt; THEM ZM001 | Bình minh trên phố
-Bài ZM001 đã có trong danh sách phát.
-&gt; THEM ZM004
-Thiếu tên bài. Cú pháp: THEM &lt;mã bài&gt; | &lt;tên bài&gt;
-&gt; THEM M4 | Phố cũ
-Mã bài không hợp lệ: M4
-&gt; PHAT ZM001
-Lệnh không hợp lệ: PHAT
-&gt; 
-Chưa nhập lệnh.
-&gt; TIM zm002
-Bài ZM002 - Mưa đêm đang ở vị trí 3.
-&gt; BO ZM002
-Đã bỏ: ZM002 - Mưa đêm
-&gt; THEM ZM004 | Phố cũ
-Đã thêm vào cuối: ZM004 - Phố cũ
-&gt; XEM
-1. ZM003 - Đường về nhà
-2. ZM001 - Bình minh trên phố
-3. ZM004 - Phố cũ
-&gt; DEM
-Danh sách phát có 3 bài.
-</code></pre>
+<pre><code>&gt; THEM ZM001 | Bình minh trên phố&#10;Đã thêm vào cuối: ZM001 - Bình minh trên phố&#10;&gt;   them   zm002 |  Mưa đêm  &#10;Đã thêm vào cuối: ZM002 - Mưa đêm&#10;&gt; DAU ZM003 | Đường về nhà&#10;Đã thêm vào đầu: ZM003 - Đường về nhà&#10;&gt; THEM ZM001 | Bình minh trên phố&#10;Bài ZM001 đã có trong danh sách phát.&#10;&gt; THEM ZM004&#10;Thiếu tên bài. Cú pháp: THEM &lt;mã bài&gt; | &lt;tên bài&gt;&#10;&gt; THEM M4 | Phố cũ&#10;Mã bài không hợp lệ: M4&#10;&gt; PHAT ZM001&#10;Lệnh không hợp lệ: PHAT&#10;&gt; &#10;Chưa nhập lệnh.&#10;&gt; TIM zm002&#10;Bài ZM002 - Mưa đêm đang ở vị trí 3.&#10;&gt; BO ZM002&#10;Đã bỏ: ZM002 - Mưa đêm&#10;&gt; THEM ZM004 | Phố cũ&#10;Đã thêm vào cuối: ZM004 - Phố cũ&#10;&gt; XEM&#10;1. ZM003 - Đường về nhà&#10;2. ZM001 - Bình minh trên phố&#10;3. ZM004 - Phố cũ&#10;&gt; DEM&#10;Danh sách phát có 3 bài.&#10;</code></pre>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
 <p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>

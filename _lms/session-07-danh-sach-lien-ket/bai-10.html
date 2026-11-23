@@ -5,14 +5,11 @@
 <ul>
 <li>Mỗi bài trong lịch sử được lưu dưới dạng chuỗi:</li>
 </ul>
-<pre><code>&quot;MÃ_BÀI - TÊN_BÀI&quot;
-</code></pre>
+<pre><code>&quot;MÃ_BÀI - TÊN_BÀI&quot;&#10;</code></pre>
 <ul>
 <li>Ví dụ người nghe lần lượt mở <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code> thì lịch sử là:</li>
 </ul>
-<pre><code>head                                                              tail
-ZM003 - Đường về nhà  &lt;-&gt;  ZM002 - Mưa đêm  &lt;-&gt;  ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>head                                                              tail&#10;ZM003 - Đường về nhà  &lt;-&gt;  ZM002 - Mưa đêm  &lt;-&gt;  ZM001 - Bình minh trên phố&#10;</code></pre>
 <p>Mục này có ba đặc điểm nghiệp vụ. Bài vừa nghe luôn được đưa vào <strong>đầu</strong> lịch sử. Lịch sử chỉ giữ một số bài nhất định (<code>limit</code>), vượt quá thì bỏ bài <strong>cũ nhất</strong>, tức bài ở <strong>cuối</strong>. Và khi người nghe mở lại một bài đã có trong lịch sử, bài đó phải được <strong>nhấc từ giữa lên đầu</strong>, không được xuất hiện hai lần.</p>
 <p>Với danh sách liên kết đơn, bỏ bài ở cuối phải duyệt từ đầu để tìm node đứng trước <code>tail</code>. Vì vậy nhóm quyết định lưu lịch sử bằng <strong>danh sách liên kết đôi có <code>head</code>, <code>tail</code>, <code>size</code></strong>: mỗi node có <code>prev</code> và <code>next</code>, nên gỡ một node bất kỳ chỉ cần sửa liên kết của hai node kề nó.</p>
 <p>Bạn được giao viết lớp <code>RecentHistory</code> cho mục này.</p>
@@ -24,44 +21,33 @@ ZM003 - Đường về nhà  &lt;-&gt;  ZM002 - Mưa đêm  &lt;-&gt;  ZM001 - B
 <li>Xóa khoảng trắng hai đầu của mã bài và tên bài, chuyển mã bài thành chữ hoa.</li>
 <li>Nếu bài chưa có trong lịch sử: tạo node mới với chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code>, đưa vào <strong>đầu</strong> lịch sử trong O(1) và trả về:</li>
 </ul>
-<pre><code>Đã ghi: ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>Đã ghi: ZM001 - Bình minh trên phố&#10;</code></pre>
 <ul>
 <li>Các trường hợp còn lại: xem bẫy 2, 3, 4 ở mục 3.</li>
 </ul>
 <p><strong>2.2. Xóa một bài khỏi lịch sử: <code>remove_song(code)</code></strong></p>
 <p>Người nghe không muốn một bài hiện trong lịch sử. Hệ thống chuẩn hóa mã, tìm node của bài đó, gỡ node và trả về:</p>
-<pre><code>Đã xóa khỏi lịch sử: ZM002 - Mưa đêm
-</code></pre>
+<pre><code>Đã xóa khỏi lịch sử: ZM002 - Mưa đêm&#10;</code></pre>
 <p><strong>2.3. Hiển thị từ mới đến cũ: <code>to_lines()</code></strong></p>
 <p>Đi từ <code>head</code> theo <code>next</code>, trả về list các dòng đánh số từ 1:</p>
-<pre><code>1. ZM003 - Đường về nhà
-2. ZM002 - Mưa đêm
-3. ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>1. ZM003 - Đường về nhà&#10;2. ZM002 - Mưa đêm&#10;3. ZM001 - Bình minh trên phố&#10;</code></pre>
 <p><strong>2.4. Hiển thị từ cũ đến mới: <code>to_lines_oldest_first()</code></strong></p>
 <p>Đi từ <code>tail</code> theo <code>prev</code>, trả về list các dòng đánh số từ 1:</p>
-<pre><code>1. ZM001 - Bình minh trên phố
-2. ZM002 - Mưa đêm
-3. ZM003 - Đường về nhà
-</code></pre>
+<pre><code>1. ZM001 - Bình minh trên phố&#10;2. ZM002 - Mưa đêm&#10;3. ZM003 - Đường về nhà&#10;</code></pre>
 <p>Nếu lịch sử chưa có bài nào, cả hai chức năng hiển thị trả về list chỉ có một dòng:</p>
-<pre><code>Chưa có lịch sử nghe.
-</code></pre>
+<pre><code>Chưa có lịch sử nghe.&#10;</code></pre>
 <p>Sau mọi chức năng: <code>size</code> bằng số bài trong lịch sử; <code>head.prev</code> và <code>tail.next</code> là <code>None</code>; đi xuôi theo <code>next</code> và đi ngược theo <code>prev</code> gặp đúng các node đó.</p>
 <h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
 <p><strong>Bẫy 1 — Mã bài hoặc tên bài bị thừa khoảng trắng, mã viết thường</strong></p>
 <ul>
 <li>Gọi <code>record("  zm002 ", " Mưa đêm ")</code>, hệ thống vẫn phải lưu và trả về đúng chuẩn:</li>
 </ul>
-<pre><code>Đã ghi: ZM002 - Mưa đêm
-</code></pre>
+<pre><code>Đã ghi: ZM002 - Mưa đêm&#10;</code></pre>
 <p><strong>Bẫy 2 — Nghe lại một bài đã có trong lịch sử</strong></p>
 <ul>
 <li>Lịch sử đang là <code>ZM003</code>, <code>ZM002</code>, <code>ZM001</code>. Gọi <code>record("zm001", "Bình minh trên phố")</code>. Hệ thống <strong>không tạo node mới</strong> mà gỡ node của <code>ZM001</code> khỏi vị trí cũ rồi đưa chính node đó lên đầu; <code>size</code> vẫn là 3. Trả về:</li>
 </ul>
-<pre><code>Đã đưa lên đầu: ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>Đã đưa lên đầu: ZM001 - Bình minh trên phố&#10;</code></pre>
 <ul>
 <li>Ở ví dụ này <code>ZM001</code> đang là <code>tail</code>, nên <code>tail</code> phải lùi về <code>ZM002</code>.</li>
 </ul>
@@ -69,48 +55,22 @@ ZM003 - Đường về nhà  &lt;-&gt;  ZM002 - Mưa đêm  &lt;-&gt;  ZM001 - B
 <ul>
 <li>Lịch sử giữ nguyên, hệ thống trả về:</li>
 </ul>
-<pre><code>Bài ZM003 đang ở đầu lịch sử.
-</code></pre>
+<pre><code>Bài ZM003 đang ở đầu lịch sử.&#10;</code></pre>
 <p><strong>Bẫy 4 — Lịch sử vượt quá giới hạn</strong></p>
 <ul>
 <li>Lịch sử có <code>limit</code> là 3 và đang giữ <code>ZM003</code>, <code>ZM002</code>, <code>ZM001</code>. Gọi <code>record("ZM004", "Phố cũ")</code>: bài mới vào đầu, bài cũ nhất <code>ZM001</code> bị bỏ khỏi cuối trong O(1), <code>tail</code> lùi về <code>ZM002</code>. Trả về:</li>
 </ul>
-<pre><code>Đã ghi: ZM004 - Phố cũ (bỏ bài cũ nhất: ZM001 - Bình minh trên phố)
-</code></pre>
+<pre><code>Đã ghi: ZM004 - Phố cũ (bỏ bài cũ nhất: ZM001 - Bình minh trên phố)&#10;</code></pre>
 <p><strong>Bẫy 5 — Xóa bài không có, xóa bài ở hai đầu, xóa bài duy nhất</strong></p>
 <ul>
 <li>Gọi <code>remove_song("ZM999")</code>, lịch sử giữ nguyên và hệ thống trả về:</li>
 </ul>
-<pre><code>Không tìm thấy bài ZM999 trong lịch sử.
-</code></pre>
+<pre><code>Không tìm thấy bài ZM999 trong lịch sử.&#10;</code></pre>
 <ul>
 <li>Xóa bài đang đứng đầu thì <code>head</code> phải dời và <code>head.prev</code> phải là <code>None</code>. Xóa bài đang đứng cuối thì <code>tail</code> phải lùi và <code>tail.next</code> phải là <code>None</code>. Xóa bài duy nhất thì <code>head</code> và <code>tail</code> đều là <code>None</code>; sau đó ghi một lượt nghe mới vẫn phải hoạt động.</li>
 </ul>
 <p><strong>Kịch bản chạy thử.</strong> Chạy <code>python lich_su.py</code> (đoạn chạy thử có sẵn ở cuối tệp, lịch sử có <code>limit</code> là 4) phải in ra đúng:</p>
-<pre><code>Đã ghi: ZM001 - Bình minh trên phố
-Đã ghi: ZM002 - Mưa đêm
-Đã ghi: ZM003 - Đường về nhà
-Đã đưa lên đầu: ZM001 - Bình minh trên phố
-Bài ZM001 đang ở đầu lịch sử.
-Đã ghi: ZM004 - Phố cũ
-Đã ghi: ZM005 - Gió qua thềm (bỏ bài cũ nhất: ZM002 - Mưa đêm)
-1. ZM005 - Gió qua thềm
-2. ZM004 - Phố cũ
-3. ZM001 - Bình minh trên phố
-4. ZM003 - Đường về nhà
-Từ cũ đến mới:
-1. ZM003 - Đường về nhà
-2. ZM001 - Bình minh trên phố
-3. ZM004 - Phố cũ
-4. ZM005 - Gió qua thềm
-Số bài trong lịch sử: 4
-Không tìm thấy bài ZM999 trong lịch sử.
-Đã xóa khỏi lịch sử: ZM003 - Đường về nhà
-Đã xóa khỏi lịch sử: ZM005 - Gió qua thềm
-1. ZM004 - Phố cũ
-2. ZM001 - Bình minh trên phố
-Bài cũ nhất: ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>Đã ghi: ZM001 - Bình minh trên phố&#10;Đã ghi: ZM002 - Mưa đêm&#10;Đã ghi: ZM003 - Đường về nhà&#10;Đã đưa lên đầu: ZM001 - Bình minh trên phố&#10;Bài ZM001 đang ở đầu lịch sử.&#10;Đã ghi: ZM004 - Phố cũ&#10;Đã ghi: ZM005 - Gió qua thềm (bỏ bài cũ nhất: ZM002 - Mưa đêm)&#10;1. ZM005 - Gió qua thềm&#10;2. ZM004 - Phố cũ&#10;3. ZM001 - Bình minh trên phố&#10;4. ZM003 - Đường về nhà&#10;Từ cũ đến mới:&#10;1. ZM003 - Đường về nhà&#10;2. ZM001 - Bình minh trên phố&#10;3. ZM004 - Phố cũ&#10;4. ZM005 - Gió qua thềm&#10;Số bài trong lịch sử: 4&#10;Không tìm thấy bài ZM999 trong lịch sử.&#10;Đã xóa khỏi lịch sử: ZM003 - Đường về nhà&#10;Đã xóa khỏi lịch sử: ZM005 - Gió qua thềm&#10;1. ZM004 - Phố cũ&#10;2. ZM001 - Bình minh trên phố&#10;Bài cũ nhất: ZM001 - Bình minh trên phố&#10;</code></pre>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
 <p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>

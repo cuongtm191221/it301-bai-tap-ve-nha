@@ -8,44 +8,32 @@
 <li>Yêu cầu của <strong>tài khoản VIP</strong> được đứng <strong>trước mọi yêu cầu thường</strong>, nhưng <strong>sau các yêu cầu VIP đã có</strong> (VIP không chen ngang VIP; ai yêu cầu trước được phát trước).</li>
 </ul>
 <p>Ví dụ: hai tài khoản thường yêu cầu <code>ZM001</code>, <code>ZM002</code>; sau đó hai tài khoản VIP lần lượt yêu cầu <code>ZM003</code>, <code>ZM004</code>. Hàng chờ là:</p>
-<pre><code>head                                                     tail
-[VIP] ZM003  -&gt;  [VIP] ZM004  -&gt;  ZM001  -&gt;  ZM002  -&gt;  None
-</code></pre>
+<pre><code>head                                                     tail&#10;[VIP] ZM003  -&gt;  [VIP] ZM004  -&gt;  ZM001  -&gt;  ZM002  -&gt;  None&#10;</code></pre>
 <p>Hàng chờ luôn gồm hai đoạn: <strong>đoạn VIP ở trước, đoạn thường ở sau</strong>. Một yêu cầu VIP mới phải được chèn đúng vào <strong>ranh giới</strong> giữa hai đoạn.</p>
 <p>Hàng chờ được lưu bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>. Mỗi node có <code>value</code> (chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code>), <code>vip</code> (<code>True</code> hoặc <code>False</code>) và <code>next</code>. Bạn được giao viết trọn lớp <code>RoomQueue</code> và tự quyết định cách xác định ranh giới.</p>
 <h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
 <p>Lớp <code>RoomQueue</code> (khung có sẵn trong <code>phong_nghe.py</code>) cần bốn chức năng. Mỗi chức năng <strong>trả về</strong> thông báo đúng từng chữ. Mọi mã bài nhận vào được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.</p>
 <p><strong>2.1. Nhận yêu cầu: <code>add_request(code, title, vip=False)</code></strong></p>
 <p>Xếp yêu cầu vào đúng chỗ theo quy tắc ưu tiên và trả về thông báo có <strong>vị trí</strong> của bài trong hàng chờ (tính từ 1) ngay sau khi xếp:</p>
-<pre><code>Đã xếp hàng: ZM002 - Mưa đêm (vị trí 2)
-Đã xếp ưu tiên: ZM003 - Đường về nhà (vị trí 1)
-</code></pre>
+<pre><code>Đã xếp hàng: ZM002 - Mưa đêm (vị trí 2)&#10;Đã xếp ưu tiên: ZM003 - Đường về nhà (vị trí 1)&#10;</code></pre>
 <p><strong>2.2. Phát bài tiếp theo: <code>play_next()</code></strong></p>
 <p>Lấy bài ở đầu hàng chờ ra trong O(1), trả về:</p>
-<pre><code>Đang phát: ZM003 - Đường về nhà
-</code></pre>
+<pre><code>Đang phát: ZM003 - Đường về nhà&#10;</code></pre>
 <p><strong>2.3. Hủy yêu cầu: <code>cancel(code)</code></strong></p>
 <p>Gỡ node của bài có mã <code>code</code> (bất kể VIP hay thường), trả về:</p>
-<pre><code>Đã hủy yêu cầu: ZM004 - Phố cũ
-</code></pre>
+<pre><code>Đã hủy yêu cầu: ZM004 - Phố cũ&#10;</code></pre>
 <p><strong>2.4. Hiển thị hàng chờ: <code>to_lines()</code></strong></p>
 <p>Trả về list các dòng đánh số từ 1; yêu cầu VIP có nhãn <code>[VIP]</code>:</p>
-<pre><code>1. [VIP] ZM003 - Đường về nhà
-2. [VIP] ZM004 - Phố cũ
-3. ZM001 - Bình minh trên phố
-4. ZM002 - Mưa đêm
-</code></pre>
+<pre><code>1. [VIP] ZM003 - Đường về nhà&#10;2. [VIP] ZM004 - Phố cũ&#10;3. ZM001 - Bình minh trên phố&#10;4. ZM002 - Mưa đêm&#10;</code></pre>
 <p>Hàng chờ không có bài: <code>to_lines()</code> trả về list chỉ có một dòng, và <code>play_next()</code> trả về đúng dòng đó:</p>
-<pre><code>Hàng chờ của phòng đang trống.
-</code></pre>
+<pre><code>Hàng chờ của phòng đang trống.&#10;</code></pre>
 <p>Sau mọi chức năng: <code>size</code> và <code>tail</code> đúng, mọi node VIP đứng trước mọi node thường.</p>
 <h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
 <p><strong>Bẫy 1 — Bài đã có trong hàng chờ</strong></p>
 <ul>
 <li>Mỗi bài chỉ được chờ một lần. Hàng chờ đã có <code>ZM001</code>; một tài khoản VIP yêu cầu <code>zm001</code>: không xếp thêm, không đổi vị trí bài cũ, trả về:</li>
 </ul>
-<pre><code>Bài ZM001 đã có trong hàng chờ của phòng.
-</code></pre>
+<pre><code>Bài ZM001 đã có trong hàng chờ của phòng.&#10;</code></pre>
 <p><strong>Bẫy 2 — Yêu cầu VIP khi hàng chờ trống, hoặc chỉ toàn VIP</strong></p>
 <ul>
 <li>Hàng chờ trống: node VIP là <code>head</code> và cũng là <code>tail</code>.</li>
@@ -64,34 +52,9 @@
 <li>Hủy <code>ZM002</code> (đang là <code>tail</code>) rồi nhận một yêu cầu thường: bài mới phải nằm ngay sau <code>ZM001</code>.</li>
 <li>Hủy một bài không có, kể cả khi hàng chờ trống:</li>
 </ul>
-<pre><code>Không tìm thấy bài ZM999 trong hàng chờ của phòng.
-</code></pre>
+<pre><code>Không tìm thấy bài ZM999 trong hàng chờ của phòng.&#10;</code></pre>
 <p><strong>Kịch bản chạy thử.</strong> Chạy <code>python phong_nghe.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
-<pre><code>Đã xếp hàng: ZM001 - Bình minh trên phố (vị trí 1)
-Đã xếp hàng: ZM002 - Mưa đêm (vị trí 2)
-Đã xếp ưu tiên: ZM003 - Đường về nhà (vị trí 1)
-Đã xếp ưu tiên: ZM004 - Phố cũ (vị trí 2)
-Bài ZM001 đã có trong hàng chờ của phòng.
-Đã xếp hàng: ZM005 - Gió qua thềm (vị trí 5)
-1. [VIP] ZM003 - Đường về nhà
-2. [VIP] ZM004 - Phố cũ
-3. ZM001 - Bình minh trên phố
-4. ZM002 - Mưa đêm
-5. ZM005 - Gió qua thềm
-Không tìm thấy bài ZM999 trong hàng chờ của phòng.
-Đã hủy yêu cầu: ZM004 - Phố cũ
-Đã xếp ưu tiên: ZM006 - Ngày nắng (vị trí 2)
-1. [VIP] ZM003 - Đường về nhà
-2. [VIP] ZM006 - Ngày nắng
-3. ZM001 - Bình minh trên phố
-4. ZM002 - Mưa đêm
-5. ZM005 - Gió qua thềm
-Số bài đang chờ: 5 | bài cuối: ZM005 - Gió qua thềm
-Đang phát: ZM003 - Đường về nhà
-Đang phát: ZM006 - Ngày nắng
-Đã xếp ưu tiên: ZM008 - Sau cơn mưa (vị trí 1)
-Bài đầu: ZM008 - Sau cơn mưa
-</code></pre>
+<pre><code>Đã xếp hàng: ZM001 - Bình minh trên phố (vị trí 1)&#10;Đã xếp hàng: ZM002 - Mưa đêm (vị trí 2)&#10;Đã xếp ưu tiên: ZM003 - Đường về nhà (vị trí 1)&#10;Đã xếp ưu tiên: ZM004 - Phố cũ (vị trí 2)&#10;Bài ZM001 đã có trong hàng chờ của phòng.&#10;Đã xếp hàng: ZM005 - Gió qua thềm (vị trí 5)&#10;1. [VIP] ZM003 - Đường về nhà&#10;2. [VIP] ZM004 - Phố cũ&#10;3. ZM001 - Bình minh trên phố&#10;4. ZM002 - Mưa đêm&#10;5. ZM005 - Gió qua thềm&#10;Không tìm thấy bài ZM999 trong hàng chờ của phòng.&#10;Đã hủy yêu cầu: ZM004 - Phố cũ&#10;Đã xếp ưu tiên: ZM006 - Ngày nắng (vị trí 2)&#10;1. [VIP] ZM003 - Đường về nhà&#10;2. [VIP] ZM006 - Ngày nắng&#10;3. ZM001 - Bình minh trên phố&#10;4. ZM002 - Mưa đêm&#10;5. ZM005 - Gió qua thềm&#10;Số bài đang chờ: 5 | bài cuối: ZM005 - Gió qua thềm&#10;Đang phát: ZM003 - Đường về nhà&#10;Đang phát: ZM006 - Ngày nắng&#10;Đã xếp ưu tiên: ZM008 - Sau cơn mưa (vị trí 1)&#10;Bài đầu: ZM008 - Sau cơn mưa&#10;</code></pre>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
 <p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>

@@ -3,17 +3,9 @@
 <p><em>Người nghe lùi về bài cũ rồi chọn một bài khác: các bài phía sau phải được bỏ đi, như nút lùi của trình duyệt.</em></p>
 <p>Trong ứng dụng nghe nhạc Zing MP3, người nghe thường không phát theo một danh sách có sẵn mà <strong>chọn bài tùy hứng</strong>: nghe bài này, tìm bài khác, bấm vào một bài gợi ý. Ứng dụng gọi chuỗi các bài đã mở là một <strong>phiên nghe</strong>, và có hai nút <strong>"Lùi"</strong>, <strong>"Tiến"</strong> để đi lại trong phiên nghe, hoạt động giống nút lùi và tiến của trình duyệt web.</p>
 <p>Ví dụ người nghe mở lần lượt <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>, rồi bấm "Lùi" một lần:</p>
-<pre><code>head                       tail
- |                          |
-ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003
-              ^
-           current (bài đang phát)
-</code></pre>
+<pre><code>head                       tail&#10; |                          |&#10;ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003&#10;              ^&#10;           current (bài đang phát)&#10;</code></pre>
 <p>Lúc này bấm "Tiến" sẽ trở lại <code>ZM003</code>. Nhưng nếu người nghe <strong>chọn một bài mới</strong> <code>ZM004</code>, thì giống trình duyệt, nhánh phía sau (<code>ZM003</code>) bị bỏ đi và <code>ZM004</code> trở thành bài cuối của phiên nghe:</p>
-<pre><code>ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM004
-                          ^
-                       current
-</code></pre>
+<pre><code>ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM004&#10;                          ^&#10;                       current&#10;</code></pre>
 <p>Phiên nghe được lưu bằng <strong>danh sách liên kết đôi có <code>head</code>, <code>tail</code>, <code>size</code></strong> và con trỏ <code>current</code>. Phiên bản hiện tại của ứng dụng lưu phiên nghe bằng list Python kèm một chỉ số, và mỗi lần bỏ nhánh sau phải cắt list. Nhóm muốn chuyển sang danh sách liên kết đôi để bỏ cả nhánh sau chỉ bằng một lần đổi liên kết.</p>
 <p>Bạn được giao viết trọn lớp <code>ListeningSession</code>.</p>
 <h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
@@ -23,40 +15,32 @@ ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003
 <li>Chuẩn hóa: xóa khoảng trắng hai đầu của mã và tên, mã chuyển thành chữ hoa.</li>
 <li>Tạo node mới và đặt <strong>ngay sau bài đang phát</strong>; node mới trở thành bài đang phát và là <code>tail</code>. Trả về:</li>
 </ul>
-<pre><code>Đang phát: ZM001 - Bình minh trên phố
-</code></pre>
+<pre><code>Đang phát: ZM001 - Bình minh trên phố&#10;</code></pre>
 <ul>
 <li>Phiên nghe chưa có bài nào thì node mới là <code>head</code>, <code>tail</code> và <code>current</code>.</li>
 <li>Cùng một bài có thể được phát ở hai thời điểm khác nhau của phiên nghe (mở <code>ZM001</code>, <code>ZM002</code>, rồi lại mở <code>ZM001</code>): đó là hai node khác nhau.</li>
 </ul>
 <p><strong>2.2. Lùi: <code>back()</code></strong></p>
 <p>Chuyển <code>current</code> về bài đã nghe ngay trước đó, trả về:</p>
-<pre><code>Lùi về: ZM002 - Mưa đêm
-</code></pre>
+<pre><code>Lùi về: ZM002 - Mưa đêm&#10;</code></pre>
 <p><strong>2.3. Tiến: <code>forward()</code></strong></p>
 <p>Chuyển <code>current</code> tới bài đã nghe ngay sau đó, trả về:</p>
-<pre><code>Tiến tới: ZM003 - Đường về nhà
-</code></pre>
+<pre><code>Tiến tới: ZM003 - Đường về nhà&#10;</code></pre>
 <p><strong>2.4. Hiển thị phiên nghe: <code>to_lines()</code></strong></p>
 <p>Trả về list các dòng theo thứ tự từ <code>head</code>. Dòng của bài đang phát bắt đầu bằng <code>"&gt; "</code>, các dòng khác bắt đầu bằng hai khoảng trắng:</p>
-<pre><code>  ZM001 - Bình minh trên phố
-&gt; ZM002 - Mưa đêm
-  ZM003 - Đường về nhà
-</code></pre>
+<pre><code>  ZM001 - Bình minh trên phố&#10;&gt; ZM002 - Mưa đêm&#10;  ZM003 - Đường về nhà&#10;</code></pre>
 <p>Sau mọi chức năng: <code>size</code> bằng số bài đang giữ; <code>head.prev</code> và <code>tail.next</code> là <code>None</code>; đi xuôi theo <code>next</code> và đi ngược theo <code>prev</code> gặp đúng các node đó. Bộ test kiểm tra các điều này sau mỗi thao tác.</p>
 <h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
 <p><strong>Bẫy 1 — Mã bài hoặc tên bài bị thừa khoảng trắng, mã viết thường</strong></p>
 <ul>
 <li><code>play("  zm002 ", " Mưa đêm ")</code> trả về:</li>
 </ul>
-<pre><code>Đang phát: ZM002 - Mưa đêm
-</code></pre>
+<pre><code>Đang phát: ZM002 - Mưa đêm&#10;</code></pre>
 <p><strong>Bẫy 2 — Phát bài mới sau khi đã lùi</strong></p>
 <ul>
 <li>Phiên nghe có <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>. Lùi hai lần (đang ở <code>ZM001</code>) rồi <code>play("ZM004", "Phố cũ")</code>. Hai bài phía sau bị bỏ; <code>size</code> là 2; <code>tail</code> là <code>ZM004</code>; <code>ZM004.prev</code> là <code>ZM001</code>. Thông báo ghi rõ số bài bị bỏ:</li>
 </ul>
-<pre><code>Đang phát: ZM004 - Phố cũ (đã bỏ 2 bài phía sau)
-</code></pre>
+<pre><code>Đang phát: ZM004 - Phố cũ (đã bỏ 2 bài phía sau)&#10;</code></pre>
 <ul>
 <li>Sau đó bấm "Tiến" phải nhận thông báo của bẫy 3, không được tiến tới một bài đã bị bỏ.</li>
 </ul>
@@ -64,45 +48,22 @@ ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003
 <ul>
 <li><code>current</code> giữ nguyên, hệ thống trả về lần lượt:</li>
 </ul>
-<pre><code>Đây là bài đầu tiên của phiên nghe.
-Không có bài nào phía sau để tiến tới.
-</code></pre>
+<pre><code>Đây là bài đầu tiên của phiên nghe.&#10;Không có bài nào phía sau để tiến tới.&#10;</code></pre>
 <p><strong>Bẫy 4 — Chưa phát bài nào</strong></p>
 <ul>
 <li><code>back()</code>, <code>forward()</code> đều trả về thông báo dưới đây và không báo lỗi; <code>to_lines()</code> trả về list chỉ có một dòng này:</li>
 </ul>
-<pre><code>Chưa phát bài nào.
-</code></pre>
+<pre><code>Chưa phát bài nào.&#10;</code></pre>
 <p><strong>Bẫy 5 — Chọn đúng bài đang phát</strong></p>
 <ul>
 <li>Đang phát <code>ZM003</code> mà gọi <code>play("zm003", "Đường về nhà")</code>: không tạo node mới, <strong>không bỏ nhánh phía sau</strong>, trả về:</li>
 </ul>
-<pre><code>Bài ZM003 đang được phát.
-</code></pre>
+<pre><code>Bài ZM003 đang được phát.&#10;</code></pre>
 <ul>
 <li>Chỉ so sánh với bài <strong>đang phát</strong>. Nếu <code>ZM003</code> có trong phiên nghe nhưng không phải bài đang phát thì vẫn tạo node mới như mục 2.1.</li>
 </ul>
 <p><strong>Kịch bản chạy thử.</strong> Chạy <code>python lui_tien.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
-<pre><code>Chưa phát bài nào.
-Đang phát: ZM001 - Bình minh trên phố
-Đang phát: ZM002 - Mưa đêm
-Đang phát: ZM003 - Đường về nhà
-Bài ZM003 đang được phát.
-Không có bài nào phía sau để tiến tới.
-Lùi về: ZM002 - Mưa đêm
-Lùi về: ZM001 - Bình minh trên phố
-Đây là bài đầu tiên của phiên nghe.
-Tiến tới: ZM002 - Mưa đêm
-  ZM001 - Bình minh trên phố
-&gt; ZM002 - Mưa đêm
-  ZM003 - Đường về nhà
-Đang phát: ZM004 - Phố cũ (đã bỏ 1 bài phía sau)
-Không có bài nào phía sau để tiến tới.
-  ZM001 - Bình minh trên phố
-  ZM002 - Mưa đêm
-&gt; ZM004 - Phố cũ
-Số bài đang giữ: 3 | bài cuối: ZM004 - Phố cũ
-</code></pre>
+<pre><code>Chưa phát bài nào.&#10;Đang phát: ZM001 - Bình minh trên phố&#10;Đang phát: ZM002 - Mưa đêm&#10;Đang phát: ZM003 - Đường về nhà&#10;Bài ZM003 đang được phát.&#10;Không có bài nào phía sau để tiến tới.&#10;Lùi về: ZM002 - Mưa đêm&#10;Lùi về: ZM001 - Bình minh trên phố&#10;Đây là bài đầu tiên của phiên nghe.&#10;Tiến tới: ZM002 - Mưa đêm&#10;  ZM001 - Bình minh trên phố&#10;&gt; ZM002 - Mưa đêm&#10;  ZM003 - Đường về nhà&#10;Đang phát: ZM004 - Phố cũ (đã bỏ 1 bài phía sau)&#10;Không có bài nào phía sau để tiến tới.&#10;  ZM001 - Bình minh trên phố&#10;  ZM002 - Mưa đêm&#10;&gt; ZM004 - Phố cũ&#10;Số bài đang giữ: 3 | bài cuối: ZM004 - Phố cũ&#10;</code></pre>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
 <p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>

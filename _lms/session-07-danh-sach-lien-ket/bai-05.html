@@ -3,11 +3,9 @@
 <p><em>Màn hình danh sách phát báo tổng thời lượng ngắn hơn thực tế và chọn sai bài dài nhất.</em></p>
 <p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
 <p>Đầu màn hình danh sách phát có một dòng thống kê: tổng thời lượng của cả danh sách và bài dài nhất. Danh sách phát được lưu bằng <strong>danh sách liên kết đơn</strong>; mỗi node giữ một chuỗi theo định dạng:</p>
-<pre><code>&quot;MÃ_BÀI - SỐ_GIÂY&quot;
-</code></pre>
+<pre><code>&quot;MÃ_BÀI - SỐ_GIÂY&quot;&#10;</code></pre>
 <p>Ví dụ danh sách phát dùng để kiểm tra:</p>
-<pre><code>&quot;ZM001 - 215&quot;  -&gt;  &quot;ZM002 - 95&quot;  -&gt;  &quot;ZM003 - 248&quot;  -&gt;  &quot;ZM004 - 185&quot;  -&gt;  None
-</code></pre>
+<pre><code>&quot;ZM001 - 215&quot;  -&gt;  &quot;ZM002 - 95&quot;  -&gt;  &quot;ZM003 - 248&quot;  -&gt;  &quot;ZM004 - 185&quot;  -&gt;  None&#10;</code></pre>
 <p>Hệ thống cần ba hàm:</p>
 <ul>
 <li><code>total_seconds(playlist)</code>: tổng số giây của <strong>mọi</strong> bài. Danh sách rỗng thì tổng là 0.</li>
@@ -16,12 +14,7 @@
 </ul>
 <p>Với danh sách trên: 215 + 95 + 248 + 185 = 743 giây, tức 12 phút 23 giây; bài dài nhất là <code>ZM003</code> với 248 giây.</p>
 <p>Kết quả đúng cần hiển thị:</p>
-<pre><code>Tổng thời lượng: 12:23
-Bài dài nhất: ZM003 - 248
-Thời lượng bài ZM004: 3:05
-Tổng thời lượng danh sách mới: 0:00
-Bài dài nhất của danh sách mới: None
-</code></pre>
+<pre><code>Tổng thời lượng: 12:23&#10;Bài dài nhất: ZM003 - 248&#10;Thời lượng bài ZM004: 3:05&#10;Tổng thời lượng danh sách mới: 0:00&#10;Bài dài nhất của danh sách mới: None&#10;</code></pre>
 <h2><strong>2. Vấn đề hiện tại</strong></h2>
 <p>Người nghe phản ánh: tổng thời lượng hiện ra <strong>ngắn hơn</strong> thời gian nghe thật; bài được gắn nhãn "dài nhất" lại là một bài rất ngắn; có bài hiện thời lượng <code>3:5</code>; và mở một danh sách phát mới tạo thì màn hình <strong>bị treo</strong>.</p>
 <p>Lập trình viên trước chưa chú ý bốn điều:</p>
@@ -33,56 +26,9 @@ Bài dài nhất của danh sách mới: None
 </ul>
 <h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
 <p>Tệp <code>thoi_luong.py</code> trong thư mục khởi đầu có sẵn lớp <code>Node</code>, lớp <code>Playlist</code> (các phương thức <code>add_first</code>, <code>add_last</code>, <code>find</code>, <code>to_text</code> đã đúng, không cần sửa). Phần cần xem xét là ba hàm thống kê và đoạn chạy thử:</p>
-<pre><code>def total_seconds(playlist):
-    # Tổng số giây của mọi bài trong danh sách phát
-    total = 0
-    current = playlist.head.next
-    while current is not None:
-        total += int(current.value.split(&quot; - &quot;)[1])
-        current = current.next
-    return total
-
-
-def longest_song(playlist):
-    # Bài có thời lượng dài nhất; bằng nhau thì lấy bài đứng trước; danh sách rỗng trả None
-    best = playlist.head
-    current = playlist.head.next
-    while current is not None:
-        if current.value.split(&quot; - &quot;)[1] &gt; best.value.split(&quot; - &quot;)[1]:
-            best = current
-        current = current.next
-    return best.value
-
-
-def format_duration(seconds):
-    # Đổi số giây thành chuỗi &quot;phút:giây&quot;, phần giây luôn có hai chữ số
-    minutes = seconds // 60
-    rest = seconds % 60
-    return str(minutes) + &quot;:&quot; + str(rest)
-
-
-playlist = Playlist()
-for song in [&quot;ZM001 - 215&quot;, &quot;ZM002 - 95&quot;, &quot;ZM003 - 248&quot;, &quot;ZM004 - 185&quot;]:
-    playlist.add_last(song)
-print(&quot;Tổng thời lượng:&quot;, format_duration(total_seconds(playlist)))
-print(&quot;Bài dài nhất:&quot;, longest_song(playlist))
-print(&quot;Thời lượng bài ZM004:&quot;, format_duration(185))
-
-# Danh sách mới tạo, chưa có bài nào
-empty = Playlist()
-print(&quot;Tổng thời lượng danh sách mới:&quot;, format_duration(total_seconds(empty)))
-print(&quot;Bài dài nhất của danh sách mới:&quot;, longest_song(empty))
-
-</code></pre>
+<pre><code>def total_seconds(playlist):&#10;    # Tổng số giây của mọi bài trong danh sách phát&#10;    total = 0&#10;    current = playlist.head.next&#10;    while current is not None:&#10;        total += int(current.value.split(&quot; - &quot;)[1])&#10;        current = current.next&#10;    return total&#10;&#10;&#10;def longest_song(playlist):&#10;    # Bài có thời lượng dài nhất; bằng nhau thì lấy bài đứng trước; danh sách rỗng trả None&#10;    best = playlist.head&#10;    current = playlist.head.next&#10;    while current is not None:&#10;        if current.value.split(&quot; - &quot;)[1] &gt; best.value.split(&quot; - &quot;)[1]:&#10;            best = current&#10;        current = current.next&#10;    return best.value&#10;&#10;&#10;def format_duration(seconds):&#10;    # Đổi số giây thành chuỗi &quot;phút:giây&quot;, phần giây luôn có hai chữ số&#10;    minutes = seconds // 60&#10;    rest = seconds % 60&#10;    return str(minutes) + &quot;:&quot; + str(rest)&#10;&#10;&#10;playlist = Playlist()&#10;for song in [&quot;ZM001 - 215&quot;, &quot;ZM002 - 95&quot;, &quot;ZM003 - 248&quot;, &quot;ZM004 - 185&quot;]:&#10;    playlist.add_last(song)&#10;print(&quot;Tổng thời lượng:&quot;, format_duration(total_seconds(playlist)))&#10;print(&quot;Bài dài nhất:&quot;, longest_song(playlist))&#10;print(&quot;Thời lượng bài ZM004:&quot;, format_duration(185))&#10;&#10;# Danh sách mới tạo, chưa có bài nào&#10;empty = Playlist()&#10;print(&quot;Tổng thời lượng danh sách mới:&quot;, format_duration(total_seconds(empty)))&#10;print(&quot;Bài dài nhất của danh sách mới:&quot;, longest_song(empty))&#10;&#10;</code></pre>
 <p>Kết quả hiển thị trên Console:</p>
-<pre><code>Tổng thời lượng: 8:48
-Bài dài nhất: ZM002 - 95
-Thời lượng bài ZM004: 3:5
-Traceback (most recent call last):
-  ...
-    current = playlist.head.next
-AttributeError: 'NoneType' object has no attribute 'next'
-</code></pre>
+<pre><code>Tổng thời lượng: 8:48&#10;Bài dài nhất: ZM002 - 95&#10;Thời lượng bài ZM004: 3:5&#10;Traceback (most recent call last):&#10;  ...&#10;    current = playlist.head.next&#10;AttributeError: 'NoneType' object has no attribute 'next'&#10;</code></pre>
 <p>Chương trình dừng ở dòng tính tổng thời lượng của danh sách mới. Trước đó, cả ba dòng đã in đều sai so với kết quả đúng: tổng thời lượng là <code>8:48</code> thay vì <code>12:23</code>, bài dài nhất là <code>ZM002 - 95</code> thay vì <code>ZM003 - 248</code>, thời lượng 185 giây hiện là <code>3:5</code> thay vì <code>3:05</code>.</p>
 <h2><strong>4. Yêu cầu</strong></h2>
 <p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
@@ -102,12 +48,7 @@ AttributeError: 'NoneType' object has no attribute 'next'
 <li>Sửa ba hàm <code>total_seconds</code>, <code>longest_song</code>, <code>format_duration</code> trong <code>thoi_luong.py</code>. Không đổi tên hàm; không chép các bài sang list Python để tính.</li>
 <li>Chạy <code>python thoi_luong.py</code> phải cho đúng kết quả:</li>
 </ul>
-<pre><code>Tổng thời lượng: 12:23
-Bài dài nhất: ZM003 - 248
-Thời lượng bài ZM004: 3:05
-Tổng thời lượng danh sách mới: 0:00
-Bài dài nhất của danh sách mới: None
-</code></pre>
+<pre><code>Tổng thời lượng: 12:23&#10;Bài dài nhất: ZM003 - 248&#10;Thời lượng bài ZM004: 3:05&#10;Tổng thời lượng danh sách mới: 0:00&#10;Bài dài nhất của danh sách mới: None&#10;</code></pre>
 <ul>
 <li>Chạy <code>pytest -q</code> phải xanh cả 6 test.</li>
 </ul>
