@@ -1,0 +1,57 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người bán nhập hàng nhiều đợt với giá khác nhau; báo cáo lãi lỗ cần biết mỗi sản phẩm xuất ra mang giá vốn của lô nào." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-18/minh_hoa.png" /></p>
+<p><em>Người bán nhập hàng nhiều đợt với giá khác nhau; báo cáo lãi lỗ cần biết mỗi sản phẩm xuất ra mang giá vốn của lô nào.</em></p>
+<p>Người bán trên Tiki nhập hàng nhiều đợt, mỗi đợt một <strong>lô</strong> với đơn giá khác nhau (giá nhà cung cấp tăng, giảm theo mùa). Khi đơn hàng được giao, hệ thống phải ghi <strong>giá vốn</strong> của số sản phẩm xuất kho để báo cáo lãi lỗ: bán được 180.000đ một tai nghe, nhưng tai nghe đó nhập giá 100.000đ hay 130.000đ thì lãi rất khác nhau.</p>
+<p>Hai cách tính giá xuất kho mà nhóm kế toán của người bán đưa ra để so sánh:</p>
+<ul>
+<li><strong>FIFO</strong> (nhập trước, xuất trước): sản phẩm xuất ra lấy từ lô nhập <strong>sớm nhất</strong> còn hàng. Các lô xếp hàng như một <strong>queue</strong>.</li>
+<li><strong>LIFO</strong> (nhập sau, xuất trước): lấy từ lô nhập <strong>muộn nhất</strong> còn hàng. Các lô chồng lên nhau như một <strong>stack</strong>.</li>
+</ul>
+<p>Một lần xuất có thể lấy hết một lô rồi lấy <strong>một phần</strong> lô kế tiếp. Ví dụ FIFO: tồn 10 sản phẩm giá 100.000đ và 5 sản phẩm giá 120.000đ, xuất 12 thì giá vốn là 10 × 100.000 + 2 × 120.000 = 1.240.000đ, còn lại 3 sản phẩm giá 120.000đ.</p>
+<p>Người bán lớn có hàng trăm nghìn lô nhỏ (mỗi lô vài sản phẩm, hàng ký gửi nhập theo ngày), và trang tổng quan gọi <code>stock_value()</code> sau <strong>mỗi</strong> lần nhập, xuất để hiện giá trị tồn kho. Bản thử đầu tiên lưu lô trong list, lấy lô đầu bằng <code>pop(0)</code> và tính lại giá trị tồn bằng vòng lặp qua mọi lô: tài khoản lớn mở trang là treo.</p>
+<p>Bài này tổng hợp kiến thức cả buổi: queue và stack trên cùng một tập dữ liệu, deque dùng được cả hai đầu, chi phí <code>pop(0)</code>, giữ bất biến khi thao tác thất bại.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>StockLedger(method)</code></strong>: <code>method</code> là <code>"FIFO"</code> hoặc <code>"LIFO"</code>, khác báo <code>ValueError("Phương pháp không hỗ trợ")</code>. Bạn tự chọn cách lưu các lô.</p>
+<p><strong>2.2. <code>receive(qty, unit_cost)</code>, <code>issue(qty)</code></strong>: nhập một lô; xuất và trả về giá vốn (đồng). Thông báo lỗi đúng như trong docstring.</p>
+<p><strong>2.3. <code>on_hand()</code>, <code>stock_value()</code>, <code>lots()</code></strong>: tổng số lượng tồn; giá trị tồn; list bộ <code>(số lượng còn, đơn giá)</code> theo thứ tự nhập.</p>
+<p><strong>2.4. <code>cost_report(method, events)</code></strong>: chạy một chuỗi sự kiện, trả về một dòng:</p>
+<pre><code>FIFO: giá vốn 1990000đ, tồn 5 sp trị giá 650000đ&#10;FIFO: lỗi ở bước 2: Không đủ hàng: còn 3&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Lấy một phần lô.</strong> Lô bị lấy một phần vẫn ở đúng vị trí với số lượng còn lại; lô bị lấy hết thì biến mất khỏi <code>lots()</code>.</p>
+<p><strong>Bẫy 2 — Thiếu hàng.</strong> Xuất nhiều hơn số tồn báo lỗi và sổ <strong>giữ nguyên</strong>: không lô nào bị trừ dở dang.</p>
+<p><strong>Bẫy 3 — Dữ liệu sai.</strong> Số lượng, đơn giá bằng 0, âm, số thực, chuỗi, <code>True</code>; phương pháp viết thường <code>"fifo"</code>.</p>
+<p><strong>Bẫy 4 — Hai phương pháp, cùng sự kiện.</strong> Với chuỗi sự kiện của kịch bản chạy thử, FIFO và LIFO cho giá vốn và giá trị tồn khác nhau; tổng giá vốn cộng giá trị tồn của hai cách phải bằng nhau (bằng tổng tiền nhập).</p>
+<p><strong>Bẫy 5 — 100.000 lô nhỏ.</strong> Nhập 100.000 lô một sản phẩm rồi xuất từng sản phẩm một, gọi <code>stock_value()</code> sau mỗi lần, xong trong 2 giây; xuất 100.000 sản phẩm trong một lần cũng vậy. Không dùng <code>pop(0)</code>, <code>insert(0, ...)</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python gia_von.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>FIFO: giá vốn 1990000đ, tồn 5 sp trị giá 650000đ&#10;LIFO: giá vốn 2080000đ, tồn 5 sp trị giá 560000đ&#10;Xuất 12, giá vốn: 1240000 | lô còn lại: [(3, 120000)]&#10;FIFO: lỗi ở bước 2: Không đủ hàng: còn 3&#10;FIFO: lỗi ở bước 1: Số lượng và đơn giá phải là số nguyên dương&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Chạy tay chuỗi sự kiện của kịch bản chạy thử với FIFO và với LIFO: sau mỗi sự kiện, các lô còn lại và giá vốn của lần xuất.</li>
+<li>Chọn cấu trúc lưu các lô sao cho cả FIFO và LIFO đều lấy lô cần thiết trong O(1); giải thích vì sao list với <code>pop(0)</code> không đạt.</li>
+<li>Bẫy 2: thiết kế <code>issue</code> để khi thiếu hàng không có lô nào bị trừ dở dang; vì sao kiểm tra trước rẻ hơn "trừ rồi hoàn lại"?</li>
+<li>Bẫy 5: làm sao <code>stock_value()</code> không phải duyệt mọi lô?</li>
+<li>Độ phức tạp: ghi Big-O thời gian của <code>receive</code>, <code>issue</code> (theo số lô bị chạm tới), <code>stock_value</code>, <code>lots</code>, và tổng thời gian của n lần nhập rồi n lần xuất.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>gia_von.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Không dùng <code>pop(0)</code>, <code>insert(0, ...)</code> trên list; <code>stock_value</code> và <code>on_hand</code> không duyệt các lô.</li>
+<li>Xử lý đủ 5 bẫy; <code>python gia_von.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu quy định kế toán Việt Nam về phương pháp tính giá trị hàng xuất kho: Chuẩn mực kế toán số 02 (VAS 02, Hàng tồn kho) và Thông tư 200/2014/TT-BTC. Những phương pháp nào được dùng? LIFO còn được phép không, từ văn bản nào? Chuẩn mực quốc tế IAS 2 nói gì về LIFO?</li>
+<li>Tạo <code>nghien_cuu.py</code>: dùng <code>StockLedger</code> của bạn cho 12 tháng, mỗi tháng nhập 100 sản phẩm giá tăng 5.000đ so với tháng trước và bán 80 sản phẩm giá 180.000đ. In giá vốn, lợi nhuận gộp, giá trị tồn của FIFO và LIFO. Dựa trên số liệu, giải thích vì sao khi giá tăng, LIFO làm báo cáo lợi nhuận và giá trị tồn kho kém phản ánh thực tế.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex18</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-18">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-18</a> rồi chép các tệp vào kho: <code>gia_von.py</code>, <code>test_gia_von.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>gia_von.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

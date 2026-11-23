@@ -1,0 +1,63 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Máy in phiếu xuất kho báo xử lý một phiếu ba lần liền, chồng phiếu không bao giờ hết." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-05/minh_hoa.png" /></p>
+<p><em>Máy in phiếu xuất kho báo xử lý một phiếu ba lần liền, chồng phiếu không bao giờ hết.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm vận hành kho của Tiki.</p>
+<p>Mỗi phiếu xuất kho được in ra và đặt lên <strong>chồng phiếu</strong> ở quầy; nhân viên luôn xử lý <strong>phiếu trên cùng</strong> (phiếu in sau cùng) trước. Phần mềm của quầy chạy trên máy cũ, nhóm đã cài ngăn xếp bằng <strong>chuỗi nút</strong> theo Lesson 01, mục 2.3: đỉnh là nút <code>head</code>, mỗi nút có <code>value</code> và <code>next</code>.</p>
+<p>Đặc tả của lớp <code>SlipStack</code>:</p>
+<ul>
+<li><code>push(slip)</code>: đặt phiếu lên trên cùng (như <code>add_first</code>).</li>
+<li><code>pop()</code>: lấy phiếu trên cùng, trả về mã phiếu (như <code>remove_first</code>).</li>
+<li><code>peek()</code>: xem phiếu trên cùng mà không lấy.</li>
+<li><code>is_empty()</code>, <code>size()</code>: chồng có rỗng không; số phiếu (dùng <code>_size</code> để không phải duyệt).</li>
+<li>Chồng rỗng: <code>pop()</code> và <code>peek()</code> báo <code>IndexError("ngăn xếp rỗng")</code>.</li>
+</ul>
+<p>Màn hình quầy hiện số phiếu còn lại để trưởng ca biết khi nào hết việc; số sai thì ca làm việc không kết thúc được và nhân viên phải ở lại đối chiếu bằng tay.</p>
+<p>Vì phiếu nằm trong chuỗi nút, không ai nhìn thấy trực tiếp; nhóm chỉ phát hiện lỗi khi nhân viên phàn nàn rằng phiếu cũ không bao giờ được xử lý và khách của các đơn đó gọi lên hỏi vì sao hàng chưa xuất kho sau hai ngày.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): in ba phiếu PX01, PX02, PX03; xử lý hai phiếu; xử lý phiếu cuối; xem chồng rỗng.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Xử lý: PX03 PX02 | còn 1 phiếu, trên cùng: PX01&#10;Xử lý: PX01 | rỗng: True | còn 0 phiếu&#10;Xem chồng rỗng: ngăn xếp rỗng&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhân viên quầy phản ánh:</p>
+<ul>
+<li>Bấm "Xử lý" ba lần thì cả ba lần đều ra <strong>PX03</strong>; phiếu PX01, PX02 không bao giờ tới lượt.</li>
+<li>Màn hình luôn báo còn 3 phiếu, chồng không bao giờ rỗng.</li>
+<li>Xem chồng (khi lẽ ra đã rỗng) vẫn hiện một mã phiếu thay vì báo rỗng.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01):</p>
+<ul>
+<li><code>LinkedStack</code> đặt <strong>đỉnh ở head</strong>: <code>push</code> như <code>add_first</code>, <code>pop</code> như <code>remove_first</code> của Session 07, đều O(1).</li>
+<li><code>pop</code> phải <strong>chuyển head sang nút thứ hai</strong> sau khi đọc giá trị, và giảm <code>_size</code>. "pop của LinkedStack quên chuyển head" là lỗi thường gặp.</li>
+<li><code>peek</code> trên ngăn xếp rỗng phải báo lỗi như đặc tả, không trả <code>None</code> (vì <code>None</code> có thể bị hiểu nhầm là một phiếu).</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>chong_phieu.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Chồng phiếu xuất kho Tiki, cài ngăn xếp bằng chuỗi nút.&quot;&quot;&quot;&#10;class Node:&#10;    def __init__(self, value, next=None):&#10;        self.value = value&#10;        self.next = next&#10;&#10;&#10;class SlipStack:&#10;    # Chồng phiếu xuất kho Tiki, cài bằng chuỗi nút: phiếu in sau cùng nằm trên cùng (head).&#10;    # Rỗng: pop() và peek() báo IndexError(&quot;ngăn xếp rỗng&quot;).&#10;    def __init__(self):&#10;        self.head = None&#10;        self._size = 0&#10;&#10;    def push(self, slip):&#10;        self.head = Node(slip, self.head)&#10;        self._size += 1&#10;&#10;    def pop(self):&#10;        if self.head is None:&#10;            raise IndexError(&quot;ngăn xếp rỗng&quot;)&#10;        value = self.head.value&#10;        return value&#10;&#10;    def peek(self):&#10;        if self.head is None:&#10;            return None&#10;        return self.head.value&#10;&#10;    def is_empty(self):&#10;        return self.head is None&#10;&#10;    def size(self):&#10;        return self._size&#10;&#10;&#10;slips = SlipStack()&#10;for code in (&quot;PX01&quot;, &quot;PX02&quot;, &quot;PX03&quot;):&#10;    slips.push(code)&#10;print(&quot;Xử lý:&quot;, slips.pop(), slips.pop(), &quot;| còn&quot;, slips.size(), &quot;phiếu, trên cùng:&quot;, slips.peek())&#10;print(&quot;Xử lý:&quot;, slips.pop(), &quot;| rỗng:&quot;, slips.is_empty(), &quot;| còn&quot;, slips.size(), &quot;phiếu&quot;)&#10;try:&#10;    print(&quot;Xem chồng rỗng:&quot;, slips.peek())&#10;except IndexError as error:&#10;    print(&quot;Xem chồng rỗng:&quot;, error)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Xử lý: PX03 PX03 | còn 3 phiếu, trên cùng: PX03&#10;Xử lý: PX03 | rỗng: False | còn 3 phiếu&#10;Xem chồng rỗng: PX03&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: mỗi lần <code>pop</code> đều ra PX03, số phiếu luôn là 3, chồng không bao giờ rỗng.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Vẽ chuỗi nút sau ba lần <code>push</code>. Sau lần <code>pop</code> đầu tiên của mã hiện tại, <code>head</code> trỏ tới nút nào? Vì sao lần <code>pop</code> tiếp theo vẫn ra PX03?</li>
+<li>Sửa <code>pop</code>: thêm những dòng nào, theo thứ tự nào? Nếu đổi thứ tự "đọc giá trị" và "chuyển head" thì sao?</li>
+<li>Sau khi sửa <code>pop</code>, nút PX03 cũ còn được tham chiếu từ đâu không? Python làm gì với nó?</li>
+<li>Vì sao <code>peek()</code> trả <code>None</code> là sai đặc tả? Nêu một tình huống <code>None</code> gây lỗi ở màn hình quầy.</li>
+<li>Ghi Big-O của <code>push</code>, <code>pop</code>, <code>peek</code>, <code>size</code>. Vì sao cần <code>_size</code> thay vì đếm nút?</li>
+<li>Ghi bốn bộ dữ liệu thử: chồng 1 phiếu, pop trên chồng rỗng, push sau khi pop hết, peek hai lần liên tiếp; kèm kết quả mong đợi.</li>
+<li>So sánh <code>SlipStack</code> với <code>ArrayStack</code> (list, đỉnh ở cuối): Big-O và bộ nhớ thêm của mỗi cách.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>SlipStack</code> trong <code>chong_phieu.py</code>. Không đổi tên lớp, phương thức, thuộc tính, thông báo lỗi; không dùng list Python để lưu phiếu.</li>
+<li>Chạy <code>python chong_phieu.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex05</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-05</a> rồi chép các tệp vào kho: <code>chong_phieu.py</code>, <code>test_chong_phieu.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>chong_phieu.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

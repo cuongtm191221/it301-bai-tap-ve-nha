@@ -1,0 +1,63 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người bán bấm hoàn tác khi chưa viết gì thì trình soạn sập; viết mới xong bấm làm lại thì chữ cũ hiện lại." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-03/minh_hoa.png" /></p>
+<p><em>Người bán bấm hoàn tác khi chưa viết gì thì trình soạn sập; viết mới xong bấm làm lại thì chữ cũ hiện lại.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm công cụ người bán của Tiki.</p>
+<p>Người bán soạn <strong>mô tả sản phẩm</strong> theo từng cụm từ. Trình soạn có nút <strong>Hoàn tác</strong> (gỡ cụm vừa viết) và <strong>Làm lại</strong> (viết lại cụm vừa gỡ). Lớp <code>DescriptionEditor</code> dùng hai ngăn xếp theo Lesson 02:</p>
+<ul>
+<li><code>write(part)</code>: thêm cụm từ vào cuối mô tả.</li>
+<li><code>undo()</code>: gỡ cụm từ vừa viết gần nhất.</li>
+<li><code>redo()</code>: viết lại cụm từ vừa gỡ gần nhất.</li>
+<li><code>text()</code>: mô tả hiện tại, các cụm nối bằng dấu cách.</li>
+<li>Không còn gì để hoàn tác hoặc làm lại thì giữ nguyên, <strong>không báo lỗi</strong> (người bán hay bấm liên tục).</li>
+</ul>
+<p>Mô tả sản phẩm được duyệt trước khi đăng; nếu hoàn tác, làm lại sai, người bán đăng nhầm nội dung đã xóa (ví dụ thông số cũ) và bị khiếu nại vì mô tả sai sự thật.</p>
+<p>Người bán thường soạn nhanh rồi bấm Hoàn tác, Làm lại liên tục để so hai cách viết, nên trình soạn phải chịu được mọi thứ tự bấm, kể cả bấm khi không còn gì để làm.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): viết ba cụm; hoàn tác; làm lại rồi hoàn tác; viết cụm mới rồi bấm làm lại; bấm hoàn tác 5 lần liên tiếp.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Hoàn tác: Tai nghe không dây&#10;Làm lại rồi hoàn tác: Tai nghe không dây&#10;Viết mới rồi làm lại: Tai nghe không dây pin 30 giờ&#10;Hoàn tác 5 lần: ''&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người bán phản ánh:</p>
+<ul>
+<li>Bấm Làm lại rồi Hoàn tác thì cụm từ không bị gỡ.</li>
+<li>Hoàn tác một cụm, viết cụm mới, rồi bấm Làm lại thì <strong>cụm đã xóa hiện lại</strong> sau cụm mới.</li>
+<li>Bấm Hoàn tác nhiều lần (khi đã gỡ hết) thì trình soạn báo lỗi và mất nội dung đang soạn.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li>Viết cụm mới: push vào <code>undo_stack</code>, <strong>xóa sạch</strong> <code>redo_stack</code>.</li>
+<li>Hoàn tác: pop từ <code>undo_stack</code>, push sang <code>redo_stack</code>.</li>
+<li>Làm lại: pop từ <code>redo_stack</code>, push <strong>về</strong> <code>undo_stack</code>.</li>
+<li>"Không xóa ngăn xếp làm lại khi có thao tác mới" là lỗi thường gặp: thao tác cũ đã bỏ lại quay về sau thao tác mới.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>soan_mo_ta.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Trình soạn mô tả sản phẩm có hoàn tác và làm lại cho người bán Tiki.&quot;&quot;&quot;&#10;class DescriptionEditor:&#10;    # Trình soạn mô tả sản phẩm cho người bán trên Tiki: viết từng cụm từ, hoàn tác, làm lại.&#10;    # undo() và redo() khi không có gì để làm thì giữ nguyên, không báo lỗi.&#10;    def __init__(self):&#10;        self.parts = []&#10;        self.undo_stack = []&#10;        self.redo_stack = []&#10;&#10;    def write(self, part):&#10;        self.parts.append(part)&#10;        self.undo_stack.append(part)&#10;&#10;    def undo(self):&#10;        part = self.undo_stack.pop()&#10;        self.parts.pop()&#10;        self.redo_stack.append(part)&#10;&#10;    def redo(self):&#10;        if self.redo_stack:&#10;            part = self.redo_stack.pop()&#10;            self.parts.append(part)&#10;&#10;    def text(self):&#10;        return &quot; &quot;.join(self.parts)&#10;&#10;&#10;ed = DescriptionEditor()&#10;for part in (&quot;Tai nghe&quot;, &quot;không dây&quot;, &quot;chống ồn&quot;):&#10;    ed.write(part)&#10;ed.undo()&#10;print(&quot;Hoàn tác:&quot;, ed.text())&#10;ed.redo()&#10;ed.undo()&#10;print(&quot;Làm lại rồi hoàn tác:&quot;, ed.text())&#10;ed.write(&quot;pin 30 giờ&quot;)&#10;ed.redo()&#10;print(&quot;Viết mới rồi làm lại:&quot;, ed.text())&#10;for _ in range(5):&#10;    ed.undo()&#10;print(&quot;Hoàn tác 5 lần:&quot;, repr(ed.text()))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Hoàn tác: Tai nghe không dây&#10;Làm lại rồi hoàn tác: Tai nghe không dây&#10;Viết mới rồi làm lại: Tai nghe không dây pin 30 giờ không dây&#10;Traceback (most recent call last):&#10;  ...&#10;    part = self.undo_stack.pop()&#10;IndexError: pop from empty list&#10;</code></pre>
+<p>Dòng đầu đúng. Lần "làm lại rồi hoàn tác" gây <code>IndexError</code> vì <code>undo_stack</code> đã rỗng, nên các dòng sau không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay kịch bản với mã hiện tại: ghi <code>parts</code>, <code>undo_stack</code>, <code>redo_stack</code> sau mỗi thao tác cho tới dòng gây lỗi. Vì sao <code>undo_stack</code> rỗng dù mô tả còn hai cụm?</li>
+<li>Sửa <code>redo</code> theo quy tắc. Kiểm tra lại bằng chuỗi thao tác "viết A, B; hoàn tác; làm lại; hoàn tác".</li>
+<li>Với mã hiện tại (sau khi sửa <code>redo</code>), chạy tay "viết A, B; hoàn tác; viết X; làm lại". Kết quả sai thế nào? Sửa <code>write</code>.</li>
+<li>Sửa <code>undo</code> để không báo lỗi khi không còn gì để hoàn tác. Vì sao không nên dùng <code>try/except</code> bao quanh toàn bộ hàm?</li>
+<li>Ghi Big-O của <code>write</code>, <code>undo</code>, <code>redo</code>, <code>text</code> theo n (số cụm).</li>
+<li>Ghi bốn bộ dữ liệu thử, kèm kết quả mong đợi: hoàn tác khi chưa viết; làm lại khi chưa hoàn tác; hoàn tác hết rồi làm lại hết; viết mới xen giữa.</li>
+<li>Vì sao hai ngăn xếp phù hợp với hoàn tác, làm lại hơn là một hàng đợi? Gợi ý: thao tác nào được gỡ trước?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>DescriptionEditor</code> trong <code>soan_mo_ta.py</code>. Không đổi tên lớp, phương thức, thuộc tính.</li>
+<li>Chạy <code>python soan_mo_ta.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex03</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-03</a> rồi chép các tệp vào kho: <code>soan_mo_ta.py</code>, <code>test_soan_mo_ta.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>soan_mo_ta.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

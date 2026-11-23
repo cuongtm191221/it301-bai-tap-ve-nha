@@ -1,0 +1,48 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Khách theo dõi giá muốn biết: nếu không mua hôm nay, phải chờ bao nhiêu ngày thì giá xuống thấp hơn? Lịch sử giá có thể dài hàng trăm nghìn ngày." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-13/minh_hoa.png" /></p>
+<p><em>Khách theo dõi giá muốn biết: nếu không mua hôm nay, phải chờ bao nhiêu ngày thì giá xuống thấp hơn? Lịch sử giá có thể dài hàng trăm nghìn ngày.</em></p>
+<p>Tính năng <strong>"Theo dõi giá"</strong> của Tiki lưu lịch sử giá theo ngày của mỗi sản phẩm. Nhóm phân tích muốn tính trước, cho <strong>từng ngày</strong>, số ngày phải chờ tới <strong>ngày gần nhất sau đó có giá thấp hơn hẳn</strong>; không có ngày nào như vậy thì ghi 0. Kết quả dùng để gợi ý "Bạn có thể chờ thêm vài ngày" khi khách xem lại lịch sử.</p>
+<pre><code>Giá:   129.000 125.000 135.000 140.000 119.000 119.000 139.000 99.000&#10;Chờ:         1       3       2       1       3       2       1      0&#10;</code></pre>
+<p>Ngày 3 (135.000đ) phải chờ 2 ngày, tới ngày 5 giá 119.000đ. Ngày 5 và ngày 6 cùng 119.000đ: giá <strong>bằng</strong> không tính là giảm. Ngày 8 là ngày rẻ nhất về sau nên ghi 0. Kết quả phải tính cho <strong>mọi</strong> ngày cùng lúc, vì cùng một list còn được vẽ thành biểu đồ "thời gian chờ giảm giá" trên trang quản trị.</p>
+<p>Nhóm chạy phép tính này cho hàng triệu sản phẩm mỗi đêm; một số sản phẩm có lịch sử giá theo phút, tới <strong>200.000</strong> mốc. Cách làm đầu tiên một bạn nghĩ tới là với mỗi ngày, dò tiếp về sau tới khi gặp giá thấp hơn: đúng, nhưng với lịch sử giá tăng dần thì gần như phải dò tới cuối cho mọi ngày. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>wait_days_v1(prices)</code> và <code>wait_days_v2(prices)</code></strong>: mỗi hàm cài một giải pháp, trả về list số ngày phải chờ như trên. Hai hàm cho cùng kết quả nhưng <strong>khác nhau về cách làm</strong>; không sửa list giá. Hàm <code>money(amount)</code> có sẵn.</p>
+<p><strong>2.2. <code>wait_message(prices, day)</code></strong>: dùng giải pháp bạn chọn, ngày <code>day</code> đếm từ 1:</p>
+<pre><code>Ngày 3 (135.000đ): giá thấp hơn sau 2 ngày (ngày 5, 119.000đ).&#10;Ngày 8 (99.000đ): chưa có ngày nào sau đó rẻ hơn.&#10;Ngày không hợp lệ.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Giá bằng nhau.</strong> <code>[5, 5, 5]</code> cho <code>[0, 0, 0]</code>; <code>[5, 5, 4]</code> cho <code>[2, 1, 0]</code>.</p>
+<p><strong>Bẫy 2 — Giá tăng dần, giảm dần.</strong> Tăng dần: mọi ngày là 0. Giảm dần: mọi ngày là 1 trừ ngày cuối.</p>
+<p><strong>Bẫy 3 — Lịch sử rỗng, một ngày.</strong> <code>[]</code> và <code>[0]</code>.</p>
+<p><strong>Bẫy 4 — Ngày không hợp lệ.</strong> <code>day</code> nhỏ hơn 1 hoặc lớn hơn số ngày.</p>
+<p><strong>Bẫy 5 — 200.000 mốc giá tăng dần.</strong> <code>wait_message</code> trả lời trong 1 giây. Giải pháp chậm vẫn phải đúng với dữ liệu nhỏ, vì test so sánh hai giải pháp trên 200 lịch sử giá ngẫu nhiên.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python cho_giam_gia.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>[1, 3, 2, 1, 3, 2, 1, 0]&#10;Ngày 1 (129.000đ): giá thấp hơn sau 1 ngày (ngày 2, 125.000đ).&#10;Ngày 3 (135.000đ): giá thấp hơn sau 2 ngày (ngày 5, 119.000đ).&#10;Ngày 5 (119.000đ): giá thấp hơn sau 3 ngày (ngày 8, 99.000đ).&#10;Ngày 8 (99.000đ): chưa có ngày nào sau đó rẻ hơn.&#10;Ngày không hợp lệ.&#10;200.000 ngày, ngày đầu: Ngày 1 (50.000đ): chưa có ngày nào sau đó rẻ hơn.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc tính số ngày phải chờ. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với n = 5.000, 10.000, 20.000 mốc giá tăng dần (trường hợp xấu nhất của cách dò); ghi bảng số đo, phiên bản Python và máy đo. Đếm thêm số phép cộng hoặc số tham chiếu phải dịch bằng một biến đếm.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>wait_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay lịch sử giá ở mục 1: ghi dữ liệu trung gian (với giải pháp dùng cấu trúc phụ, ghi cấu trúc đó sau mỗi ngày) và số phép so sánh.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>cho_giam_gia.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sửa list giá</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python cho_giam_gia.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 7 test có sẵn (các test về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex13</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-13">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-13</a> rồi chép các tệp vào kho: <code>cho_giam_gia.py</code>, <code>test_cho_giam_gia.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>cho_giam_gia.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,142 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Lỗi quản lý chồng thùng hàng trên kệ kho Tiki",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7021
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Lỗi kiểm tra dấu ngoặc trong mẫu tin nhắn của Tiki",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6678
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Lỗi hoàn tác, làm lại trong trình soạn mô tả sản phẩm Tiki",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7033
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Lỗi nút Quay lại, Tiến tới khi xem sản phẩm trên Tiki",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6993
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Lỗi chồng phiếu xuất kho Tiki cài bằng chuỗi nút",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7365
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Lỗi hàng chờ đóng gói ở kho Tiki cài bằng chuỗi nút",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7391
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Lỗi hàng yêu cầu hỗ trợ của tổng đài Tiki dùng deque",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7069
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Lỗi băng chuyền đóng gói kho Tiki cài bằng list đổi đầu cuối",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7311
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Tính giá khuyến mãi theo công thức hậu tố cho Tiki",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6485
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Kiểm tra thẻ định dạng trong mô tả sản phẩm Tiki",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6591
+ },
+ {
+  "n": 11,
+  "t": "Bài 11: Hàng chờ chăm sóc khách hàng Tiki ưu tiên khách TikiNOW",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6318
+ },
+ {
+  "n": 12,
+  "t": "Bài 12: Mục \"Sản phẩm đã xem gần đây\" trên ứng dụng Tiki",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6594
+ },
+ {
+  "n": 13,
+  "t": "Bài 13: Gợi ý \"chờ giá giảm\" cho khách theo dõi giá trên Tiki",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6275
+ },
+ {
+  "n": 14,
+  "t": "Bài 14: Đỉnh số đơn theo khung giờ cho trưởng kho Tiki",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5961
+ },
+ {
+  "n": 15,
+  "t": "Bài 15: Phản biện mã do AI viết: hàng đợi phiếu trả hàng Tiki bằng hai ngăn xếp",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6544
+ },
+ {
+  "n": 16,
+  "t": "Bài 16: Giải nén chuỗi lệnh di chuyển cho robot kho Tiki",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6549
+ },
+ {
+  "n": 17,
+  "t": "Bài 17: Máy tính công thức giá cho người bán trên Tiki",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 8265
+ },
+ {
+  "n": 18,
+  "t": "Bài 18: Sổ giá vốn hàng tồn kho theo lô cho người bán trên Tiki",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7650
+ },
+ {
+  "n": 19,
+  "t": "Bài 19: Bộ nhớ hội thoại của trợ lý mua sắm Tiki",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7613
+ },
+ {
+  "n": 20,
+  "t": "Bài 20: Tối ưu hàng in phiếu giao hàng ở kho Tiki",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6874
+ }
+]

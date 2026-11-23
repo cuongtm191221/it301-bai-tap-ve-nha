@@ -1,0 +1,54 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trợ lý chỉ được gửi kèm vài tin gần nhất; khách bấm &quot;hoàn tác&quot; thì tin cũ đã bị đẩy ra phải quay lại đúng chỗ." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-19/minh_hoa.png" /></p>
+<p><em>Trợ lý chỉ được gửi kèm vài tin gần nhất; khách bấm "hoàn tác" thì tin cũ đã bị đẩy ra phải quay lại đúng chỗ.</em></p>
+<p>Tiki thử nghiệm <strong>trợ lý mua sắm</strong>: khách gõ câu hỏi, trợ lý gợi ý sản phẩm. Mỗi lần khách hỏi, ứng dụng gửi kèm <strong>ngữ cảnh</strong> là các tin gần nhất của cuộc trò chuyện để trợ lý hiểu "màu đen" là nói về chiếc tai nghe nào. Gửi cả lịch sử thì chậm và tốn chi phí, nên ứng dụng chỉ giữ <strong><code>max_turns</code> tin gần nhất</strong>; tin mới vào thì tin cũ nhất bị đẩy ra.</p>
+<p>Khách hay gõ nhầm, nên nhóm sản phẩm thêm hai nút: <strong>Hoàn tác</strong> hủy tin vừa thêm (của khách hoặc của trợ lý), <strong>Làm lại</strong> đưa tin vừa hủy trở lại. Phiên bản thử nghiệm có lỗi khiến khách phàn nàn: bộ nhớ đầy, khách gõ một tin rồi bấm hoàn tác, thì tin bị xóa nhưng tin cũ đã bị đẩy ra lúc thêm <strong>không quay lại</strong>; ngữ cảnh mất một tin và trợ lý trả lời lạc đề.</p>
+<p>Quy tắc của nhóm sản phẩm:</p>
+<ul>
+<li>Hoàn tác phải đưa bộ nhớ về <strong>đúng</strong> trạng thái trước lần thêm đó, kể cả đưa lại tin cũ bị đẩy ra (về đầu ngữ cảnh).</li>
+<li>Hoàn tác nhiều lần liên tiếp đi lùi từng bước; nhưng chỉ nhớ <strong><code>UNDO_LIMIT</code> = 50</strong> lần thêm gần nhất, vì cuộc trò chuyện có thể dài hàng nghìn tin và điện thoại không được giữ lịch sử hoàn tác vô hạn.</li>
+<li>Làm lại chỉ dùng được ngay sau hoàn tác; khách thêm tin mới thì mất khả năng làm lại (giống mọi trình soạn thảo).</li>
+</ul>
+<p>Bài này tổng hợp kiến thức cả buổi: deque giới hạn độ dài, thao tác ở cả hai đầu, hai stack hoàn tác / làm lại (bài 03), lưu đủ thông tin để đảo ngược một thao tác.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>ChatMemory(max_turns)</code></strong>: <code>max_turns</code> là số nguyên dương, sai báo <code>ValueError("Số tin nhớ phải là số nguyên dương")</code>. Bạn tự thêm thuộc tính cần thiết.</p>
+<p><strong>2.2. <code>add(role, text)</code>, <code>undo()</code>, <code>redo()</code>, <code>context()</code></strong>: như docstring; <code>undo</code>, <code>redo</code> trả về <code>True</code> / <code>False</code>; <code>context()</code> trả về list dòng <code>"&lt;role&gt;: &lt;text&gt;"</code>, tin cũ nhất trước.</p>
+<p><strong>2.3. <code>run_commands(max_turns, commands)</code></strong>: chạy một list lệnh dạng chữ (<code>"user &lt;text&gt;"</code>, <code>"bot &lt;text&gt;"</code>, <code>"UNDO"</code>, <code>"REDO"</code>), bỏ qua lệnh lỗi, trả về ngữ cảnh cuối.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bộ nhớ đầy.</strong> Giữ đúng <code>max_turns</code> tin gần nhất; tin được lưu sau khi bỏ khoảng trắng hai đầu.</p>
+<p><strong>Bẫy 2 — Hoàn tác khi bộ nhớ đầy.</strong> Bộ nhớ 3 tin, đã thêm 5 tin: hoàn tác hai lần phải trở về đúng ba tin 0, 1, 2.</p>
+<p><strong>Bẫy 3 — Không còn gì để hủy, để làm lại.</strong> Trả <code>False</code>, không báo lỗi; thêm tin mới sau hoàn tác thì <code>redo()</code> trả <code>False</code>.</p>
+<p><strong>Bẫy 4 — Dữ liệu sai.</strong> <code>max_turns</code> là 0, âm, số thực, chuỗi, <code>True</code>; vai trò lạ; tin rỗng hoặc chỉ có khoảng trắng. Thêm lỗi thì không tạo bước hoàn tác nào.</p>
+<p><strong>Bẫy 5 — Cuộc trò chuyện dài.</strong> Thêm 80 tin rồi hoàn tác liên tục: hoàn tác được đúng 50 lần. 200.000 tin, cứ 10 tin hoàn tác rồi làm lại một lần, xong trong 2 giây.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python tro_ly_chat.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>['bot: Có 12 mẫu, bạn thích chống ồn không?', 'user: Có, màu đen', 'bot: Gợi ý: SoundX Pro 459.000đ']&#10;Hoàn tác: True ['user: Tìm tai nghe dưới 500 nghìn', 'bot: Có 12 mẫu, bạn thích chống ồn không?', 'user: Có, màu đen']&#10;Làm lại: True ['bot: Có 12 mẫu, bạn thích chống ồn không?', 'user: Có, màu đen', 'bot: Gợi ý: SoundX Pro 459.000đ']&#10;Làm lại sau khi thêm tin mới: False&#10;['user: Xin chào']&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Một lần thêm khi bộ nhớ đầy làm thay đổi những gì? Mỗi bước hoàn tác cần lưu những thông tin nào để đảo ngược được đúng?</li>
+<li>Vẽ bộ nhớ (3 tin) và hai stack hoàn tác / làm lại qua từng lệnh của kịch bản chạy thử.</li>
+<li>Chọn cấu trúc cho bộ nhớ tin và cho lịch sử hoàn tác giới hạn 50 bước; thao tác nào cần ở đầu nào; vì sao list với <code>pop(0)</code>, <code>insert(0, ...)</code> không phù hợp khi <code>max_turns</code> lớn.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của <code>add</code>, <code>undo</code>, <code>redo</code>, <code>context</code> theo k = <code>max_turns</code>, và bộ nhớ tối đa của toàn bộ đối tượng.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>tro_ly_chat.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Không dùng <code>pop(0)</code>, <code>insert(0, ...)</code> trên list; <code>add</code>, <code>undo</code>, <code>redo</code> không được sao chép cả bộ nhớ tin.</li>
+<li>Xử lý đủ 5 bẫy; <code>python tro_ly_chat.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu cách <code>collections.deque</code> được cài trong CPython (danh sách liên kết các khối, mã nguồn <code>Modules/_collectionsmodule.c</code> hoặc bài viết giải thích) và ý nghĩa tham số <code>maxlen</code>. Tìm hiểu <code>queue.Queue</code>: khác <code>deque</code> ở mục đích gì (hàng đợi giữa các luồng), khi đầy thì xử lý thế nào.</li>
+<li>Tạo <code>nghien_cuu.py</code>: đo bằng <code>timeit</code> thời gian giữ k tin gần nhất trong 200.000 tin bằng list (thêm cuối, <code>del data[0]</code> khi quá k) và bằng <code>deque(maxlen=k)</code>, với k = 100, 10.000, 100.000; minh họa <code>queue.Queue(maxsize=2)</code> khi đầy. Giải thích kết quả theo Big-O; trợ lý của Tiki nên dùng cấu trúc nào?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex19</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-19">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-19</a> rồi chép các tệp vào kho: <code>tro_ly_chat.py</code>, <code>test_tro_ly_chat.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>tro_ly_chat.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

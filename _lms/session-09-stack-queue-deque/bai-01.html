@@ -1,0 +1,63 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Nhân viên kho được báo lấy thùng ở đáy chồng, trong khi chỉ lấy được thùng trên cùng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-01/minh_hoa.png" /></p>
+<p><em>Nhân viên kho được báo lấy thùng ở đáy chồng, trong khi chỉ lấy được thùng trên cùng.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm vận hành kho của Tiki.</p>
+<p>Ở mỗi ô kệ, thùng hàng được <strong>xếp chồng</strong> lên nhau: thùng đặt sau cùng nằm trên cùng, và nhân viên chỉ lấy được <strong>thùng trên cùng</strong>. Máy quét cầm tay hiện "Thùng trên cùng" và "Lấy thùng" theo lớp <code>BoxStack</code>, được viết theo đặc tả ngăn xếp:</p>
+<ul>
+<li><code>push(box)</code>: đặt thùng lên trên cùng.</li>
+<li><code>pop()</code>: lấy thùng trên cùng ra, trả về mã thùng.</li>
+<li><code>peek()</code>: xem mã thùng trên cùng mà không lấy.</li>
+<li><code>is_empty()</code>, <code>size()</code>: chồng có rỗng không; số thùng.</li>
+<li>Chồng rỗng: <code>pop()</code> và <code>peek()</code> báo <code>IndexError("ngăn xếp rỗng")</code>.</li>
+</ul>
+<p>Kho lớn có ô kệ chứa hàng nghìn thùng nhỏ (linh kiện, phụ kiện), và cuối ngày máy quét có lúc phải lấy hết cả chồng để kiểm kê.</p>
+<p>Máy quét còn dùng <code>peek()</code> để nhắc nhân viên mã thùng sắp lấy; nếu báo sai thùng, nhân viên phải dỡ cả chồng để tìm, mất thời gian và dễ làm rơi hàng.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): xếp ba thùng TH01, TH02, TH03; xem thùng trên cùng; lấy ra một thùng; lấy hết; xem chồng rỗng.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Thùng trên cùng: TH03&#10;Lấy ra: TH03 | còn 2 thùng, trên cùng: TH02&#10;Lấy tiếp: TH02 TH01 | rỗng: True&#10;Xem chồng rỗng: ngăn xếp rỗng&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhân viên kho phản ánh:</p>
+<ul>
+<li>Máy quét báo thùng trên cùng là <strong>TH01</strong> (thùng đặt đầu tiên, nằm ở đáy) và yêu cầu lấy thùng đó trước.</li>
+<li>Xem chồng rỗng thì máy báo lỗi khó hiểu <code>list index out of range</code> thay vì "ngăn xếp rỗng".</li>
+<li>Kiểm kê cuối ngày ở ô kệ nhiều thùng rất chậm.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01):</p>
+<ul>
+<li>Ngăn xếp (stack) là ADT <strong>vào sau, ra trước</strong> (LIFO): <code>push</code> đặt lên đỉnh, <code>pop</code> lấy phần tử ở đỉnh, <code>peek</code> xem đỉnh mà không lấy. Ngăn xếp rỗng thì <code>pop</code>, <code>peek</code> báo <code>IndexError</code>.</li>
+<li>Cài bằng list: đặt <strong>đỉnh ở cuối list</strong>, vì <code>append</code> và <code>pop()</code> ở cuối là O(1). Đặt đỉnh ở đầu list thì mỗi lần lấy phải dồn cả dãy (Session 05).</li>
+<li><code>peek</code> không kiểm tra ngăn xếp rỗng là lỗi thường gặp.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>chong_thung.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Chồng thùng hàng trên kệ kho Tiki, quản lý bằng ngăn xếp.&quot;&quot;&quot;&#10;class BoxStack:&#10;    # Chồng thùng hàng ở một ô kệ kho Tiki: thùng đặt sau cùng nằm trên cùng, được lấy ra trước.&#10;    # pop() lấy thùng trên cùng; peek() xem thùng trên cùng mà không lấy.&#10;    # Chồng rỗng: pop() và peek() báo IndexError(&quot;ngăn xếp rỗng&quot;).&#10;    def __init__(self):&#10;        self._items = []&#10;&#10;    def push(self, box):&#10;        self._items.append(box)&#10;&#10;    def pop(self):&#10;        if self.is_empty():&#10;            raise IndexError(&quot;ngăn xếp rỗng&quot;)&#10;        return self._items.pop(0)&#10;&#10;    def peek(self):&#10;        return self._items[0]&#10;&#10;    def is_empty(self):&#10;        return len(self._items) == 0&#10;&#10;    def size(self):&#10;        return len(self._items)&#10;&#10;&#10;shelf = BoxStack()&#10;for box in (&quot;TH01&quot;, &quot;TH02&quot;, &quot;TH03&quot;):&#10;    shelf.push(box)&#10;print(&quot;Thùng trên cùng:&quot;, shelf.peek())&#10;print(&quot;Lấy ra:&quot;, shelf.pop(), &quot;| còn&quot;, shelf.size(), &quot;thùng, trên cùng:&quot;, shelf.peek())&#10;print(&quot;Lấy tiếp:&quot;, shelf.pop(), shelf.pop(), &quot;| rỗng:&quot;, shelf.is_empty())&#10;try:&#10;    shelf.peek()&#10;except IndexError as error:&#10;    print(&quot;Xem chồng rỗng:&quot;, error)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Thùng trên cùng: TH01&#10;Lấy ra: TH01 | còn 2 thùng, trên cùng: TH02&#10;Lấy tiếp: TH02 TH03 | rỗng: True&#10;Xem chồng rỗng: list index out of range&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: thứ tự thùng bị ngược (TH01 ra trước), và xem chồng rỗng nhận thông báo <code>list index out of range</code>.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay kịch bản với mã hiện tại: ghi <code>_items</code> và giá trị trả về sau mỗi thao tác. Thùng nào được coi là "trên cùng"?</li>
+<li>Mã hiện tại đặt đỉnh ở đầu hay cuối list? <code>push</code> và <code>pop</code> có làm việc ở cùng một đầu không? Vì sao đó là điều kiện để có "vào sau, ra trước"?</li>
+<li>Với chồng n thùng, <code>pop()</code> của mã hiện tại dịch bao nhiêu tham chiếu? Lấy hết chồng tốn bao nhiêu? Ghi Big-O trước và sau khi sửa.</li>
+<li>Vì sao <code>peek()</code> trên chồng rỗng báo <code>list index out of range</code>? Sửa theo đặc tả.</li>
+<li>Với chồng 3 thùng, liệt kê mọi thứ tự lấy ra có thể nếu nhân viên xếp và lấy xen kẽ (ví dụ push, pop, push...). Thứ tự TH01, TH02, TH03 có xảy ra được không?</li>
+<li>Ghi bốn bộ dữ liệu thử: chồng rỗng, chồng 1 thùng, push sau khi đã pop, peek liên tiếp hai lần; kèm kết quả mong đợi.</li>
+<li>Nếu sau này kho đổi sang cài ngăn xếp bằng chuỗi nút (Lesson 01, mục 2.3), đỉnh nên đặt ở head hay tail? Vì sao? Máy quét có phải sửa gì không?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>BoxStack</code> trong <code>chong_thung.py</code>. Không đổi tên lớp, phương thức, thông báo lỗi.</li>
+<li>Lấy hết 100.000 thùng phải dưới 0,5 giây.</li>
+<li>Chạy <code>python chong_thung.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex01</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-01</a> rồi chép các tệp vào kho: <code>chong_thung.py</code>, <code>test_chong_thung.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>chong_thung.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

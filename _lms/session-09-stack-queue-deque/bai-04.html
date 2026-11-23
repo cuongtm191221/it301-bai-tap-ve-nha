@@ -1,0 +1,61 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Khách bấm Tiến tới thì không đi đâu, mở trang mới rồi vẫn tiến tới được trang cũ, bấm Quay lại ở trang chủ thì ứng dụng sập." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-04/minh_hoa.png" /></p>
+<p><em>Khách bấm Tiến tới thì không đi đâu, mở trang mới rồi vẫn tiến tới được trang cũ, bấm Quay lại ở trang chủ thì ứng dụng sập.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm ứng dụng di động của Tiki.</p>
+<p>Khi khách lướt sản phẩm, ứng dụng có hai nút <strong>Quay lại</strong> và <strong>Tiến tới</strong>, giống trình duyệt web. Lớp <code>ProductBrowser</code> dùng hai ngăn xếp:</p>
+<ul>
+<li><code>visit(page)</code>: mở trang mới. Trang đang xem được cất vào ngăn quay lại; <strong>ngăn tiến tới bị xóa sạch</strong> (đã rẽ sang hướng khác).</li>
+<li><code>back()</code>: trang đang xem cất vào ngăn tiến tới, lấy trang ở đỉnh ngăn quay lại ra xem.</li>
+<li><code>forward()</code>: trang đang xem cất vào ngăn quay lại, lấy trang ở đỉnh ngăn tiến tới ra xem.</li>
+<li><code>back()</code>, <code>forward()</code> trả trang đang xem sau khi bấm; hết trang thì <strong>giữ nguyên</strong> trang đang xem, không báo lỗi.</li>
+</ul>
+<p>Ứng dụng có hàng triệu lượt dùng mỗi ngày; chỉ một nút điều hướng sai cũng làm khách mất trang đang xem và bỏ giỏ hàng.</p>
+<p>Khách thường mở nhiều sản phẩm liên tiếp để so sánh, quay lại vài trang rồi rẽ sang sản phẩm khác; vì vậy cả ba nút phải đúng trong mọi thứ tự bấm, kể cả bấm khi đã hết trang.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): từ Trang chủ mở ba trang; quay lại hai lần; tiến tới; quay lại; mở trang mới rồi bấm tiến tới; quay lại 4 lần.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Quay lại 2 lần: iPhone 15 -&gt; Điện thoại&#10;Tiến tới: iPhone 15&#10;Quay lại: Điện thoại&#10;Mở trang mới rồi tiến tới: Sạc dự phòng&#10;Quay lại 4 lần: Trang chủ&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Khách hàng phản ánh:</p>
+<ul>
+<li>Quay lại rồi Tiến tới, sau đó Quay lại thì về sai trang.</li>
+<li>Đang ở trang đã quay lại, mở trang mới, bấm Tiến tới vẫn nhảy về <strong>trang cũ</strong>.</li>
+<li>Bấm Quay lại khi đã về tới Trang chủ thì ứng dụng <strong>sập</strong>.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li>Quay lại và tiến tới dùng <strong>hai ngăn xếp</strong>, giống hoàn tác và làm lại: mỗi lần bấm, trang đang xem phải được cất vào ngăn bên kia.</li>
+<li>Có thao tác mới (mở trang mới) thì xóa sạch ngăn tiến tới.</li>
+<li>Lấy từ ngăn xếp rỗng phải được kiểm tra trước: list Python báo <code>IndexError</code> khi gọi <code>pop()</code> trên list rỗng, và lỗi đó làm sập cả màn hình.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>xem_san_pham.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Nút Quay lại và Tiến tới khi xem sản phẩm trên ứng dụng Tiki.&quot;&quot;&quot;&#10;class ProductBrowser:&#10;    # Nút Quay lại / Tiến tới khi khách xem sản phẩm trên ứng dụng Tiki.&#10;    # current() là trang đang xem. back(), forward() trả trang đang xem sau khi bấm;&#10;    # không còn trang để quay lại / tiến tới thì giữ nguyên trang đang xem.&#10;    def __init__(self, home):&#10;        self._back = []&#10;        self._forward = []&#10;        self._current = home&#10;&#10;    def current(self):&#10;        return self._current&#10;&#10;    def visit(self, page):&#10;        self._back.append(self._current)&#10;        self._current = page&#10;&#10;    def back(self):&#10;        self._forward.append(self._current)&#10;        self._current = self._back.pop()&#10;        return self._current&#10;&#10;    def forward(self):&#10;        if self._forward:&#10;            self._current = self._forward.pop()&#10;        return self._current&#10;&#10;&#10;b = ProductBrowser(&quot;Trang chủ&quot;)&#10;for page in (&quot;Điện thoại&quot;, &quot;iPhone 15&quot;, &quot;Ốp lưng&quot;):&#10;    b.visit(page)&#10;print(&quot;Quay lại 2 lần:&quot;, b.back(), &quot;-&gt;&quot;, b.back())&#10;print(&quot;Tiến tới:&quot;, b.forward())&#10;print(&quot;Quay lại:&quot;, b.back())&#10;b.visit(&quot;Sạc dự phòng&quot;)&#10;print(&quot;Mở trang mới rồi tiến tới:&quot;, b.forward())&#10;for _ in range(4):&#10;    b.back()&#10;print(&quot;Quay lại 4 lần:&quot;, b.current())&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Quay lại 2 lần: iPhone 15 -&gt; Điện thoại&#10;Tiến tới: iPhone 15&#10;Quay lại: Trang chủ&#10;Mở trang mới rồi tiến tới: iPhone 15&#10;Traceback (most recent call last):&#10;  ...&#10;    self._current = self._back.pop()&#10;IndexError: pop from empty list&#10;</code></pre>
+<p>Ba dòng đầu đúng nhưng dòng thứ tư sai trang; dòng thứ năm vẫn tiến tới được; vòng quay lại 4 lần gây <code>IndexError</code>, nên dòng cuối không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay kịch bản với mã hiện tại: ghi trang đang xem, ngăn quay lại, ngăn tiến tới sau mỗi thao tác. Dòng thứ tư sai vì đâu?</li>
+<li>Sửa <code>forward</code> để trang đang xem được cất vào ngăn quay lại. Chạy tay lại dòng thứ tư.</li>
+<li>Vì sao mở trang mới rồi vẫn tiến tới được? Sửa <code>visit</code>.</li>
+<li>Vì sao quay lại ở Trang chủ báo lỗi? Sửa <code>back</code> theo đặc tả.</li>
+<li>So sánh lớp này với <code>DescriptionEditor</code> ở bài hoàn tác: thao tác nào tương ứng với thao tác nào?</li>
+<li>Ghi bốn bộ dữ liệu thử: quay lại khi chưa mở trang nào, tiến tới khi chưa quay lại, quay lại hết rồi tiến tới hết, mở trang mới xen giữa; kèm kết quả mong đợi.</li>
+<li>Ghi Big-O của <code>visit</code>, <code>back</code>, <code>forward</code> (lưu ý <code>clear()</code> trên ngăn tiến tới).</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>ProductBrowser</code> trong <code>xem_san_pham.py</code>. Không đổi tên lớp, phương thức.</li>
+<li>Chạy <code>python xem_san_pham.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex04</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-04">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-04</a> rồi chép các tệp vào kho: <code>xem_san_pham.py</code>, <code>test_xem_san_pham.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>xem_san_pham.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

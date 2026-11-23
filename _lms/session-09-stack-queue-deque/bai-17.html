@@ -1,0 +1,56 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người bán gõ công thức giá có ngoặc; bản cũ đưa thẳng chuỗi vào eval, vừa tính sai quy tắc vừa chạy được mã lạ." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-17/minh_hoa.png" /></p>
+<p><em>Người bán gõ công thức giá có ngoặc; bản cũ đưa thẳng chuỗi vào eval, vừa tính sai quy tắc vừa chạy được mã lạ.</em></p>
+<p>Trên trang quản lý của người bán Tiki, ô <strong>giá bán</strong> cho phép gõ công thức thay vì một con số, ví dụ <code>(199000 - 20000) * 90 / 100</code> nghĩa là giá gốc trừ phí vận chuyển hỗ trợ rồi giảm 10%. Người bán quen dùng công thức vì một mã hàng có thể có hàng chục biến thể, mỗi biến thể đổi một vài con số. Hệ thống tính công thức, hiện giá kết quả và lưu cả công thức để lần sau người bán sửa.</p>
+<p>Bản thử đầu tiên đưa thẳng chuỗi vào hàm <code>eval</code> của Python. Nhóm bảo mật chặn lại ngay: ô nhập là dữ liệu do người ngoài gõ, <code>eval</code> sẽ chạy bất kỳ đoạn mã Python nào được gõ vào. Nhóm sản phẩm cũng không hài lòng: <code>eval("1000 / 3")</code> ra số thực <code>333.333...</code>, trong khi giá trên Tiki là số nguyên đồng.</p>
+<p>Bài 09 của buổi này đã có hàm tính biểu thức <strong>hậu tố</strong>. Người bán thì không gõ hậu tố; họ gõ <strong>trung tố</strong> có ngoặc như trên giấy. Bạn viết phần còn thiếu: tách chuỗi thành token, chuyển trung tố sang hậu tố bằng stack (thuật toán thường gọi là shunting-yard, "sân dồn toa"), rồi dùng hàm tính hậu tố <strong>có sẵn</strong> <code>evaluate_postfix</code>.</p>
+<p>Quy tắc tính giá của Tiki:</p>
+<ul>
+<li>Chỉ có số nguyên không âm, bốn phép <code>+ - * /</code>, ngoặc tròn và khoảng trắng. Không có số âm đứng một mình (<code>-5</code>), không có dấu phẩy thập phân.</li>
+<li><code>*</code> và <code>/</code> tính trước <code>+</code> và <code>-</code>; các phép <strong>cùng mức</strong> tính <strong>từ trái sang phải</strong>: <code>100000 - 20000 - 10000</code> là 70000, không phải 90000.</li>
+<li><code>/</code> là chia lấy phần nguyên (như <code>//</code>); chia cho 0 báo <code>ZeroDivisionError("Chia cho 0")</code> (đã có trong <code>evaluate_postfix</code>).</li>
+</ul>
+<p>Bài này tổng hợp kiến thức cả buổi: stack (LIFO) cho toán tử và ngoặc, kiểm tra ngoặc cân bằng, tính biểu thức hậu tố, xử lý dữ liệu do người dùng nhập.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>tokenize(expr)</code></strong>: trả về list token; số là <code>int</code>, toán tử và ngoặc là chuỗi một ký tự; ký tự khác báo <code>ValueError("Ký tự không hợp lệ: &lt;ký tự&gt;")</code>.</p>
+<p><strong>2.2. <code>to_postfix(tokens)</code></strong>: trả về list token hậu tố. Ngoặc không khớp báo <code>ValueError("Ngoặc không khớp")</code>; thiếu số, thừa toán tử, hai số liền nhau, ngoặc rỗng, biểu thức rỗng báo <code>ValueError("Biểu thức sai cú pháp")</code>.</p>
+<p><strong>2.3. <code>calculate(expr)</code>, <code>price_message(name, expr)</code></strong>: tính công thức; trả về dòng hiển thị cho người bán:</p>
+<pre><code>Giá tai nghe: 161100đ&#10;Lỗi công thức sạc: Ngoặc không khớp&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Cùng mức, tính từ trái.</strong> <code>100000 - 20000 - 10000</code> là 70000; <code>1000 / 10 / 2</code> là 50. Đây là chỗ sai hay gặp nhất khi tự viết thuật toán chuyển hậu tố.</p>
+<p><strong>Bẫy 2 — Ngoặc không khớp.</strong> <code>(150000 + 5000</code>, <code>1 + 2)</code>, <code>((1)</code>, <code>)1 + 2(</code>.</p>
+<p><strong>Bẫy 3 — Sai cú pháp.</strong> <code>300000 +</code>, <code>+ 5</code>, <code>2 3</code>, <code>2 * * 3</code>, <code>()</code>, <code>-5 + 2</code>, <code>(2)(3)</code>, chuỗi rỗng hoặc chỉ có khoảng trắng. Một số trường hợp vẫn chuyển được thành hậu tố nhìn có vẻ hợp lệ nếu bạn không kiểm tra; hãy tìm cách phát hiện <strong>ngay trong lúc chuyển</strong>.</p>
+<p><strong>Bẫy 4 — Ký tự lạ.</strong> <code>50000 * 0,9</code> báo lỗi ở dấu phẩy; chuỗi có chữ cái, dấu gạch dưới, dấu chấm đều bị từ chối, không bao giờ được chạy như mã.</p>
+<p><strong>Bẫy 5 — Ngoặc sâu và công thức dài.</strong> 3.000 tầng ngoặc lồng nhau và công thức 50.000 phép nhân cộng nối tiếp phải tính xong trong 2 giây; không dùng <code>eval</code>, <code>exec</code>, không dùng đệ quy theo độ sâu ngoặc.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python may_tinh_gia.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>['(', 199000, '-', 20000, ')', '*', 90, '/', 100]&#10;[199000, 20000, '-', 90, '*', 100, '/']&#10;Giá tai nghe: 161100đ&#10;Giá ốp lưng: 70000đ&#10;Lỗi công thức sạc: Ngoặc không khớp&#10;Lỗi công thức cáp: Ký tự không hợp lệ: ,&#10;Lỗi công thức pin: Chia cho 0&#10;Lỗi công thức loa: Biểu thức sai cú pháp&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Lập bảng chạy tay việc chuyển <code>(199000 - 20000) * 90 / 100</code> sang hậu tố: mỗi token, stack toán tử và danh sách kết quả sau bước đó.</li>
+<li>Chạy tay <code>100000 - 20000 - 10000</code> với điều kiện lấy toán tử ra khỏi stack là "mức của đỉnh <strong>lớn hơn</strong> mức toán tử mới" và với "<strong>lớn hơn hoặc bằng</strong>": mỗi cách cho hậu tố nào, kết quả bao nhiêu? Cách nào đúng quy tắc của Tiki?</li>
+<li>Mô tả cách bạn phát hiện sai cú pháp (bẫy 3): ở mỗi vị trí, token nào được phép xuất hiện? Vì sao <code>(2)(3)</code> và <code>2 3</code> bị từ chối?</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của <code>tokenize</code>, <code>to_postfix</code>, <code>calculate</code> theo n (độ dài công thức), và độ sâu lớn nhất của stack toán tử theo số tầng ngoặc.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>may_tinh_gia.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Không dùng <code>eval</code>, <code>exec</code>; giữ nguyên <code>evaluate_postfix</code> và <code>OPERATORS</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python may_tinh_gia.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu vì sao không nên dùng <code>eval</code> cho dữ liệu người dùng nhập (tài liệu Python về <code>eval</code>, <code>ast.literal_eval</code>; các bài viết về lỗ hổng chèn mã, code injection).</li>
+<li>Tạo <code>nghien_cuu.py</code>: minh họa một chuỗi mà <code>eval</code> chạy như mã còn <code>calculate</code> của bạn từ chối (chọn lệnh vô hại, ví dụ in thư mục hiện tại); so sánh kết quả <code>eval("1000 / 3")</code> với <code>calculate</code>; thử <code>ast.literal_eval("2 * 3")</code>; đo thời gian <code>calculate</code> và <code>eval</code> trên một công thức 1.000 phép bằng <code>timeit</code>. Kết luận: bạn trả lời nhóm bảo mật thế nào khi có người đề xuất "dùng eval cho nhanh"?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex17</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-17">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-17</a> rồi chép các tệp vào kho: <code>may_tinh_gia.py</code>, <code>test_may_tinh_gia.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>may_tinh_gia.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

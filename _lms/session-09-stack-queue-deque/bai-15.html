@@ -1,0 +1,56 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trợ lý AI cài hàng đợi bằng hai ngăn xếp trong vài giây, ba test của AI đều xanh. Có nên dùng ngay?" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-15/minh_hoa.png" /></p>
+<p><em>Trợ lý AI cài hàng đợi bằng hai ngăn xếp trong vài giây, ba test của AI đều xanh. Có nên dùng ngay?</em></p>
+<p>Khách trả hàng trên Tiki tạo <strong>phiếu trả hàng</strong>; kho xử lý phiếu theo thứ tự tạo (vào trước, ra trước). Hệ thống cũ của kho chỉ có cấu trúc <strong>ngăn xếp</strong> (list với <code>append</code>, <code>pop</code>), nên một đồng nghiệp nhờ trợ lý AI cài <strong>hàng đợi bằng hai ngăn xếp</strong>: một ngăn nhận phiếu mới, một ngăn để lấy phiếu ra. Ý tưởng: đổ ngăn nhận sang ngăn lấy thì thứ tự bị đảo một lần, phiếu cũ nhất nằm trên cùng.</p>
+<p>Đặc tả của <code>TwoStackQueue</code> (giống hàng đợi ở Lesson 03):</p>
+<ul>
+<li><code>enqueue(ticket)</code>: thêm phiếu vào cuối hàng.</li>
+<li><code>dequeue()</code>: lấy phiếu <strong>đầu hàng</strong>; <code>peek()</code>: xem phiếu đầu hàng; rỗng thì cả hai báo <code>IndexError("hàng đợi rỗng")</code>.</li>
+<li><code>size()</code>: số phiếu đang chờ.</li>
+</ul>
+<p>Phiếu được thêm và xử lý <strong>xen kẽ</strong> suốt ngày. AI trả về mã kèm ba test, cả ba đều xanh, và đồng nghiệp đề nghị đưa vào bản cập nhật tuần này. Bạn là người <strong>duyệt mã</strong>. Quy định của nhóm: mã do AI sinh chỉ được dùng khi người duyệt đã tự chạy thử với dữ liệu của mình và chịu trách nhiệm về nó.</p>
+<h2><strong>2. Mã do AI sinh</strong></h2>
+<p>Tệp <code>tra_hang.py</code> trong thư mục khởi đầu:</p>
+<pre><code>class TwoStackQueue:&#10;    # Hàng đợi phiếu trả hàng của Tiki, AI đề xuất cài bằng hai ngăn xếp (list):&#10;    # _in nhận phiếu mới, _out để lấy phiếu ra.&#10;    def __init__(self):&#10;        self._in = []&#10;        self._out = []&#10;&#10;    def enqueue(self, ticket):&#10;        self._in.append(ticket)&#10;&#10;    def dequeue(self):&#10;        # Đổ hết _in sang _out (đảo thứ tự) rồi lấy phiếu trên cùng của _out.&#10;        while self._in:&#10;            self._out.append(self._in.pop())&#10;        if not self._out:&#10;            raise IndexError(&quot;hàng đợi rỗng&quot;)&#10;        return self._out.pop()&#10;&#10;    def peek(self):&#10;        if not self._out:&#10;            raise IndexError(&quot;hàng đợi rỗng&quot;)&#10;        return self._out[-1]&#10;&#10;    def size(self):&#10;        return len(self._in)&#10;</code></pre>
+<p>Lời giải thích AI gửi kèm: "Mỗi lần lấy phiếu, đổ ngăn nhận sang ngăn lấy để phiếu cũ nhất lên trên. Thứ tự luôn đúng, mỗi phiếu chỉ được chép một lần nên chi phí khấu hao O(1)."</p>
+<p>Ba test trong <code>test_tra_hang.py</code>: thêm ba phiếu rồi lấy ba phiếu; thêm ba, lấy một rồi xem đầu hàng; thêm hai rồi đếm. Chạy đoạn cuối tệp:</p>
+<pre><code>Xử lý: TH01 TH02&#10;Đầu hàng: TH03&#10;Xử lý: TH03&#10;</code></pre>
+<p>Kết quả trông đúng. Nhiệm vụ của bạn là tìm ra những dữ liệu mà đoạn mã này <strong>không</strong> xử lý đúng.</p>
+<h2><strong>3. Các hướng cần kiểm chứng</strong></h2>
+<p>Đề không cho biết tình huống nào làm lộ lỗi; bạn phải tự chạy tay hoặc chạy thử để biết.</p>
+<p><strong>Hướng 1 — Thêm và lấy xen kẽ:</strong> thêm hai phiếu, lấy một, thêm hai phiếu nữa, rồi lấy hết. Thứ tự có đúng không?</p>
+<p><strong>Hướng 2 — Xem đầu hàng khi chưa lấy lần nào.</strong></p>
+<p><strong>Hướng 3 — Đếm sau khi đã lấy:</strong> thêm ba phiếu, lấy một, rồi đếm.</p>
+<p><strong>Hướng 4 — So với một hàng đợi chuẩn:</strong> chạy 2.000 thao tác ngẫu nhiên trên cả mã AI và một list dùng <code>append</code> / <code>pop(0)</code> làm đối chứng; ghi thao tác đầu tiên hai bên khác nhau.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò người duyệt mã, bạn phải thực hiện đầy đủ bốn phần sau:</p>
+<p><strong>(1) Tìm dữ liệu làm lộ lỗi</strong></p>
+<ul>
+<li>Theo các hướng ở mục 3, tự nghĩ ra <strong>ít nhất 6 bộ dữ liệu thử</strong> (chuỗi thao tác). Với mỗi bộ: dự đoán kết quả đúng trước, rồi chạy mã của AI và ghi kết quả.</li>
+<li>Ghi vào bảng trong <code>PHAN_TICH.md</code>. Các bộ dữ liệu phải làm lộ <strong>cả 3 lỗi</strong> của mã AI.</li>
+</ul>
+<p><strong>(2) Phân tích (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Với mỗi lỗi: dòng lệnh gây lỗi, nguyên nhân, và bảng chạy tay (<code>_in</code>, <code>_out</code> sau mỗi thao tác) trên chuỗi thao tác ngắn nhất làm lộ lỗi.</li>
+<li>Lời giải thích "mỗi phiếu chỉ được chép một lần" đúng với điều kiện nào? Sau khi sửa, giải thích vì sao chi phí khấu hao là O(1) và trường hợp xấu nhất của một lần <code>dequeue</code> là bao nhiêu.</li>
+<li>Điền bảng <strong>"Nhật ký giữ – sửa – loại bỏ"</strong>: phần nào trong mã của AI bạn giữ, phần nào sửa, phần nào bỏ, kèm lý do.</li>
+<li>Đề xuất <strong>giải pháp thứ hai</strong> không dùng hai ngăn xếp (ví dụ một cấu trúc đã học ở Lesson 03, 04). So sánh hai giải pháp theo 5 tiêu chí: thời gian (Big-O, xấu nhất và khấu hao), bộ nhớ phụ, thời gian đo, độ dễ đọc, mức phù hợp với hệ thống kho. Nêu rõ bạn chọn giải pháp nào.</li>
+</ul>
+<p><strong>(3) Sửa mã và cài giải pháp thứ hai (trong <code>tra_hang.py</code>)</strong></p>
+<ul>
+<li>Sửa <code>TwoStackQueue</code> (vẫn dùng hai ngăn xếp) để hết mọi lỗi bạn tìm được.</li>
+<li>Viết thêm lớp <code>DequeQueue</code> theo giải pháp thứ hai, cùng năm thao tác và cùng thông báo lỗi.</li>
+</ul>
+<p><strong>(4) Kiểm chứng sau khi sửa</strong></p>
+<ul>
+<li>Chạy lại toàn bộ bộ dữ liệu thử ở phần (1) trên cả hai lớp, ghi vào cột "Sau khi sửa". Mọi dòng phải đúng.</li>
+<li><code>pytest -q</code> vẫn xanh cả 3 test của AI.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex15</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-15">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-15</a> rồi chép các tệp vào kho: <code>tra_hang.py</code>, <code>test_tra_hang.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền <code>PHAN_TICH.md</code>, sửa và viết mã trong <code>tra_hang.py</code>.</li>
+<li>Mức AI của bài: AI-2 cho phần phản biện (đề đã cung cấp mã do AI sinh; bạn được hỏi AI để hiểu đoạn mã, nhưng dữ liệu thử, phân tích và mã sửa phải do bạn tự làm và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

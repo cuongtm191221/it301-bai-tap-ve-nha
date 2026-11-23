@@ -1,0 +1,63 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Ba đơn vào hàng chờ đóng gói nhưng chỉ đóng được hai, đơn thứ hai biến mất khỏi hàng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-06/minh_hoa.png" /></p>
+<p><em>Ba đơn vào hàng chờ đóng gói nhưng chỉ đóng được hai, đơn thứ hai biến mất khỏi hàng.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm vận hành kho của Tiki.</p>
+<p>Đơn hàng sau khi nhặt đủ sản phẩm được đưa vào <strong>hàng chờ đóng gói</strong>: đơn vào trước được đóng gói trước. Nhóm cài hàng đợi bằng <strong>chuỗi nút có head và tail</strong> theo Lesson 03, mục 2.3: đơn mới gắn vào sau <code>tail</code>, đơn được đóng gói lấy ở <code>head</code>.</p>
+<p>Đặc tả của lớp <code>PackingQueue</code>:</p>
+<ul>
+<li><code>enqueue(order)</code>: thêm đơn vào cuối hàng (như <code>add_last</code>), O(1).</li>
+<li><code>dequeue()</code>: lấy đơn đầu hàng (như <code>remove_first</code>), O(1).</li>
+<li><code>peek()</code>: xem đơn <strong>đầu hàng</strong> (đơn sẽ được đóng gói tiếp theo).</li>
+<li><code>size()</code>: số đơn đang chờ.</li>
+<li>Hàng rỗng: <code>dequeue()</code> và <code>peek()</code> báo <code>IndexError("hàng đợi rỗng")</code>.</li>
+</ul>
+<p>Trong một ca, hàng chờ có lúc rỗng (đóng gói kịp) rồi lại có đơn mới, nên mọi thao tác phải đúng cả khi hàng vừa hết.</p>
+<p>Lỗi ở đây rất khó thấy vì chuỗi nút vẫn "trông" bình thường khi chỉ có một, hai đơn; nhóm cần chạy tay kỹ từng bước.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): ba đơn vào hàng; xem đầu hàng; đóng gói ba đơn; khi hàng đã rỗng, thêm hai đơn mới rồi đóng gói.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Đầu hàng: TK101 | số đơn: 3&#10;Đóng gói: TK101 TK102 TK103&#10;Sau khi hàng rỗng, thêm 2 đơn: TK104 TK105 | còn: 0&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhân viên đóng gói phản ánh:</p>
+<ul>
+<li>Ba đơn vào hàng nhưng chỉ đóng được hai; đơn <strong>TK102</strong> không bao giờ xuất hiện, màn hình báo "hàng đợi rỗng" trong khi số đơn vẫn còn.</li>
+<li>Sau khi sửa tạm phần trên, nhóm kiểm thử tiếp và thấy: hàng vừa rỗng mà có đơn mới vào thì đơn đó không đóng gói được.</li>
+<li>Màn hình "Đơn tiếp theo" có lúc hiện đơn vừa vào thay vì đơn đứng đầu.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03):</p>
+<ul>
+<li><code>enqueue</code>: hàng rỗng thì nút mới vừa là head vừa là tail; ngược lại gắn vào sau tail. Trong <strong>cả hai</strong> trường hợp, tail phải trỏ tới nút mới.</li>
+<li><code>dequeue</code>: lấy ở head; nếu vừa lấy nút cuối cùng (head thành <code>None</code>) thì <strong>tail cũng về <code>None</code></strong>. "Lấy phần tử cuối cùng mà quên đưa tail về None" là lỗi thường gặp.</li>
+<li>head là đầu hàng (ra), tail là cuối hàng (vào).</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>hang_dong_goi.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Hàng chờ đóng gói ở kho Tiki, cài hàng đợi bằng chuỗi nút.&quot;&quot;&quot;&#10;class Node:&#10;    def __init__(self, value, next=None):&#10;        self.value = value&#10;        self.next = next&#10;&#10;&#10;class PackingQueue:&#10;    # Hàng chờ đóng gói ở kho Tiki, cài bằng chuỗi nút: đơn vào ở tail, ra ở head.&#10;    # Rỗng: dequeue() và peek() báo IndexError(&quot;hàng đợi rỗng&quot;).&#10;    def __init__(self):&#10;        self.head = None&#10;        self.tail = None&#10;        self._size = 0&#10;&#10;    def enqueue(self, order):&#10;        node = Node(order)&#10;        if self.tail is None:&#10;            self.head = node&#10;            self.tail = node&#10;        else:&#10;            self.tail.next = node&#10;        self._size += 1&#10;&#10;    def dequeue(self):&#10;        if self.head is None:&#10;            raise IndexError(&quot;hàng đợi rỗng&quot;)&#10;        value = self.head.value&#10;        self.head = self.head.next&#10;        self._size -= 1&#10;        return value&#10;&#10;    def peek(self):&#10;        if self.head is None:&#10;            raise IndexError(&quot;hàng đợi rỗng&quot;)&#10;        return self.tail.value&#10;&#10;    def size(self):&#10;        return self._size&#10;&#10;&#10;q = PackingQueue()&#10;for code in (&quot;TK101&quot;, &quot;TK102&quot;, &quot;TK103&quot;):&#10;    q.enqueue(code)&#10;print(&quot;Đầu hàng:&quot;, q.peek(), &quot;| số đơn:&quot;, q.size())&#10;print(&quot;Đóng gói:&quot;, q.dequeue(), q.dequeue(), q.dequeue())&#10;q.enqueue(&quot;TK104&quot;)&#10;q.enqueue(&quot;TK105&quot;)&#10;print(&quot;Sau khi hàng rỗng, thêm 2 đơn:&quot;, q.dequeue(), q.dequeue(), &quot;| còn:&quot;, q.size())&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Đầu hàng: TK101 | số đơn: 3&#10;Traceback (most recent call last):&#10;  ...&#10;    raise IndexError(&quot;hàng đợi rỗng&quot;)&#10;IndexError: hàng đợi rỗng&#10;</code></pre>
+<p>Hai dòng đầu trông đúng, nhưng lần đóng gói thứ ba gây <code>IndexError: hàng đợi rỗng</code> dù <code>size()</code> vẫn báo còn đơn, nên dòng cuối không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Vẽ chuỗi nút sau ba lần <code>enqueue</code> của mã hiện tại: <code>head</code>, <code>tail</code> trỏ tới đâu, nút TK102 nằm ở đâu? Vì sao TK102 bị mất?</li>
+<li>Sửa <code>enqueue</code>. Vì sao sau khi sửa, <code>peek()</code> lại trả sai đơn? Sửa <code>peek</code>.</li>
+<li>Sau khi sửa hai lỗi trên, chạy tay đoạn "hàng rỗng rồi thêm 2 đơn": sau lần <code>dequeue</code> lấy TK103, <code>head</code> và <code>tail</code> trỏ tới đâu? Lần <code>enqueue</code> TK104 gắn nút vào đâu?</li>
+<li>Sửa <code>dequeue</code>. Vì sao <code>enqueue</code> dựa vào <code>tail is None</code> để nhận biết hàng rỗng?</li>
+<li>Ghi Big-O của bốn thao tác. Nếu không có <code>tail</code>, <code>enqueue</code> tốn bao nhiêu?</li>
+<li>Ghi bốn bộ dữ liệu thử: hàng 1 đơn, lấy hết rồi thêm lại, peek khi rỗng, thêm xen kẽ lấy; kèm kết quả mong đợi.</li>
+<li>Vì sao test có sẵn kiểm tra <code>q.tail is None</code> ngay sau khi lấy hết, dù kết quả <code>dequeue</code> lúc đó vẫn đúng?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>PackingQueue</code> trong <code>hang_dong_goi.py</code>. Không đổi tên lớp, phương thức, thuộc tính, thông báo lỗi; không dùng list Python để lưu đơn.</li>
+<li>Chạy <code>python hang_dong_goi.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex06</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-06</a> rồi chép các tệp vào kho: <code>hang_dong_goi.py</code>, <code>test_hang_dong_goi.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>hang_dong_goi.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

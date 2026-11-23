@@ -1,0 +1,49 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Robot xếp hàng nhận chuỗi lệnh nén như 2[L3[R]]D; bộ giải nén phải đúng, từ chối chuỗi sai và chịu được chuỗi lồng rất sâu." src="minh_hoa.png" /></p>
+<p><em>Robot xếp hàng nhận chuỗi lệnh nén như 2[L3[R]]D; bộ giải nén phải đúng, từ chối chuỗi sai và chịu được chuỗi lồng rất sâu.</em></p>
+<p>Robot xếp hàng trong kho Tiki di chuyển theo chuỗi lệnh <code>L</code> (trái), <code>R</code> (phải), <code>U</code> (lên), <code>D</code> (xuống). Để gửi qua mạng không dây cho nhanh, hệ thống điều khiển <strong>nén</strong> đoạn lặp: <code>k[...]</code> nghĩa là lặp k lần phần trong ngoặc, có thể lồng nhau:</p>
+<pre><code>3[R]U      -&gt; RRRU&#10;2[L3[R]]D  -&gt; LRRRLRRRD&#10;10[U]      -&gt; UUUUUUUUUU&#10;</code></pre>
+<p>Bộ điều khiển trên robot phải <strong>giải nén</strong> trước khi chạy. Chuỗi sai cú pháp (thiếu ngoặc, ngoặc thừa, số 0, số không có ngoặc đi kèm, ký tự lạ) phải bị <strong>từ chối</strong>, vì robot chạy sai lệnh có thể đâm vào kệ. Do lỗi của phần mềm sinh lệnh cũ, đôi khi chuỗi gửi tới có tới <strong>3.000 tầng ngoặc lồng nhau</strong>.</p>
+<p>Robot có bộ nhớ hạn chế và phải bắt đầu chạy ngay sau khi nhận lệnh; nếu bộ giải nén báo lỗi giữa chừng vì chuỗi lồng quá sâu, robot đứng yên và chặn lối đi của các robot khác, cả dãy kệ phải dừng chờ kỹ thuật viên. Nhóm vận hành yêu cầu: hoặc giải nén đúng, hoặc từ chối ngay với thông báo rõ ràng, không bao giờ dừng giữa chừng vì lỗi của chính bộ giải nén.</p>
+<p>Cấu trúc lồng nhau gợi ý hai hướng rất khác nhau. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn cách cho robot.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>decode_v1(commands)</code> và <code>decode_v2(commands)</code></strong>: mỗi hàm cài một giải pháp, trả về chuỗi lệnh đầy đủ; số lần lặp là số nguyên dương, có thể nhiều chữ số; <code>k[]</code> là chuỗi rỗng; chỉ được có các ký tự <code>L</code>, <code>R</code>, <code>U</code>, <code>D</code>, chữ số và hai dấu ngoặc vuông; chuỗi sai báo <code>ValueError("Chuỗi lệnh không hợp lệ")</code>. Hai hàm cho cùng kết quả nhưng <strong>khác nhau về cách làm</strong>.</p>
+<p><strong>2.2. <code>route_message(commands)</code></strong>: dùng giải pháp bạn chọn; chuỗi dài quá 12 bước thì chỉ in 12 bước đầu và dấu <code>...</code>:</p>
+<pre><code>9 bước: LRRRLRRRD&#10;20 bước: RRRRRRRRRRRR...&#10;Từ chối: Chuỗi lệnh không hợp lệ&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Số nhiều chữ số, ngoặc rỗng.</strong> <code>10[U]</code>; <code>R2[]L</code> là <code>RL</code>; chuỗi rỗng là chuỗi rỗng.</p>
+<p><strong>Bẫy 2 — Ngoặc sai.</strong> <code>3[R</code> (thiếu đóng), <code>2]R</code> (đóng thừa), <code>R][</code>.</p>
+<p><strong>Bẫy 3 — Số sai chỗ.</strong> <code>[R]</code> (thiếu số), <code>0[R]</code>, <code>3R</code> (số không có ngoặc), <code>2[R]3</code> (số ở cuối).</p>
+<p><strong>Bẫy 4 — Ký tự lạ.</strong> <code>2[x]</code>.</p>
+<p><strong>Bẫy 5 — Lồng 3.000 tầng.</strong> <code>1[1[...1[R]...]]</code> với 3.000 tầng: <code>route_message</code> trả <code>1 bước: R</code> trong 2 giây, không báo <code>RecursionError</code>. Hai giải pháp vẫn phải cho cùng kết quả trên 200 chuỗi ngẫu nhiên lồng tối đa 3 tầng; chỉ giải pháp bạn chọn cho <code>route_message</code> phải chịu được chuỗi lồng sâu.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python lenh_robot.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>'3[R]U'      -&gt; 4 bước: RRRU&#10;'2[L3[R]]D'  -&gt; 9 bước: LRRRLRRRD&#10;'10[U]'      -&gt; 10 bước: UUUUUUUUUU&#10;'R2[]L'      -&gt; 2 bước: RL&#10;'3[R'        -&gt; Từ chối: Chuỗi lệnh không hợp lệ&#10;'2]R'        -&gt; Từ chối: Chuỗi lệnh không hợp lệ&#10;'0[R]'       -&gt; Từ chối: Chuỗi lệnh không hợp lệ&#10;'2[x]'       -&gt; Từ chối: Chuỗi lệnh không hợp lệ&#10;Lồng 3.000 tầng: 1 bước: R&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc giải nén chuỗi lệnh. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với chuỗi có 1.000, 2.000, 4.000 tầng <code>1[...]</code> và chuỗi phẳng 100.000 ký tự; ghi bảng số đo, phiên bản Python và máy đo. Đếm thêm số phép cộng hoặc số tham chiếu phải dịch bằng một biến đếm.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>route_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay <code>2[L3[R]]D</code>: ghi dữ liệu trung gian (cấu trúc phụ hoặc các lời gọi và giá trị trả về) theo từng ký tự.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>lenh_robot.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không dùng <code>eval</code>, <code>re</code></li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python lenh_robot.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 6 test có sẵn (các test về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex16</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-16">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-16</a> rồi chép các tệp vào kho: <code>lenh_robot.py</code>, <code>test_lenh_robot.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>lenh_robot.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

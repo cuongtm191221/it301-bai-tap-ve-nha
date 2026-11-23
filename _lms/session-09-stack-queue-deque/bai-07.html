@@ -1,0 +1,61 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Khách gọi sau cùng lại được phục vụ trước, yêu cầu gấp vẫn phải chờ, hết hàng thì màn hình tổng đài sập." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-07/minh_hoa.png" /></p>
+<p><em>Khách gọi sau cùng lại được phục vụ trước, yêu cầu gấp vẫn phải chờ, hết hàng thì màn hình tổng đài sập.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm chăm sóc khách hàng của Tiki.</p>
+<p>Tổng đài nhận <strong>yêu cầu hỗ trợ</strong> và phục vụ theo thứ tự gọi đến. Riêng <strong>yêu cầu gấp</strong> (đơn giao trễ quá hạn) được đưa lên <strong>đầu hàng</strong>. Màn hình còn hiện <strong>3 yêu cầu được phục vụ gần nhất</strong> để trưởng ca kiểm tra lại. Nhóm dùng <code>collections.deque</code> theo Lesson 04:</p>
+<ul>
+<li><code>add(code)</code>: yêu cầu thường xếp cuối hàng.</li>
+<li><code>add_urgent(code)</code>: yêu cầu gấp lên đầu hàng (nhiều yêu cầu gấp thì cái đến sau đứng trước).</li>
+<li><code>serve()</code>: phục vụ người đứng đầu, trả mã yêu cầu; hàng rỗng trả <code>None</code>.</li>
+<li><code>recent_list()</code>: mã 3 yêu cầu được phục vụ gần nhất, <strong>mới nhất trước</strong>. Phần này dùng <code>deque(maxlen=3)</code> và đã đúng.</li>
+</ul>
+<p>Mỗi ngày tổng đài nhận hàng nghìn cuộc gọi; phục vụ sai thứ tự làm khách chờ lâu, gọi lại nhiều lần và để lại đánh giá thấp.</p>
+<p>Khi đổi từ list sang deque, bạn trong nhóm viết mã chỉ đổi tên kiểu dữ liệu mà giữ nguyên các lệnh cũ; ba thao tác của hàng chờ cần được xem lại theo đúng bảng "dùng deque làm Stack hoặc Queue" của Lesson 04. Trưởng ca cũng yêu cầu: điện thoại viên bấm "Phục vụ" khi không còn ai chờ thì màn hình chỉ hiện "Không còn yêu cầu", không được sập.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): ba yêu cầu thường, một yêu cầu gấp; phục vụ ba lượt; thêm một yêu cầu; phục vụ ba lượt nữa (lượt cuối khi hàng đã rỗng); in 3 yêu cầu gần nhất.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Phục vụ: ['GAP1', 'YC01', 'YC02']&#10;Phục vụ: YC03 YC04 None&#10;3 yêu cầu gần nhất: ['YC04', 'YC03', 'YC02']&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Trưởng ca phản ánh:</p>
+<ul>
+<li>Khách gọi <strong>sau cùng</strong> lại được phục vụ trước.</li>
+<li>Yêu cầu gấp vẫn phải chờ sau mọi người.</li>
+<li>Hết người chờ mà điện thoại viên bấm "Phục vụ" thì màn hình <strong>sập</strong>.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 04):</p>
+<ul>
+<li>Dùng deque làm <strong>hàng đợi</strong>: thêm một đầu, lấy <strong>đầu kia</strong> (<code>append</code> và <code>popleft</code>). Dùng <code>append</code> và <code>pop</code> là ngăn xếp. "Dùng deque làm hàng đợi nhưng lấy nhầm đầu" là lỗi thường gặp.</li>
+<li><code>appendleft</code> thêm vào bên trái; cả bốn thao tác ở hai đầu đều O(1).</li>
+<li>Gọi <code>pop()</code> hoặc <code>popleft()</code> trên deque rỗng báo <code>IndexError: pop from an empty deque</code>.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>tong_dai.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Hàng yêu cầu hỗ trợ của tổng đài Tiki, dùng collections.deque.&quot;&quot;&quot;&#10;from collections import deque&#10;&#10;&#10;class SupportDesk:&#10;    # Hàng yêu cầu hỗ trợ của tổng đài Tiki: yêu cầu thường xếp cuối hàng, yêu cầu gấp (đơn giao trễ)&#10;    # được đưa lên đầu hàng; luôn phục vụ người đứng đầu. Hàng rỗng: serve() trả None.&#10;    # recent_list(): mã 3 yêu cầu được phục vụ gần nhất, mới nhất trước.&#10;    def __init__(self):&#10;        self.waiting = deque()&#10;        self.recent = deque(maxlen=3)&#10;&#10;    def add(self, code):&#10;        self.waiting.append(code)&#10;&#10;    def add_urgent(self, code):&#10;        self.waiting.append(code)&#10;&#10;    def serve(self):&#10;        code = self.waiting.pop()&#10;        self.recent.appendleft(code)&#10;        return code&#10;&#10;    def recent_list(self):&#10;        return list(self.recent)&#10;&#10;&#10;desk = SupportDesk()&#10;for code in (&quot;YC01&quot;, &quot;YC02&quot;, &quot;YC03&quot;):&#10;    desk.add(code)&#10;desk.add_urgent(&quot;GAP1&quot;)&#10;print(&quot;Phục vụ:&quot;, [desk.serve() for _ in range(3)])&#10;desk.add(&quot;YC04&quot;)&#10;print(&quot;Phục vụ:&quot;, desk.serve(), desk.serve(), desk.serve())&#10;print(&quot;3 yêu cầu gần nhất:&quot;, desk.recent_list())&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Phục vụ: ['GAP1', 'YC03', 'YC02']&#10;Traceback (most recent call last):&#10;  ...&#10;    code = self.waiting.pop()&#10;IndexError: pop from an empty deque&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: ba lượt đầu phục vụ GAP1, YC03, YC02 (ngược thứ tự gọi, và GAP1 chỉ ra trước vì tình cờ vào sau cùng); lượt phục vụ khi hàng rỗng gây <code>IndexError</code>.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay kịch bản với mã hiện tại: ghi nội dung <code>waiting</code> (từ trái sang phải) sau mỗi thao tác. Hàng đang hoạt động như ADT nào?</li>
+<li>Vì sao GAP1 vẫn được phục vụ đầu tiên với mã hiện tại? Thêm một yêu cầu thường sau GAP1 thì sao?</li>
+<li>Sửa <code>serve</code> và <code>add_urgent</code>. Với hai yêu cầu gấp G1 rồi G2, ai được phục vụ trước? Có đúng đặc tả không?</li>
+<li>Sửa <code>serve</code> để trả <code>None</code> khi hàng rỗng. Có nên ghi <code>None</code> vào danh sách gần nhất không?</li>
+<li><code>recent</code> dùng <code>deque(maxlen=3)</code> với <code>appendleft</code>: khi đã đủ 3 mã, mã nào tự bị bỏ? Nếu đổi sang <code>append</code> thì <code>recent_list</code> phải đổi thế nào?</li>
+<li>Ghi bốn bộ dữ liệu thử: hàng rỗng, chỉ có yêu cầu gấp, phục vụ 5 lượt rồi xem gần nhất, xen kẽ thêm và phục vụ; kèm kết quả mong đợi.</li>
+<li>Ghi Big-O của bốn thao tác sau khi sửa.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>SupportDesk</code> trong <code>tong_dai.py</code>. Không đổi tên lớp, phương thức, thuộc tính; tiếp tục dùng <code>deque</code>.</li>
+<li>Chạy <code>python tong_dai.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex07</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-07</a> rồi chép các tệp vào kho: <code>tong_dai.py</code>, <code>test_tong_dai.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>tong_dai.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

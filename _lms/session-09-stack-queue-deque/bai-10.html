@@ -1,0 +1,47 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người bán chèn thẻ in đậm, in nghiêng vào mô tả; thẻ lồng sai làm cả trang sản phẩm hiển thị lệch, nên phải chặn và chỉ đúng chỗ sai." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-10/minh_hoa.png" /></p>
+<p><em>Người bán chèn thẻ in đậm, in nghiêng vào mô tả; thẻ lồng sai làm cả trang sản phẩm hiển thị lệch, nên phải chặn và chỉ đúng chỗ sai.</em></p>
+<p>Người bán trên Tiki được dùng một số <strong>thẻ định dạng</strong> trong mô tả sản phẩm: <code>&lt;b&gt;…&lt;/b&gt;</code> (in đậm), <code>&lt;i&gt;…&lt;/i&gt;</code> (in nghiêng), <code>&lt;ul&gt;</code>, <code>&lt;li&gt;</code>… và thẻ <strong>tự đóng</strong> như <code>&lt;br/&gt;</code> (xuống dòng). Thẻ phải mở, đóng đúng cặp và lồng đúng thứ tự, giống dấu ngoặc ở Lesson 02. Mô tả sai thẻ làm cả trang sản phẩm hiển thị lệch (chữ in đậm tới hết trang), nên hệ thống duyệt phải <strong>từ chối</strong> và chỉ ra <strong>vị trí lỗi đầu tiên</strong> để người bán sửa.</p>
+<p>Mỗi ngày có hàng chục nghìn mô tả mới hoặc sửa lại, nên hệ thống phải duyệt tự động. Thông báo lỗi được gửi thẳng cho người bán; người bán không rành kỹ thuật nên cần biết <strong>thẻ nào, ở vị trí nào</strong> sai, và sai vì lý do gì (không khớp, thừa, hay thiếu thẻ đóng). Chỉ báo "mô tả không hợp lệ" chung chung làm người bán phải gọi tổng đài hỏi lại.</p>
+<p>Hàm <code>find_tags(text)</code> (có sẵn) đã tách các thẻ ra thành list bộ <code>(vị trí, thẻ)</code>, vị trí là chỉ số của dấu <code>&lt;</code> trong mô tả. Hàm chỉ nhận chuỗi dạng <code>&lt;ten&gt;</code>, <code>&lt;/ten&gt;</code>, <code>&lt;ten/&gt;</code> với tên chỉ gồm chữ cái, nên <code>Giá &lt; 100k</code> không phải thẻ. Tên thẻ <strong>không phân biệt hoa thường</strong>: <code>&lt;B&gt;…&lt;/b&gt;</code> hợp lệ.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>check_tags(text)</code></strong>: <code>None</code> nếu mọi thẻ hợp lệ; ngược lại là dòng mô tả <strong>lỗi đầu tiên</strong> gặp phải, một trong ba dạng:</p>
+<pre><code>Thẻ &lt;/b&gt; ở vị trí 14 không khớp với &lt;i&gt; ở vị trí 8&#10;Thẻ &lt;/u&gt; ở vị trí 12 không có thẻ mở&#10;Thẻ &lt;i&gt; ở vị trí 8 chưa đóng&#10;</code></pre>
+<p>Thẻ trong thông báo viết đúng như trong mô tả với thẻ đóng; thẻ mở viết bằng tên chữ thường. Còn nhiều thẻ chưa đóng thì báo thẻ <strong>mở sau cùng</strong>.</p>
+<p><strong>2.2. <code>review_message(text)</code></strong>: <code>Hợp lệ (3 thẻ).</code> (đếm mọi thẻ, kể cả thẻ tự đóng) hoặc <code>Từ chối: &lt;dòng lỗi&gt;</code>.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Lồng sai thứ tự.</strong> <code>&lt;b&gt;Giảm &lt;i&gt;50%&lt;/b&gt;&lt;/i&gt;</code>: lỗi tại <code>&lt;/b&gt;</code>, không phải <code>&lt;/i&gt;</code>.</p>
+<p><strong>Bẫy 2 — Thẻ đóng không có thẻ mở.</strong> <code>Giá &lt; 100k, &lt;/u&gt;bảo hành</code>: dấu <code>&lt;</code> đầu không phải thẻ.</p>
+<p><strong>Bẫy 3 — Thẻ chưa đóng.</strong> <code>&lt;ul&gt;&lt;li&gt;Màu đen&lt;li&gt;Màu trắng&lt;/ul&gt;</code>: <code>&lt;/ul&gt;</code> gặp <code>&lt;li&gt;</code> chưa đóng; <code>&lt;b&gt;Hàng &lt;i&gt;mới</code>: hết mô tả còn <code>&lt;i&gt;</code>.</p>
+<p><strong>Bẫy 4 — Thẻ tự đóng và chữ hoa.</strong> <code>&lt;br/&gt;</code> không cần đóng; <code>&lt;B&gt;</code> khớp <code>&lt;/b&gt;</code>.</p>
+<p><strong>Bẫy 5 — Mô tả dài, lồng sâu.</strong> 20.000 thẻ <code>&lt;b&gt;</code> lồng nhau vẫn kiểm tra được (không đệ quy).</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python kiem_tra_the.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Hợp lệ (7 thẻ).&#10;Từ chối: Thẻ &lt;/b&gt; ở vị trí 14 không khớp với &lt;i&gt; ở vị trí 8&#10;Từ chối: Thẻ &lt;/u&gt; ở vị trí 12 không có thẻ mở&#10;Hợp lệ (2 thẻ).&#10;Từ chối: Thẻ &lt;/ul&gt; ở vị trí 28 không khớp với &lt;li&gt; ở vị trí 15&#10;Hợp lệ (0 thẻ).&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: ngăn xếp cần lưu những gì cho mỗi thẻ mở để in được thông báo lỗi? Chạy tay <code>&lt;b&gt;Giảm &lt;i&gt;50%&lt;/b&gt;&lt;/i&gt;</code>, ghi ngăn xếp sau mỗi thẻ.</li>
+<li>So sánh với kiểm tra dấu ngoặc ở Lesson 02: ba kiểu sai tương ứng với ba thông báo nào?</li>
+<li>Khi còn nhiều thẻ chưa đóng, vì sao thẻ mở sau cùng là thẻ nên báo?</li>
+<li>Một bạn đề xuất chỉ đếm số thẻ mở và số thẻ đóng của từng tên, bằng nhau là hợp lệ. Tìm một mô tả làm cách này sai.</li>
+<li>Nếu sau này cho phép thuộc tính trong thẻ (ví dụ <code>&lt;a href=...&gt;</code>), phần nào của giải pháp phải đổi, phần nào giữ nguyên?</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của <code>check_tags</code> theo n (độ dài mô tả) và t (số thẻ).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>kiem_tra_the.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Dùng ngăn xếp, không đệ quy; dùng <code>find_tags</code> có sẵn.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python kiem_tra_the.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex10</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-10</a> rồi chép các tệp vào kho: <code>kiem_tra_the.py</code>, <code>test_kiem_tra_the.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>kiem_tra_the.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

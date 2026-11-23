@@ -1,0 +1,52 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Khách TikiNOW được phục vụ trước, nhưng giờ cao điểm khách thường chờ mãi không tới lượt; nhóm cần quy tắc ưu tiên không bỏ quên ai." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-11/minh_hoa.png" /></p>
+<p><em>Khách TikiNOW được phục vụ trước, nhưng giờ cao điểm khách thường chờ mãi không tới lượt; nhóm cần quy tắc ưu tiên không bỏ quên ai.</em></p>
+<p>Tổng đài Tiki có hai loại khách: khách <strong>TikiNOW</strong> (gói thành viên trả phí, gọi là VIP) và khách <strong>thường</strong>. Chính sách: <strong>VIP được phục vụ trước</strong>. Nhưng giờ cao điểm, khách VIP gọi liên tục làm khách thường chờ hàng giờ. Bộ phận chất lượng thêm quy tắc chống "bỏ quên":</p>
+<ul>
+<li>Mỗi loại khách có một hàng đợi riêng, ai gọi trước trong cùng loại được phục vụ trước.</li>
+<li>Thường thì phục vụ khách VIP trước. Nhưng nếu đã phục vụ <strong>3 khách VIP liên tiếp</strong> mà có khách thường đang chờ, thì phục vụ <strong>một khách thường</strong>, rồi đếm lại.</li>
+<li>Không có khách thường đang chờ thì cứ phục vụ VIP; không có VIP thì phục vụ khách thường theo thứ tự gọi.</li>
+</ul>
+<p>Trưởng ca cần màn hình "đang chờ" luôn đúng số khách mỗi loại để điều thêm điện thoại viên khi một hàng quá dài. Quy tắc 3 VIP rồi 1 khách thường được chọn sau khi phân tích dữ liệu: khách VIP vẫn chờ ít hơn rõ rệt, còn khách thường không còn phải chờ quá lâu. Nếu sau này bộ phận chất lượng đổi con số 3, chỉ cần sửa hằng số <code>VIP_STREAK</code>.</p>
+<p>Một khách không được có mặt hai lần trong hai hàng (gọi lại khi đang chờ thì giữ chỗ cũ). Lớp <code>PriorityDesk</code> đã có sẵn hai hàng <code>vip</code>, <code>normal</code> (kiểu <code>deque</code>); bạn tự thêm thuộc tính cần thiết.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>add(code, is_vip=False)</code></strong>: thêm khách vào cuối hàng tương ứng, trả <code>True</code>; mã đã có trong một trong hai hàng thì trả <code>False</code>.</p>
+<p><strong>2.2. <code>serve()</code></strong>: trả mã khách được phục vụ tiếp theo theo quy tắc trên; cả hai hàng rỗng trả <code>None</code>.</p>
+<p><strong>2.3. <code>waiting()</code></strong>: bộ (số khách VIP đang chờ, số khách thường đang chờ).</p>
+<p><strong>2.4. <code>serve_all(desk)</code></strong>: list mã khách theo thứ tự được phục vụ cho tới khi hết hàng, ví dụ:</p>
+<pre><code>Thường: T1, T2.  VIP: V1, V2, V3, V4, V5&#10;Thứ tự: ['V1', 'V2', 'V3', 'T1', 'V4', 'V5', 'T2']&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chỉ có một loại khách.</strong> Chỉ VIP: phục vụ liên tục, không dừng sau 3 khách. Chỉ khách thường: phục vụ theo thứ tự.</p>
+<p><strong>Bẫy 2 — Đếm lại sau khách thường.</strong> Sau khi phục vụ một khách thường, chuỗi VIP liên tiếp đếm lại từ 0.</p>
+<p><strong>Bẫy 3 — Chuỗi VIP khi khách thường đến muộn.</strong> Đã phục vụ 3 VIP khi chưa có khách thường; khách thường vừa vào thì được phục vụ ngay ở lượt sau.</p>
+<p><strong>Bẫy 4 — Mã trùng.</strong> Gọi lại khi đang chờ (kể cả đổi loại) trả <code>False</code>, hàng giữ nguyên.</p>
+<p><strong>Bẫy 5 — Hàng rỗng và thêm lại.</strong> <code>serve()</code> trả <code>None</code>; sau đó thêm khách vẫn phục vụ đúng và chuỗi VIP liên tiếp không bị đếm sai; 8.000 khách phục vụ trong 1 giây.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python cskh_uu_tien.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Thêm trùng V2: False | đang chờ (VIP, thường): (5, 2)&#10;Thứ tự phục vụ: ['V1', 'V2', 'V3', 'T1', 'V4', 'V5', 'T2']&#10;Chỉ có VIP: ['V0', 'V1', 'V2', 'V3', 'V4']&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: cần lưu thêm thông tin gì ngoài hai hàng? Viết quy tắc chọn hàng dưới dạng bảng điều kiện (VIP rỗng / không, thường rỗng / không, số VIP liên tiếp).</li>
+<li>Chạy tay ví dụ ở mục 2.4 và bẫy 3: ghi hai hàng, số VIP liên tiếp và khách được phục vụ sau mỗi lượt.</li>
+<li>Vì sao dùng <code>deque</code> mà không dùng list cho hai hàng?</li>
+<li>Nếu đổi quy tắc thành "5 VIP rồi 2 khách thường", bạn phải sửa những chỗ nào? Có cách viết nào để đổi con số mà không sửa logic?</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của <code>add</code> (gồm kiểm tra trùng), <code>serve</code>, <code>waiting</code>, <code>serve_all</code> theo v, t (số khách VIP, thường đang chờ).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>cskh_uu_tien.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Dùng <code>deque</code> với <code>append</code>, <code>popleft</code>; không dùng <code>pop(0)</code> trên list.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python cskh_uu_tien.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex11</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-11">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-11</a> rồi chép các tệp vào kho: <code>cskh_uu_tien.py</code>, <code>test_cskh_uu_tien.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>cskh_uu_tien.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,62 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Mẫu tin nhắn sai ngoặc lọt qua kiểm tra và gửi tới hàng nghìn khách, còn có mẫu làm công cụ kiểm tra bị sập." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-02/minh_hoa.png" /></p>
+<p><em>Mẫu tin nhắn sai ngoặc lọt qua kiểm tra và gửi tới hàng nghìn khách, còn có mẫu làm công cụ kiểm tra bị sập.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm chăm sóc khách hàng của Tiki.</p>
+<p>Tin nhắn gửi khách được sinh từ <strong>mẫu</strong> có chỗ điền thông tin trong ngoặc nhọn và ngoặc vuông, ví dụ:</p>
+<pre><code>Chào {ten}, đơn [{ma_don}] đã giao (dự kiến {ngay}).&#10;</code></pre>
+<p>Mẫu do nhân viên nhập tay. Nếu dấu ngoặc sai (thiếu, thừa, lệch cặp), hệ thống điền thông tin không thay được chỗ điền, và khách nhận tin nhắn còn nguyên <code>{ma_giam]</code>. Trước khi lưu mẫu, công cụ chạy <code>is_balanced(template)</code> để chặn mẫu sai:</p>
+<ul>
+<li>Mỗi dấu mở <code>(</code>, <code>[</code>, <code>{</code> phải có đúng dấu đóng cùng loại; dấu nào mở sau phải đóng trước.</li>
+<li><code>matches(open_ch, close_ch)</code> cho biết hai dấu có phải một cặp không.</li>
+<li>Chuỗi không có ngoặc nào là hợp lệ.</li>
+</ul>
+<p>Mỗi tuần nhóm nhập hàng trăm mẫu cho các chương trình khuyến mãi, và mỗi mẫu được gửi tới hàng nghìn khách.</p>
+<p>Công cụ kiểm tra chạy cho cả lô mẫu một lần; chỉ một mẫu làm công cụ dừng giữa chừng là mọi mẫu phía sau không được kiểm và có thể bị gửi đi mà chưa ai xem.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): năm mẫu gồm mẫu đúng, mẫu lệch cặp, mẫu thiếu dấu đóng, mẫu thừa dấu đóng, mẫu không có ngoặc.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Hợp lệ | Chào {ten}, đơn [{ma_don}] đã giao (dự kiến {ngay}).&#10;Sai ngoặc | Mã {ma_giam] giảm 10%&#10;Sai ngoặc | Đơn (dự kiến {ngay}&#10;Sai ngoặc | Hoàn tiền) cho đơn {ma_don}&#10;Hợp lệ | Không có ngoặc&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhóm nội dung phản ánh:</p>
+<ul>
+<li>Mẫu <code>Mã {ma_giam] giảm 10%</code> (mở ngoặc nhọn, đóng ngoặc vuông) <strong>lọt qua</strong> kiểm tra.</li>
+<li>Mẫu thiếu dấu đóng ở cuối cũng được báo hợp lệ.</li>
+<li>Mẫu có dấu đóng thừa làm công cụ kiểm tra <strong>báo lỗi và dừng</strong>, các mẫu sau không được kiểm.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li>Kiểm tra dấu ngoặc bằng ngăn xếp: gặp dấu mở thì <code>push</code>; gặp dấu đóng thì <code>pop</code> dấu mở gần nhất và so cặp.</li>
+<li>Ba kiểu sai: <strong>lệch cặp</strong> (dấu đóng không khớp dấu mở vừa lấy ra), <strong>đóng thừa</strong> (gặp dấu đóng khi ngăn xếp rỗng), <strong>mở thừa</strong> (hết chuỗi mà ngăn xếp còn phần tử).</li>
+<li>"Quên kiểm tra ngăn xếp lúc hết chuỗi" là lỗi thường gặp: chuỗi chỉ có dấu mở vẫn bị coi là đúng.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>mau_tin.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Kiểm tra dấu ngoặc trong mẫu tin nhắn gửi khách hàng Tiki.&quot;&quot;&quot;&#10;def matches(open_ch, close_ch):&#10;    # True nếu dấu mở open_ch và dấu đóng close_ch là một cặp: (), [] hoặc {}.&#10;    return open_ch in &quot;([{&quot; and close_ch in &quot;)]}&quot;&#10;&#10;&#10;def is_balanced(template):&#10;    # True nếu mọi dấu ngoặc trong mẫu tin nhắn mở, đóng đúng cặp và đúng thứ tự lồng nhau.&#10;    stack = []&#10;    for ch in template:&#10;        if ch in &quot;([{&quot;:&#10;            stack.append(ch)&#10;        elif ch in &quot;)]}&quot;:&#10;            top = stack.pop()&#10;            if not matches(top, ch):&#10;                return False&#10;    return True&#10;&#10;&#10;templates = [&#10;    &quot;Chào {ten}, đơn [{ma_don}] đã giao (dự kiến {ngay}).&quot;,&#10;    &quot;Mã {ma_giam] giảm 10%&quot;,&#10;    &quot;Đơn (dự kiến {ngay}&quot;,&#10;    &quot;Hoàn tiền) cho đơn {ma_don}&quot;,&#10;    &quot;Không có ngoặc&quot;,&#10;]&#10;for t in templates:&#10;    print(&quot;Hợp lệ&quot; if is_balanced(t) else &quot;Sai ngoặc&quot;, &quot;|&quot;, t)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Hợp lệ | Chào {ten}, đơn [{ma_don}] đã giao (dự kiến {ngay}).&#10;Hợp lệ | Mã {ma_giam] giảm 10%&#10;Hợp lệ | Đơn (dự kiến {ngay}&#10;Traceback (most recent call last):&#10;  ...&#10;    top = stack.pop()&#10;IndexError: pop from empty list&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: mẫu thứ hai và thứ ba bị báo "Hợp lệ"; mẫu thứ tư gây <code>IndexError</code>, nên mẫu cuối không được kiểm.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li><code>matches("{", "]")</code> của mã hiện tại trả gì? Viết lại <code>matches</code> để chỉ ba cặp đúng trả <code>True</code>.</li>
+<li>Chạy tay <code>is_balanced("Đơn (dự kiến {ngay}")</code> của mã hiện tại: ghi ngăn xếp sau mỗi dấu ngoặc. Hết chuỗi ngăn xếp còn gì, hàm trả gì?</li>
+<li>Chạy tay <code>is_balanced("Hoàn tiền) cho đơn {ma_don}")</code>: dòng nào gây lỗi, vì sao? Sửa thế nào?</li>
+<li>Ghép ba kiểu sai (lệch cặp, đóng thừa, mở thừa) với ba dòng trong hàm sửa xong.</li>
+<li>Với mẫu dài n ký tự, hàm làm nhiều nhất bao nhiêu lần <code>push</code>, <code>pop</code>? Big-O thời gian và bộ nhớ phụ?</li>
+<li>Ghi năm bộ dữ liệu thử: chuỗi rỗng, <code>([)]</code>, <code>)(</code>, ngoặc lồng sâu ba tầng, chuỗi chỉ có dấu mở; kèm kết quả mong đợi.</li>
+<li>Một đồng nghiệp đề xuất chỉ đếm số dấu mở và số dấu đóng, bằng nhau là hợp lệ. Tìm một mẫu làm cách này sai.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm trong <code>mau_tin.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Chạy <code>python mau_tin.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex02</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-02</a> rồi chép các tệp vào kho: <code>mau_tin.py</code>, <code>test_mau_tin.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>mau_tin.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

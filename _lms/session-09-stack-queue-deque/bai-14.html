@@ -1,0 +1,48 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trưởng kho cần biết số đơn cao nhất trong mỗi khung k phút để xếp người đóng gói; dữ liệu một tháng theo từng phút làm báo cáo chạy rất lâu." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-14/minh_hoa.png" /></p>
+<p><em>Trưởng kho cần biết số đơn cao nhất trong mỗi khung k phút để xếp người đóng gói; dữ liệu một tháng theo từng phút làm báo cáo chạy rất lâu.</em></p>
+<p>Kho Tiki ghi <strong>số đơn mới mỗi phút</strong>. Để xếp người đóng gói, trưởng kho xem <strong>đỉnh</strong> (số đơn lớn nhất) trong từng khung <strong>k phút liên tiếp</strong>: khung bắt đầu ở phút 0, phút 1, phút 2... Số người cần trong khung phụ thuộc vào đỉnh, không phải tổng.</p>
+<pre><code>Số đơn mỗi phút: 12 30 25 8 41 19 7 33 33 10&#10;Đỉnh từng khung 3 phút: 30 30 41 41 41 33 33 33&#10;</code></pre>
+<p>Báo cáo tháng có 43.200 phút (30 ngày × 24 giờ × 60 phút); nhóm muốn xem khung 600 phút (10 giờ) trong 2 giây. Cách đầu tiên là với mỗi khung, xét lại k phút để tìm lớn nhất: với khung dài, mỗi phút bị xét lại hàng trăm lần. Lưu ý: khác với <strong>tổng</strong> (khi khung trượt một phút chỉ cần trừ phút cũ, cộng phút mới), <strong>lớn nhất</strong> không "trừ" được; phút lớn nhất rời khung thì phải biết ngay phút lớn thứ hai trong khung là bao nhiêu. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>window_max_v1(orders, k)</code> và <code>window_max_v2(orders, k)</code></strong>: mỗi hàm cài một giải pháp, trả về list đỉnh của từng khung theo thứ tự; <code>k &lt;= 0</code> hoặc <code>k</code> lớn hơn số phút có dữ liệu thì trả list rỗng. Hai hàm cho cùng kết quả nhưng <strong>khác nhau về cách làm</strong>; không sửa list đầu vào.</p>
+<p><strong>2.2. <code>peak_message(orders, k)</code></strong>: dùng giải pháp bạn chọn:</p>
+<pre><code>Khung 3 phút: đỉnh cao nhất 41 đơn (khung bắt đầu phút 2), đỉnh thấp nhất 30 đơn.&#10;Chưa đủ dữ liệu cho khung 11 phút.&#10;Độ dài khung phải lớn hơn 0.&#10;</code></pre>
+<p>Nhiều khung cùng đỉnh cao nhất thì ghi khung bắt đầu sớm nhất.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — k bằng 1 và bằng số phút.</strong> k = 1: đỉnh là chính dãy; k bằng số phút: một khung duy nhất.</p>
+<p><strong>Bẫy 2 — k không hợp lệ, dữ liệu rỗng.</strong> Trả list rỗng; thông báo đúng.</p>
+<p><strong>Bẫy 3 — Giá trị bằng nhau.</strong> <code>[5, 5, 5, 5]</code> với k = 2 cho <code>[5, 5, 5]</code>.</p>
+<p><strong>Bẫy 4 — Dãy giảm dần.</strong> Phút lớn nhất luôn rời khung trước: <code>[9, 7, 5, 3, 1]</code> với k = 2 cho <code>[9, 7, 5, 3]</code>.</p>
+<p><strong>Bẫy 5 — Dữ liệu tháng.</strong> 43.200 phút, khung 600 phút trong 2 giây.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python dinh_don.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>[30, 30, 41, 41, 41, 33, 33, 33]&#10;Khung 3 phút: đỉnh cao nhất 41 đơn (khung bắt đầu phút 2), đỉnh thấp nhất 30 đơn.&#10;Khung 1 phút: đỉnh cao nhất 41 đơn (khung bắt đầu phút 4), đỉnh thấp nhất 7 đơn.&#10;Chưa đủ dữ liệu cho khung 11 phút.&#10;Độ dài khung phải lớn hơn 0.&#10;Khung 600 phút: đỉnh cao nhất 210 đơn (khung bắt đầu phút 0), đỉnh thấp nhất 210 đơn.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc tìm đỉnh từng khung. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với n = 43.200 phút và k = 60, 300, 600; ghi bảng số đo, phiên bản Python và máy đo. Đếm thêm số phép cộng hoặc số tham chiếu phải dịch bằng một biến đếm.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>peak_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay dãy ở mục 1 với k = 3: ghi dữ liệu trung gian (với giải pháp dùng cấu trúc phụ, ghi cấu trúc đó sau mỗi phút) và số phép so sánh.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>dinh_don.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sửa list đầu vào; giải pháp thứ hai không dùng <code>max()</code> trên lát cắt</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python dinh_don.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 7 test có sẵn (các test về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex14</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-14">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-14</a> rồi chép các tệp vào kho: <code>dinh_don.py</code>, <code>test_dinh_don.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>dinh_don.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,46 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Bộ phận marketing nhập công thức giá khuyến mãi dạng hậu tố; hệ thống phải tính đúng hoặc từ chối rõ ràng trước khi giá lên sàn." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-09/minh_hoa.png" /></p>
+<p><em>Bộ phận marketing nhập công thức giá khuyến mãi dạng hậu tố; hệ thống phải tính đúng hoặc từ chối rõ ràng trước khi giá lên sàn.</em></p>
+<p>Bộ phận marketing của Tiki tạo <strong>giá khuyến mãi</strong> bằng công thức trên một công cụ nội bộ. Để công cụ không phải xử lý dấu ngoặc và thứ tự ưu tiên phép tính, công thức được viết ở dạng <strong>hậu tố</strong> (postfix): mỗi phép tính đứng <strong>sau</strong> hai số của nó. Các phần tử cách nhau bằng dấu cách:</p>
+<pre><code>120000 2 * 15000 -        nghĩa là (120000 × 2) − 15000 = 225000&#10;500000 500000 10 * 100 / -   nghĩa là 500000 − (500000 × 10 / 100) = 450000&#10;</code></pre>
+<p>Cách tính bằng <strong>ngăn xếp</strong>: đọc từ trái sang phải; gặp số thì <code>push</code>; gặp phép tính thì <code>pop</code> hai số (số lấy ra <strong>trước</strong> là số <strong>bên phải</strong>), tính, rồi <code>push</code> kết quả. Hết công thức, ngăn xếp phải còn <strong>đúng một</strong> số: đó là kết quả.</p>
+<p>Công thức do người nhập tay nên hay sai. Ví dụ, nhập nhầm <code>120000 * 2</code> (dạng thông thường) vào công cụ hậu tố phải bị từ chối, không được ra một con số nào đó. Giá sai lên sàn có thể làm Tiki bán lỗ hàng trăm triệu đồng trong vài phút, nên mọi công thức sai phải bị từ chối với thông báo rõ ràng. Hàm <code>money(amount)</code> (có sẵn) in số tiền có dấu chấm.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>evaluate(formula)</code></strong>: trả về giá trị số nguyên của công thức. Số là số nguyên, có thể có dấu <code>-</code> đứng liền trước (số âm). Phép tính: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> (chia lấy phần nguyên, làm tròn xuống). Công thức sai báo <code>ValueError</code> với một trong các thông báo:</p>
+<pre><code>Công thức rỗng&#10;Thiếu số cho phép tính *&#10;Thừa số, công thức chưa hoàn chỉnh&#10;Chia cho 0&#10;Ký hiệu không hợp lệ: x&#10;</code></pre>
+<p><strong>2.2. <code>price_message(formula)</code></strong>: trả về <code>Giá: 225.000đ</code> hoặc <code>Lỗi công thức: &lt;thông báo&gt;</code>.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Thứ tự hai số.</strong> <code>10 3 -</code> là 7, <code>10 3 /</code> là 3, không phải −7 hay 0.</p>
+<p><strong>Bẫy 2 — Khoảng trắng thừa và số âm.</strong> <code>"   7   -2   * "</code> là −14; dấu <code>-</code> đứng riêng là phép trừ, dính liền chữ số là số âm.</p>
+<p><strong>Bẫy 3 — Thiếu số, thừa số.</strong> <code>120000 * 2</code> (phép tính khi ngăn xếp chưa đủ hai số); <code>120000 2 3 *</code> (hết công thức còn hai số).</p>
+<p><strong>Bẫy 4 — Chia cho 0, ký hiệu lạ.</strong> <code>100000 0 /</code>; <code>120000 2 x</code>, <code>12a</code>, <code>1.5</code>, <code>^</code> đều là ký hiệu không hợp lệ.</p>
+<p><strong>Bẫy 5 — Công thức dài.</strong> Công thức 100.001 phần tử vẫn tính đúng (không dùng đệ quy).</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python cong_thuc_gia.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>'120000 2 * 15000 -'             -&gt; Giá: 225.000đ&#10;'500000 500000 10 * 100 / -'     -&gt; Giá: 450.000đ&#10;'  99000   '                     -&gt; Giá: 99.000đ&#10;'120000 * 2'                     -&gt; Lỗi công thức: Thiếu số cho phép tính *&#10;'120000 2 3 *'                   -&gt; Lỗi công thức: Thừa số, công thức chưa hoàn chỉnh&#10;'100000 0 /'                     -&gt; Lỗi công thức: Chia cho 0&#10;'120000 2 x'                     -&gt; Lỗi công thức: Ký hiệu không hợp lệ: x&#10;''                               -&gt; Lỗi công thức: Công thức rỗng&#10;'5000 8000 -'                    -&gt; Giá: -3.000đ&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: chạy tay <code>500000 500000 10 * 100 / -</code>, ghi ngăn xếp sau mỗi phần tử.</li>
+<li>Chỉ ra vị trí trong thuật toán phát hiện từng loại lỗi (thiếu số, thừa số, chia cho 0, ký hiệu lạ, rỗng).</li>
+<li>Vì sao số lấy ra trước là số bên phải? Điều gì xảy ra với phép trừ và chia nếu nhầm thứ tự?</li>
+<li>Chuyển <code>(120000 - 15000) * 2</code> sang dạng hậu tố và kiểm tra bằng hàm của bạn.</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của <code>evaluate</code> theo n (số phần tử của công thức), trường hợp xấu nhất của độ cao ngăn xếp.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>cong_thuc_gia.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Dùng ngăn xếp (list với <code>append</code>, <code>pop</code>); không dùng <code>eval</code>, không đệ quy.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python cong_thuc_gia.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex09</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-09</a> rồi chép các tệp vào kho: <code>cong_thuc_gia.py</code>, <code>test_cong_thuc_gia.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>cong_thuc_gia.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

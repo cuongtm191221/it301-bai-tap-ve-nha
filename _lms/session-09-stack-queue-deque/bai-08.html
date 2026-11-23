@@ -1,0 +1,62 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Màn hình báo nhầm đơn tiếp theo, lấy lô đơn khi băng chuyền sắp hết thì sập, giờ cao điểm thêm đơn chậm dần." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-08/minh_hoa.png" /></p>
+<p><em>Màn hình báo nhầm đơn tiếp theo, lấy lô đơn khi băng chuyền sắp hết thì sập, giờ cao điểm thêm đơn chậm dần.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm vận hành kho của Tiki.</p>
+<p><strong>Băng chuyền đóng gói</strong> nhận đơn theo thứ tự; đơn vào trước được đóng gói trước. Máy đóng gói tự động lấy <strong>theo lô</strong> (ví dụ 3 đơn một lần). Một bạn trong nhóm biết <code>pop(0)</code> chậm, nên cài hàng đợi bằng list theo cách "đổi đầu cuối": <strong>thêm ở đầu list</strong> bằng <code>insert(0, ...)</code>, <strong>lấy ở cuối list</strong> bằng <code>pop()</code>.</p>
+<p>Đặc tả của lớp <code>PackingLine</code>:</p>
+<ul>
+<li><code>enqueue(order)</code>, <code>dequeue()</code>: thêm đơn, lấy đơn theo thứ tự vào trước ra trước; rỗng thì <code>dequeue()</code> trả <code>None</code>.</li>
+<li><code>peek()</code>: đơn <strong>sẽ được đóng gói tiếp theo</strong>; rỗng trả <code>None</code>.</li>
+<li><code>take_batch(k)</code>: lấy <strong>tối đa</strong> k đơn theo thứ tự; còn ít hơn k thì lấy hết, rỗng thì trả list rỗng.</li>
+<li><code>size()</code>: số đơn đang chờ.</li>
+</ul>
+<p>Giờ cao điểm ngày khuyến mãi, băng chuyền nhận tới <strong>200.000 đơn</strong>. Máy quét phải ghi nhận mỗi đơn vào băng chuyền ngay lập tức, nếu không, đơn bị quét trùng hoặc bỏ sót.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): bốn đơn vào; xem đơn tiếp theo; lấy lô 3 đơn; lấy lô 3 đơn tiếp (chỉ còn 1); thêm 200.000 đơn rồi xem đơn tiếp theo và lấy lô 2 đơn.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Đơn tiếp theo: TK201&#10;Lô 3 đơn: ['TK201', 'TK202', 'TK203']&#10;Lô 3 đơn tiếp: ['TK204'] | còn: 0&#10;200.000 đơn, đơn tiếp theo: TK0 | lô 2 đơn: ['TK0', 'TK1']&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhân viên kho phản ánh:</p>
+<ul>
+<li>Màn hình "Đơn tiếp theo" hiện <strong>đơn vừa vào</strong> thay vì đơn đứng đầu.</li>
+<li>Lấy lô khi băng chuyền còn ít đơn hơn kích thước lô thì máy <strong>sập</strong>.</li>
+<li>Giờ cao điểm, mỗi lần quét đơn vào băng chuyền chậm dần.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03, Lesson 04):</p>
+<ul>
+<li>Đổi đầu cuối của list (thêm ở đầu, lấy ở cuối) <strong>vẫn chậm</strong>: <code>insert(0, x)</code> dịch cả dãy, O(n). "Đổi đầu cuối của list mà vẫn chậm" là lỗi thường gặp.</li>
+<li>Hàng đợi cần thêm một đầu, lấy đầu kia, cả hai O(1): dùng chuỗi nút có head và tail, hoặc <code>collections.deque</code> với <code>append</code> và <code>popleft</code>.</li>
+<li>Khi đổi cách lưu, mọi thao tác đọc "đầu hàng" phải đổi theo.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>bang_chuyen.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Băng chuyền đóng gói ở kho Tiki: hàng đợi cài bằng list đổi đầu cuối.&quot;&quot;&quot;&#10;class PackingLine:&#10;    # Băng chuyền đóng gói ở kho Tiki: đơn vào trước được đóng gói trước.&#10;    # Bản cài bằng list: thêm đơn ở đầu list, lấy đơn ở cuối list.&#10;    # peek() là đơn sẽ được đóng gói tiếp theo; take_batch(k) lấy tối đa k đơn theo thứ tự;&#10;    # rỗng thì peek() trả None, take_batch trả list rỗng.&#10;    def __init__(self):&#10;        self._items = []&#10;&#10;    def enqueue(self, order):&#10;        self._items.insert(0, order)&#10;&#10;    def dequeue(self):&#10;        if not self._items:&#10;            return None&#10;        return self._items.pop()&#10;&#10;    def peek(self):&#10;        if not self._items:&#10;            return None&#10;        return self._items[0]&#10;&#10;    def take_batch(self, k):&#10;        batch = []&#10;        for _ in range(k):&#10;            batch.append(self._items.pop())&#10;        return batch&#10;&#10;    def size(self):&#10;        return len(self._items)&#10;&#10;&#10;line = PackingLine()&#10;for code in (&quot;TK201&quot;, &quot;TK202&quot;, &quot;TK203&quot;, &quot;TK204&quot;):&#10;    line.enqueue(code)&#10;print(&quot;Đơn tiếp theo:&quot;, line.peek())&#10;print(&quot;Lô 3 đơn:&quot;, line.take_batch(3))&#10;print(&quot;Lô 3 đơn tiếp:&quot;, line.take_batch(3), &quot;| còn:&quot;, line.size())&#10;big = PackingLine()&#10;for k in range(200000):&#10;    big.enqueue(f&quot;TK{k}&quot;)&#10;print(&quot;200.000 đơn, đơn tiếp theo:&quot;, big.peek(), &quot;| lô 2 đơn:&quot;, big.take_batch(2))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Đơn tiếp theo: TK204&#10;Lô 3 đơn: ['TK201', 'TK202', 'TK203']&#10;Traceback (most recent call last):&#10;  ...&#10;    batch.append(self._items.pop())&#10;IndexError: pop from empty list&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: "Đơn tiếp theo" là TK204 thay vì TK201; lô đầu đúng, nhưng lô thứ hai gây <code>IndexError</code>, nên các dòng sau không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Ghi <code>_items</code> sau bốn lần <code>enqueue</code> của mã hiện tại. Đơn đứng đầu hàng nằm ở chỉ số nào? <code>peek</code> đang đọc chỉ số nào?</li>
+<li>Vì sao <code>take_batch(3)</code> lần thứ hai gây lỗi? Sửa để lấy tối đa k đơn.</li>
+<li>Mỗi lần <code>enqueue</code> của mã hiện tại dịch bao nhiêu tham chiếu? Tổng khi thêm 200.000 đơn? Đo thời gian thêm 20.000, 40.000, 80.000 đơn.</li>
+<li>Chọn cách lưu mới để <code>enqueue</code>, <code>dequeue</code>, <code>peek</code> đều O(1). Khi đổi cách lưu, những phương thức nào phải viết lại?</li>
+<li>Ghi Big-O của <code>take_batch(k)</code> sau khi sửa.</li>
+<li>Ghi bốn bộ dữ liệu thử: băng chuyền rỗng, lô lớn hơn số đơn, lô bằng 0, thêm xen kẽ lấy; kèm kết quả mong đợi.</li>
+<li>Nếu giữ list nhưng thêm ở cuối và lấy bằng <code>pop(0)</code>, chi phí thay đổi thế nào so với mã hiện tại? Cách nào trong hai cách đều không đạt?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa lớp <code>PackingLine</code> trong <code>bang_chuyen.py</code>. Không đổi tên lớp, phương thức, dạng giá trị trả về. Được đổi cách lưu bên trong.</li>
+<li>Thêm 200.000 đơn phải xong trong 1 giây.</li>
+<li>Chạy <code>python bang_chuyen.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex08</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-08</a> rồi chép các tệp vào kho: <code>bang_chuyen.py</code>, <code>test_bang_chuyen.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>bang_chuyen.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

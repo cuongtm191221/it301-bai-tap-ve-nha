@@ -1,0 +1,53 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Ứng dụng chỉ nhớ một số sản phẩm khách xem gần nhất; xem lại một sản phẩm thì nó phải lên đầu, không được hiện hai lần." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-12/minh_hoa.png" /></p>
+<p><em>Ứng dụng chỉ nhớ một số sản phẩm khách xem gần nhất; xem lại một sản phẩm thì nó phải lên đầu, không được hiện hai lần.</em></p>
+<p>Trang chủ ứng dụng Tiki có mục <strong>"Sản phẩm đã xem gần đây"</strong>. Điện thoại chỉ lưu <strong>tối đa N sản phẩm</strong> (mặc định 20, khách đổi được trong cài đặt), hiển thị <strong>mới nhất trước</strong>. Lesson 04 đã cho thấy <code>deque(maxlen=N)</code> tự bỏ phần tử cũ nhất khi đầy; nhưng mục này có thêm yêu cầu:</p>
+<ul>
+<li>Xem lại một sản phẩm <strong>đã có</strong> trong danh sách thì nó được đưa <strong>lên đầu</strong>, không xuất hiện hai lần.</li>
+<li>Mã sản phẩm đến từ nhiều màn hình nên có thể viết thường, thừa khoảng trắng: <code>" sp01 "</code> là <code>SP01</code>. Mã rỗng (chỉ có khoảng trắng) bị bỏ qua.</li>
+<li>Khách <strong>giảm giới hạn</strong> trong cài đặt thì chỉ giữ các sản phẩm mới nhất; tăng giới hạn thì giữ nguyên danh sách hiện có.</li>
+</ul>
+<p>Mục này giúp khách quay lại sản phẩm đang cân nhắc mua; nếu một sản phẩm hiện hai lần, hoặc sản phẩm vừa xem không nằm đầu danh sách, khách khó tìm và tỉ lệ mua giảm. Danh sách lưu trên điện thoại nên phải nhỏ gọn, và mỗi lượt xem phải xử lý ngay, không làm chậm việc mở trang sản phẩm.</p>
+<p>Bạn viết lớp <code>RecentlyViewed</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>RecentlyViewed(limit)</code></strong>: <code>limit</code> phải là số nguyên dương, nếu không báo <code>ValueError("Giới hạn phải là số nguyên dương")</code>.</p>
+<p><strong>2.2. <code>view(product)</code></strong>: ghi nhận khách vừa xem sản phẩm, theo các quy tắc trên.</p>
+<p><strong>2.3. <code>items()</code></strong>: list mã sản phẩm, mới nhất trước, ví dụ giới hạn 3:</p>
+<pre><code>Xem SP01, sp02, ' SP03 ', SP04 -&gt; ['SP04', 'SP03', 'SP02']&#10;Xem tiếp SP02           -&gt; ['SP02', 'SP04', 'SP03']&#10;</code></pre>
+<p><strong>2.4. <code>set_limit(limit)</code>, <code>clear()</code></strong>: đổi giới hạn (cùng quy tắc kiểm tra); xóa toàn bộ lịch sử (khi khách bấm "Xóa lịch sử xem"). Sau khi xóa, khách xem tiếp thì danh sách bắt đầu lại từ đầu với giới hạn hiện tại.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Xem lại sản phẩm đã có.</strong> Đưa lên đầu, độ dài danh sách không đổi, không có mã trùng.</p>
+<p><strong>Bẫy 2 — Chuẩn hóa mã.</strong> <code>"sp01"</code>, <code>" SP01 "</code> là một sản phẩm; <code>"   "</code> và <code>""</code> bị bỏ qua.</p>
+<p><strong>Bẫy 3 — Giới hạn 1.</strong> Luôn chỉ còn sản phẩm vừa xem.</p>
+<p><strong>Bẫy 4 — Đổi giới hạn.</strong> Giảm từ 4 xuống 2 giữ hai sản phẩm mới nhất; tăng lên 3 rồi xem thêm thì danh sách dài ra tới 3.</p>
+<p><strong>Bẫy 5 — Giới hạn sai và xem rất nhiều.</strong> <code>0</code>, <code>-1</code>, <code>2.5</code>, <code>"3"</code> báo lỗi, cả khi tạo và khi đổi giới hạn; danh sách giữ nguyên khi đổi giới hạn sai. 200.000 lượt xem với giới hạn 20 phải xong trong 2 giây, vì khách lướt rất nhanh và mỗi lượt xem đều ghi vào danh sách.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python xem_gan_day.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Xem 'SP01'    -&gt; ['SP01']&#10;Xem 'sp02'    -&gt; ['SP02', 'SP01']&#10;Xem ' SP03 '  -&gt; ['SP03', 'SP02', 'SP01']&#10;Xem 'SP04'    -&gt; ['SP04', 'SP03', 'SP02']&#10;Xem 'SP02'    -&gt; ['SP02', 'SP04', 'SP03']&#10;Xem '   '     -&gt; ['SP02', 'SP04', 'SP03']&#10;Giới hạn 2: ['SP02', 'SP04']&#10;Giới hạn 5, xem SP09: ['SP09', 'SP02', 'SP04']&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm hoặc phương thức, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: chọn đầu nào của deque là "mới nhất"? Khi đầy, <code>maxlen</code> tự bỏ phần tử ở đầu nào, có đúng là sản phẩm cũ nhất không? (Lesson 04, mục 4.2: thêm nhầm phía khi có <code>maxlen</code>.)</li>
+<li>Mô tả các bước của <code>view</code> khi sản phẩm đã có; chạy tay ví dụ ở mục 2.3.</li>
+<li><code>maxlen</code> của một deque không đổi được sau khi tạo: <code>set_limit</code> làm thế nào?</li>
+<li>Kiểm tra "sản phẩm đã có" trên deque tốn bao nhiêu phép so sánh? Vì sao test có sẵn dùng giới hạn 20 cho 200.000 lượt xem?</li>
+<li>So sánh với cách dùng list và <code>insert(0, ...)</code>: chi phí mỗi lượt xem và vì sao Lesson 04 khuyên dùng deque.</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của <code>view</code>, <code>items</code>, <code>set_limit</code> theo N (giới hạn), và vì sao chấp nhận được khi N nhỏ.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm, phương thức còn trống trong <code>xem_gan_day.py</code>. Không đổi tên, tham số, thông báo lỗi; hàm ghi "Có sẵn" giữ nguyên; được thêm thuộc tính và hàm phụ.</li>
+<li>Dùng <code>collections.deque</code>; không dùng list với <code>insert(0, ...)</code> hay <code>pop(0)</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python xem_gan_day.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex12</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-12">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-12</a> rồi chép các tệp vào kho: <code>xem_gan_day.py</code>, <code>test_xem_gan_day.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>xem_gan_day.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

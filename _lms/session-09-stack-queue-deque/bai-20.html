@@ -1,0 +1,71 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Ngày hội mua sắm, hàng in phiếu giao hàng có hàng chục nghìn phiếu; máy in chờ phần mềm chứ không phải ngược lại." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-09-stack-queue-deque/bai-20/minh_hoa.png" /></p>
+<p><em>Ngày hội mua sắm, hàng in phiếu giao hàng có hàng chục nghìn phiếu; máy in chờ phần mềm chứ không phải ngược lại.</em></p>
+<p>Ở kho Tiki, mỗi đơn hàng đã đóng gói cần một <strong>phiếu giao hàng</strong> dán lên thùng. Phần mềm của kho giữ một <strong>hàng in</strong>: nhân viên đóng gói quét mã đơn để thêm phiếu, trưởng ca có thể đẩy đơn giao nhanh (TikiNOW) lên <strong>đầu hàng</strong>, và máy in lấy phiếu ở đầu hàng ra in. Các lệnh được ghi lại dạng chữ:</p>
+<table>
+<thead>
+<tr>
+<th>Lệnh</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ADD &lt;mã&gt;</code></td>
+<td>thêm phiếu vào cuối hàng; mã đang chờ thì bỏ qua</td>
+</tr>
+<tr>
+<td><code>URGENT &lt;mã&gt;</code></td>
+<td>đưa phiếu lên đầu hàng; mã đang chờ thì bỏ qua</td>
+</tr>
+<tr>
+<td><code>PRINT</code></td>
+<td>in phiếu đầu hàng; hàng rỗng thì bỏ qua</td>
+</tr>
+</tbody>
+</table>
+<p>Hàm <code>print_order_slow(commands)</code> (có sẵn trong tệp, <strong>không được sửa</strong>) là bản đang chạy: kết quả đúng, nhưng ngày hội mua sắm, một ca có <strong>200.000 lệnh</strong> và hàng chờ lên hàng chục nghìn phiếu, máy in đứng chờ phần mềm. Đọc kỹ bản cũ, bạn sẽ thấy nó dùng gần như mọi thao tác "đắt" của list đã gặp trong buổi: tìm theo giá trị, chèn đầu, lấy đầu, nối list tạo list mới.</p>
+<p>Nhóm vận hành kho yêu cầu bản mới cho <strong>kết quả giống hệt</strong> bản cũ với mọi chuỗi lệnh, vì thứ tự in quyết định thứ tự xe lấy hàng, và yêu cầu kèm <strong>số đo</strong> chứng minh bản mới nhanh hơn ở nhiều kích thước dữ liệu, không chỉ một lần chạy với dữ liệu nhỏ.</p>
+<p>Bài này tổng hợp kiến thức cả buổi: queue (vào trước ra trước), thao tác ở cả hai đầu của deque, chi phí <code>pop(0)</code>, <code>insert(0, ...)</code>, <code>in</code> trên list, so khớp hai bản cài bằng dữ liệu ngẫu nhiên.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>print_order_fast(commands)</code></strong>: trả về bộ <code>(list mã đã in theo thứ tự, list mã còn chờ từ đầu đến cuối hàng)</code> giống <code>print_order_slow</code>; không sửa <code>commands</code>; cả hai phần tử của bộ đều là <code>list</code>.</p>
+<p><strong>2.2. <code>print_summary(commands)</code></strong>: dùng <code>print_order_fast</code>, trả về một dòng:</p>
+<pre><code>In 4 phiếu, còn chờ 1: TK8&#10;In 1 phiếu, còn chờ 0&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ với dữ liệu ngẫu nhiên.</strong> Test so sánh hai bản trên 200 chuỗi lệnh ngẫu nhiên, có mã lặp lại nhiều lần.</p>
+<p><strong>Bẫy 2 — Nhiều lệnh URGENT.</strong> <code>URGENT A</code>, <code>URGENT B</code> thì B in trước A; <code>URGENT A</code> khi A đang chờ thì không đổi chỗ.</p>
+<p><strong>Bẫy 3 — In rồi thêm lại.</strong> Mã đã in không còn "đang chờ", nên <code>ADD</code> hoặc <code>URGENT</code> mã đó lần nữa được nhận.</p>
+<p><strong>Bẫy 4 — Hàng rỗng, chuỗi lệnh rỗng.</strong> <code>PRINT</code> khi rỗng bị bỏ qua; kiểu trả về vẫn là list.</p>
+<p><strong>Bẫy 5 — 200.000 lệnh trong 1 giây.</strong> Bản cũ với cùng dữ liệu chạy rất lâu, nên đừng chạy <code>print_order_slow</code> với 200.000 lệnh khi thử.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python hang_in_phieu.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>(['TK8', 'TK9', 'TK1', 'TK2'], ['TK8'])&#10;(['TK8', 'TK9', 'TK1', 'TK2'], ['TK8'])&#10;In 4 phiếu, còn chờ 1: TK8&#10;In 1 phiếu, còn chờ 0&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, phương thức, trong trường hợp thường và trong từng bẫy.</li>
+<li>Lập bảng các thao tác của <code>print_order_slow</code>: mỗi thao tác làm gì, chi phí theo n (số phiếu đang chờ) hoặc theo số phiếu đã in, Big-O của cả hàm với m lệnh.</li>
+<li>Thiết kế <code>print_order_fast</code>: mỗi thao tác của bản cũ được thay bằng gì; làm sao kiểm tra "mã đang chờ" mà không duyệt hàng; khi in một phiếu cần cập nhật những gì.</li>
+<li>Chạy tay kịch bản chạy thử với cấu trúc của bạn.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của hai bản theo m (số lệnh).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>hang_in_phieu.py</code>; được thêm thuộc tính, hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li><code>print_order_fast</code> không gọi <code>print_order_slow</code>; không dùng <code>pop(0)</code>, <code>insert(0, ...)</code>, <code>in</code> trên list, <code>+</code> để nối list trong vòng lặp.</li>
+<li>Xử lý đủ 5 bẫy; <code>python hang_in_phieu.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 6 test có sẵn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Kho muốn mở rộng: mỗi phiếu có <strong>mức ưu tiên</strong> từ 1 đến 5, phiếu mức cao in trước, cùng mức thì đến trước in trước. Deque không còn đủ. Tìm hiểu module <code>heapq</code> (hàng đợi ưu tiên) của thư viện chuẩn và cách giữ thứ tự đến trước khi cùng mức.</li>
+<li>Tạo <code>nghien_cuu.py</code>: cài hai cách sắp n phiếu theo ưu tiên, <code>heapq</code> và list luôn giữ sắp xếp bằng <code>bisect.insort</code>; kiểm tra hai cách cho cùng thứ tự rồi đo bằng <code>timeit</code> với n = 25.000, 50.000, 100.000. n gấp đôi thì mỗi cách chậm đi bao nhiêu lần? Vì sao?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session09_Ex20</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-20">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-09-stack-queue-deque/bai-20</a> rồi chép các tệp vào kho: <code>hang_in_phieu.py</code>, <code>test_hang_in_phieu.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>hang_in_phieu.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
