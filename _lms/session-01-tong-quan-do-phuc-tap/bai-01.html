@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Nhân viên chăm sóc khách hàng tra mã đơn thì báo không có, có lúc màn hình tra cứu đứng yên không trả lời." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-01/minh_hoa.png" /></p>
+<p><em>Nhân viên chăm sóc khách hàng tra mã đơn thì báo không có, có lúc màn hình tra cứu đứng yên không trả lời.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm công cụ nội bộ của bộ phận chăm sóc khách hàng Shopee.</p>
+<p>Khi khách gọi tổng đài hỏi về một đơn hàng, nhân viên nhập <strong>mã đơn</strong> để tra cứu. Danh sách đơn của một khách được lưu bằng list Python, mỗi đơn là một dict:</p>
+<pre><code>{&quot;code&quot;: &quot;DH1002&quot;, &quot;status&quot;: &quot;Đã giao&quot;}&#10;</code></pre>
+<p>Hàm <code>find_order(orders, code)</code> thực hiện <strong>tìm kiếm tuần tự</strong>: đi từ đơn đầu tới đơn cuối, gặp mã cần tìm thì dừng. Hàm trả về một bộ hai giá trị:</p>
+<ul>
+<li><strong>Vị trí</strong> của đơn (tính từ 0), hoặc <code>None</code> nếu không tìm thấy.</li>
+<li><strong>Số đơn đã xét</strong>: mỗi đơn được đọc tính là 1, kể cả đơn bị bỏ qua. Con số này được ghi vào nhật ký để nhóm theo dõi tốc độ tra cứu khi khách có rất nhiều đơn.</li>
+</ul>
+<p>Quy tắc nghiệp vụ: đơn có trạng thái <strong>"Đã hủy"</strong> coi như không có. Tra mã của một đơn đã hủy thì trả về <code>None</code>.</p>
+<p>Kịch bản kiểm tra của nhóm (đoạn cuối tệp): tra bốn lần trên danh sách đơn hôm nay (đơn thứ hai, đơn cuối, mã không có, danh sách rỗng), rồi tra hai lần trên danh sách đơn của tuần trước, trong đó có một đơn đã hủy.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Tra DH1002: (1, 2)&#10;Tra DH1004: (3, 4)&#10;Tra DH9999: (None, 4)&#10;Danh sách rỗng: (None, 0)&#10;Tra DH0903: (2, 3)&#10;Tra DH0902: (None, 3)&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhân viên tổng đài phản ánh ba hiện tượng:</p>
+<ul>
+<li>Khách đọc đúng mã của <strong>đơn mới nhất</strong> (đơn đứng cuối danh sách) nhưng màn hình báo không tìm thấy.</li>
+<li>Khi không tìm thấy, màn hình hiện vị trí <strong>-1</strong>, trong khi các màn hình khác của hệ thống quy ước "không có" là <code>None</code>.</li>
+<li>Với một số khách, màn hình tra cứu <strong>đứng yên mãi</strong>, không trả lời, phải tắt đi mở lại.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01):</p>
+<ul>
+<li>Một thuật toán phải <strong>đúng</strong> (cho kết quả đúng với mọi đầu vào hợp lệ) và <strong>dừng</strong> (luôn kết thúc sau một số bước hữu hạn).</li>
+<li>Muốn kiểm tra một hàm tìm kiếm, luôn chạy thử đủ ba trường hợp: mã có, mã không có, danh sách rỗng. Với hàm tìm kiếm tuần tự, mã đứng ở <strong>vị trí cuối</strong> là trường hợp hay bị bỏ sót.</li>
+<li>Vòng lặp <code>while</code> chỉ dừng khi biến điều khiển tiến dần tới điều kiện dừng ở <strong>mọi</strong> lượt lặp.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>tra_cuu.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def find_order(orders, code):&#10;    # Trả về (vị trí của đơn có mã code, số đơn đã xét).&#10;    # Đơn &quot;Đã hủy&quot; coi như không có. Không tìm thấy thì trả về (None, số đơn đã xét).&#10;    i = 0&#10;    checked = 0&#10;    while i &lt; len(orders) - 1:&#10;        if orders[i][&quot;status&quot;] == &quot;Đã hủy&quot;:&#10;            continue&#10;        checked += 1&#10;        if orders[i][&quot;code&quot;] == code:&#10;            return i, checked&#10;        i += 1&#10;    return -1, checked&#10;&#10;&#10;today = [&#10;    {&quot;code&quot;: &quot;DH1001&quot;, &quot;status&quot;: &quot;Đang giao&quot;},&#10;    {&quot;code&quot;: &quot;DH1002&quot;, &quot;status&quot;: &quot;Đã giao&quot;},&#10;    {&quot;code&quot;: &quot;DH1003&quot;, &quot;status&quot;: &quot;Chờ lấy hàng&quot;},&#10;    {&quot;code&quot;: &quot;DH1004&quot;, &quot;status&quot;: &quot;Đang giao&quot;},&#10;]&#10;print(&quot;Tra DH1002:&quot;, find_order(today, &quot;DH1002&quot;))&#10;print(&quot;Tra DH1004:&quot;, find_order(today, &quot;DH1004&quot;))&#10;print(&quot;Tra DH9999:&quot;, find_order(today, &quot;DH9999&quot;))&#10;print(&quot;Danh sách rỗng:&quot;, find_order([], &quot;DH1001&quot;))&#10;&#10;week = [&#10;    {&quot;code&quot;: &quot;DH0901&quot;, &quot;status&quot;: &quot;Đã giao&quot;},&#10;    {&quot;code&quot;: &quot;DH0902&quot;, &quot;status&quot;: &quot;Đã hủy&quot;},&#10;    {&quot;code&quot;: &quot;DH0903&quot;, &quot;status&quot;: &quot;Đang giao&quot;},&#10;]&#10;print(&quot;Tra DH0903:&quot;, find_order(week, &quot;DH0903&quot;))&#10;print(&quot;Tra DH0902:&quot;, find_order(week, &quot;DH0902&quot;))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Tra DH1002: (1, 2)&#10;Tra DH1004: (-1, 3)&#10;Tra DH9999: (-1, 3)&#10;Danh sách rỗng: (-1, 0)&#10;(chương trình đứng yên, không in thêm gì; phải bấm Ctrl + C để dừng)&#10;</code></pre>
+<p>Các dòng 2 đến 4 cho thấy ba lỗi: tìm <code>DH1004</code> ra <code>-1</code> thay vì vị trí 3; số đơn đã xét chỉ là 3 thay vì 4; không tìm thấy thì trả về <code>-1</code> thay vì <code>None</code>. Ở danh sách tuần trước, chương trình đứng yên ngay lần tra đầu tiên.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Với danh sách 4 đơn hôm nay, điều kiện <code>i &lt; len(orders) - 1</code> cho biến <code>i</code> chạy những giá trị nào? Đơn nào không bao giờ được xét?</li>
+<li>Lập bảng chạy tay lần tra <code>DH0903</code> trên danh sách tuần trước: sau mỗi lượt lặp ghi giá trị <code>i</code>, <code>checked</code> và đơn đang xét. Từ lượt nào trở đi giá trị của <code>i</code> không còn thay đổi? Vì sao vòng lặp không bao giờ dừng?</li>
+<li>Dòng lệnh nào làm vòng lặp bỏ qua lệnh <code>i += 1</code>? Viết lại phần thân vòng lặp sao cho ở <strong>mọi</strong> lượt, <code>i</code> đều tăng.</li>
+<li>Quy ước "số đơn đã xét" tính cả đơn đã hủy. Trong mã hiện tại, đơn đã hủy có được cộng vào <code>checked</code> không?</li>
+<li>Tra mã <code>DH0902</code> (đơn đã hủy) phải trả về gì? Vì sao không được trả về vị trí 1?</li>
+<li>Nêu số đơn đã xét trong trường hợp tốt nhất và trường hợp xấu nhất khi khách có n đơn. Trường hợp xấu nhất xảy ra khi nào?</li>
+<li>Ghi ra ba bộ dữ liệu thử bạn dùng để khẳng định hàm đã đúng và đã dừng (mã có, mã không có, danh sách rỗng), kèm kết quả mong đợi của từng bộ.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hàm <code>find_order</code> trong <code>tra_cuu.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về; không dùng <code>index()</code> hay <code>in</code> của list để tìm thay vòng lặp.</li>
+<li>Chạy <code>python tra_cuu.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex01</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-01</a> rồi chép các tệp vào kho: <code>tra_cuu.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>tra_cuu.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

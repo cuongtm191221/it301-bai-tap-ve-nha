@@ -1,0 +1,142 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Lỗi tra cứu đơn hàng theo mã trên Shopee",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7686
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Lỗi đếm số bước trong báo cáo doanh thu Shopee",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 8352
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Lỗi phát hiện đơn đặt trùng trên Shopee",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7851
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Lỗi báo cáo bảng giá làm đảo lộn gian hàng trên Shopee",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7699
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Lỗi kiểm tra tồn kho trước giờ mở flash sale trên Shopee",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7765
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Lỗi chia lô đơn hàng cho kho trong ngày sale Shopee",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 6728
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Lỗi báo cáo khách hàng chi tiêu cao trên Shopee",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7053
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Lỗi xem lịch sử đơn hàng theo trang trên Shopee",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7161
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Khung giờ cao điểm đặt hàng của gian hàng Shopee",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6427
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Chuỗi ngày doanh thu tăng liên tiếp của gian hàng Shopee",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6276
+ },
+ {
+  "n": 11,
+  "t": "Bài 11: Giảm giá hàng loạt cho gian hàng Shopee",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6821
+ },
+ {
+  "n": 12,
+  "t": "Bài 12: Ước lượng thời gian chạy báo cáo đêm của Shopee",
+  "l": "Khá",
+  "h2": 5,
+  "len": 7024
+ },
+ {
+  "n": 13,
+  "t": "Bài 13: Kiểm tra mã vận đơn trùng trước khi in nhãn trên Shopee",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6370
+ },
+ {
+  "n": 14,
+  "t": "Bài 14: Bảng xếp hạng sản phẩm bán chạy của gian hàng Shopee",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6278
+ },
+ {
+  "n": 15,
+  "t": "Bài 15: Phản biện mã do AI viết: báo cáo khách hàng thân thiết trên Shopee",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6601
+ },
+ {
+  "n": 16,
+  "t": "Bài 16: Đối soát đơn hàng giữa Shopee và đơn vị vận chuyển",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6483
+ },
+ {
+  "n": 17,
+  "t": "Bài 17: Phân loại độ phức tạp của báo cáo từ số đo cho nhóm hiệu năng Shopee",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7146
+ },
+ {
+  "n": 18,
+  "t": "Bài 18: Báo cáo tồn kho cuối ngày cho người bán Shopee",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7066
+ },
+ {
+  "n": 19,
+  "t": "Bài 19: Công cụ tra cứu đơn hàng cho bộ phận chăm sóc khách hàng Shopee",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7197
+ },
+ {
+  "n": 20,
+  "t": "Bài 20: Tối ưu báo cáo cuối ngày chạy quá chậm của Shopee",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7968
+ }
+]

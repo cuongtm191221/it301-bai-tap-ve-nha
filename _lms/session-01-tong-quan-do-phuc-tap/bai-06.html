@@ -1,0 +1,59 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Ngày sale, kho nhận lô có 312,5 đơn, chia lô thừa một lần, và có lúc hệ thống chia lô treo cứng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-06/minh_hoa.png" /></p>
+<p><em>Ngày sale, kho nhận lô có 312,5 đơn, chia lô thừa một lần, và có lúc hệ thống chia lô treo cứng.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm vận hành kho của Shopee.</p>
+<p>Trong ngày sale, một kho có thể nhận hàng trăm nghìn đơn cùng lúc. Mỗi ca đóng gói chỉ xử lý được một <strong>lô</strong> có tối đa <code>capacity</code> đơn, nên hệ thống <strong>chia đôi</strong> lô đơn nhiều lần cho đến khi mỗi lô nhỏ hơn hoặc bằng <code>capacity</code>.</p>
+<p>Quy tắc chia:</p>
+<ul>
+<li>Lô có số đơn lẻ thì nửa lớn hơn nhận thêm 1 đơn (ví dụ 625 đơn chia thành 313 và 312), nên <strong>không đơn nào bị mất</strong> và số đơn luôn là <strong>số nguyên</strong>.</li>
+<li>Lô có đúng <code>capacity</code> đơn là đã đạt, <strong>không chia nữa</strong>.</li>
+<li><code>capacity</code> không dương là cấu hình lỗi: hàm trả về <code>None</code>.</li>
+</ul>
+<p>Hàm <code>split_batches(n_orders, capacity)</code> trả về bộ (số lần chia đôi, số đơn của lô lớn nhất sau khi chia). Tài liệu kỹ thuật ghi Big-O thời gian theo n (số đơn) trong biến <code>COMPLEXITY</code>.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): chia 10.000, 1.000, 300 và 1.000.000 đơn với lô tối đa 500, in Big-O, cuối cùng thử cấu hình lỗi lô tối đa 0.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>10.000 đơn, lô tối đa 500: (5, 313)&#10;1.000 đơn, lô tối đa 500: (1, 500)&#10;300 đơn, lô tối đa 500: (0, 300)&#10;1.000.000 đơn, lô tối đa 500: (11, 489)&#10;Big-O ghi trong tài liệu: O(log n)&#10;Cấu hình lỗi, lô tối đa 0: None&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Trưởng kho phản ánh:</p>
+<ul>
+<li>Màn hình phân lô hiện <strong>312,5 đơn</strong> mỗi lô, nhân viên không biết in phiếu thế nào.</li>
+<li>Lô 1.000 đơn với sức chứa 500 bị chia thành các lô 250 đơn: <strong>thừa một lần chia</strong>, số ca đóng gói tăng gấp đôi.</li>
+<li>Khi có người nhập nhầm sức chứa là 0, hệ thống phân lô <strong>treo cứng</strong>.</li>
+</ul>
+<p>Nhóm hạ tầng thêm một câu hỏi: tài liệu ghi O(n), vậy 1.000.000 đơn sẽ chia khoảng một triệu lần? Thực tế hệ thống chỉ chia 11 lần.</p>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li><strong>log n</strong> là số lần chia đôi n cho đến khi còn 1. n tăng từ 1.000 lên 1.000.000 (gấp 1.000 lần) nhưng số lần chia đôi chỉ thêm khoảng 10.</li>
+<li>Vòng lặp chia đôi chỉ dừng khi giá trị <strong>thật sự giảm tới</strong> điều kiện dừng. Phép <code>/</code> cho số thực; phép <code>//</code> cho số nguyên.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>chia_lo.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def split_batches(n_orders, capacity):&#10;    # Chia đôi lô đơn liên tục cho đến khi mỗi lô có không quá capacity đơn.&#10;    # Khi chia, lô lẻ đơn thì nửa lớn hơn nhận thêm 1 đơn, nên không đơn nào bị mất.&#10;    # Trả về (số lần chia đôi, số đơn của lô lớn nhất sau khi chia). capacity không dương thì trả về None.&#10;    batch = n_orders&#10;    splits = 0&#10;    while batch &gt;= capacity:&#10;        batch = batch / 2&#10;        splits += 1&#10;    return splits, batch&#10;&#10;&#10;# Big-O thời gian theo n (số đơn), ghi trong tài liệu kỹ thuật của nhóm&#10;COMPLEXITY = &quot;O(n)&quot;&#10;&#10;&#10;print(&quot;10.000 đơn, lô tối đa 500:&quot;, split_batches(10000, 500))&#10;print(&quot;1.000 đơn, lô tối đa 500:&quot;, split_batches(1000, 500))&#10;print(&quot;300 đơn, lô tối đa 500:&quot;, split_batches(300, 500))&#10;print(&quot;1.000.000 đơn, lô tối đa 500:&quot;, split_batches(1000000, 500))&#10;print(&quot;Big-O ghi trong tài liệu:&quot;, COMPLEXITY)&#10;print(&quot;Cấu hình lỗi, lô tối đa 0:&quot;, split_batches(100, 0))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>10.000 đơn, lô tối đa 500: (5, 312.5)&#10;1.000 đơn, lô tối đa 500: (2, 250.0)&#10;300 đơn, lô tối đa 500: (0, 300)&#10;1.000.000 đơn, lô tối đa 500: (11, 488.28125)&#10;Big-O ghi trong tài liệu: O(n)&#10;(chương trình đứng yên, không in thêm gì; phải bấm Ctrl + C để dừng)&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: lô sau khi chia là số thực (312.5, 488.28125) thay vì số nguyên (313, 489); 1.000 đơn bị chia 2 lần thay vì 1; Big-O ghi O(n); với lô tối đa 0 chương trình không dừng.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Phép <code>batch / 2</code> cho kiểu dữ liệu gì? Viết biểu thức chia đôi làm tròn lên, chỉ dùng số nguyên, để lô lẻ không mất đơn. Kiểm tra lại với 625 đơn.</li>
+<li>Với 1.000 đơn và sức chứa 500, chạy tay điều kiện <code>batch &gt;= capacity</code> qua từng lượt. Vì sao bị chia thêm một lần? Sửa điều kiện thế nào?</li>
+<li>Với <code>capacity = 0</code>, lập bảng vài lượt đầu của <code>batch</code>. Vì sao vòng lặp không bao giờ dừng (dù dùng <code>/</code> hay <code>//</code>)? Cần kiểm tra gì trước vòng lặp?</li>
+<li>Lập bảng số lần chia đôi với n = 1.000, 10.000, 100.000 và 1.000.000 (sức chứa 500). Khi n tăng 10 lần, số lần chia tăng thêm bao nhiêu?</li>
+<li>Vì sao Big-O của hàm là O(log n) chứ không phải O(n)? Vì sao tài liệu không cần ghi cơ số của log?</li>
+<li>Một kho nhận 8.000.000 đơn: ước lượng số lần chia mà không chạy chương trình, rồi chạy để kiểm chứng.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hàm <code>split_batches</code> và biến <code>COMPLEXITY</code> trong <code>chia_lo.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về.</li>
+<li>Chạy <code>python chia_lo.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 6 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex06</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-06</a> rồi chép các tệp vào kho: <code>chia_lo.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>chia_lo.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

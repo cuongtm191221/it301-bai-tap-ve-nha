@@ -1,0 +1,75 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người bán muốn xem trước bảng giá sau giảm rồi mới áp dụng; gian hàng lớn có hàng trăm nghìn sản phẩm." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-11/minh_hoa.png" /></p>
+<p><em>Người bán muốn xem trước bảng giá sau giảm rồi mới áp dụng; gian hàng lớn có hàng trăm nghìn sản phẩm.</em></p>
+<p>Trước mỗi đợt sale, người bán trên Shopee dùng chức năng <strong>"Giảm giá hàng loạt"</strong>: chọn phần trăm giảm cho cả gian hàng, xem trước bảng giá mới, rồi bấm áp dụng. Giá niêm yết của gian hàng là một list số nguyên (đơn vị: đồng):</p>
+<pre><code>[259000, 99000, 1490000, 1500]&#10;</code></pre>
+<p>Giá được làm tròn đến nghìn đồng để bảng giá dễ đọc và khớp với quy định hiển thị giá của sàn. Chức năng gồm ba màn hình, mỗi màn hình có yêu cầu <strong>bộ nhớ</strong> khác nhau:</p>
+<ul>
+<li><strong>Xem trước</strong>: hiện bảng giá mới bên cạnh bảng giá cũ, nên phải tạo một list mới và <strong>giữ nguyên</strong> list cũ.</li>
+<li><strong>Áp dụng</strong>: ghi giá mới <strong>ngay trên</strong> list giá của gian hàng. Gian hàng lớn có hàng trăm nghìn sản phẩm, nên không được tạo thêm list nào.</li>
+<li><strong>Tổng tiền minh họa</strong>: chỉ cần một con số (tổng tiền nếu mua mỗi sản phẩm một cái), nên không được tạo list nào.</li>
+</ul>
+<p>Bạn được giao viết bốn hàm trong <code>giam_gia.py</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. Giá sau giảm của một sản phẩm: <code>discounted_price(price, percent)</code></strong></p>
+<ul>
+<li>Giá sau giảm = giá × (100 - percent) / 100, <strong>làm tròn xuống đến nghìn đồng</strong>. Ví dụ 259.000đ giảm 15% là 220.150đ, làm tròn xuống thành 220.000đ.</li>
+<li>Giá sau giảm không được thấp hơn <strong>giá sàn 1.000đ</strong>.</li>
+<li><code>percent</code> phải từ 1 đến 90.</li>
+</ul>
+<p><strong>2.2. Áp dụng: <code>apply_discount_in_place(prices, percent)</code></strong></p>
+<p>Ghi giá sau giảm vào chính list <code>prices</code>, <strong>trả về <code>None</code></strong>.</p>
+<p><strong>2.3. Xem trước: <code>discounted_copy(prices, percent)</code></strong></p>
+<p>Trả về list mới chứa giá sau giảm theo đúng thứ tự; list <code>prices</code> giữ nguyên. Thứ tự giống hệt list cũ để màn hình xem trước hiện giá cũ và giá mới của cùng một sản phẩm trên cùng một dòng.</p>
+<p><strong>2.4. Tổng tiền: <code>total_after_discount(prices, percent)</code></strong></p>
+<p>Trả về tổng giá sau giảm của mọi sản phẩm, không tạo list nào.</p>
+<p>Các hàm 2.2 đến 2.4 đều dùng lại <code>discounted_price</code> để quy tắc làm tròn chỉ viết ở một chỗ.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Phần trăm ngoài khoảng cho phép</strong></p>
+<ul>
+<li><code>percent</code> là 0, 91, 95 hay -5: báo lỗi <code>ValueError</code> với thông báo:</li>
+</ul>
+<pre><code>Phần trăm giảm phải từ 1 đến 90.&#10;</code></pre>
+<p><strong>Bẫy 2 — Làm tròn</strong></p>
+<ul>
+<li>Làm tròn <strong>xuống</strong>, không làm tròn gần nhất: 99.000đ giảm 15% là 84.150đ, thành 84.000đ.</li>
+</ul>
+<p><strong>Bẫy 3 — Giá sàn</strong></p>
+<ul>
+<li>Sản phẩm 1.500đ giảm 15% là 1.275đ, làm tròn xuống thành 1.000đ, vẫn hợp lệ; nếu làm tròn ra 0đ thì phải nâng lên 1.000đ.</li>
+</ul>
+<p><strong>Bẫy 4 — Xem trước làm hỏng giá gốc</strong></p>
+<ul>
+<li>Sau khi gọi <code>discounted_copy</code>, list giá gốc phải giữ nguyên. Lỗi thường gặp: gán <code>result = prices</code> rồi sửa <code>result</code>, tưởng là đã tạo bản sao.</li>
+</ul>
+<p><strong>Bẫy 5 — Dùng kết quả trả về của hàm áp dụng</strong></p>
+<ul>
+<li><code>apply_discount_in_place</code> trả về <code>None</code>, giống <code>list.sort()</code>. Viết <code>prices = apply_discount_in_place(prices, 15)</code> sẽ làm mất cả bảng giá. Gian hàng trống (<code>[]</code>) thì cả bốn hàm đều chạy bình thường.</li>
+</ul>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python giam_gia.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Giá 259.000đ giảm 15%: 220000&#10;Xem trước: [220000, 84000, 1266000, 1000] | giá gốc: [259000, 99000, 1490000, 1500]&#10;Tổng nếu mua mỗi món một cái: 1571000&#10;Áp dụng tại chỗ trả về: None&#10;Giá sau khi áp dụng: [220000, 84000, 1266000, 1000]&#10;Gian hàng trống: [] 0&#10;Giảm 95%: Phần trăm giảm phải từ 1 đến 90.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: viết công thức làm tròn xuống đến nghìn đồng chỉ dùng phép tính số nguyên, kiểm tra với 259.000đ, 99.000đ và 1.500đ (giảm 15%).</li>
+<li>Với mỗi hàm 2.2 đến 2.4, vẽ hình cho thấy sau khi gọi hàm có mấy list trong bộ nhớ và mỗi tên biến trỏ tới list nào.</li>
+<li><code>discounted_price</code> kiểm tra <code>percent</code> ở đầu hàm. Với gian hàng 200.000 sản phẩm, phép kiểm tra này chạy bao nhiêu lần trong <code>discounted_copy</code>? Có làm đổi Big-O không? Nếu phần trăm sai, hàm áp dụng tại chỗ có để lại list bị giảm giá một nửa không, vì sao?</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của bốn hàm theo n (số sản phẩm). Với gian hàng 200.000 sản phẩm, hàm nào tạo thêm 200.000 phần tử? Vì sao màn hình "Áp dụng" không dùng lại <code>discounted_copy</code> rồi gán đè?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm trong <code>giam_gia.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sắp xếp. <code>apply_discount_in_place</code> và <code>total_after_discount</code> không được tạo list mới.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python giam_gia.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 5 mục.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex11</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-11">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-11</a> rồi chép các tệp vào kho: <code>giam_gia.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>giam_gia.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

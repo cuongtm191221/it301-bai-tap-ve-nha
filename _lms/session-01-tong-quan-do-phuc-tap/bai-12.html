@@ -1,0 +1,96 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhóm hạ tầng phải biết trước báo cáo nào chạy kịp trong khung 2 giờ sáng, chỉ từ độ phức tạp và số dữ liệu." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-12/minh_hoa.png" /></p>
+<p><em>Nhóm hạ tầng phải biết trước báo cáo nào chạy kịp trong khung 2 giờ sáng, chỉ từ độ phức tạp và số dữ liệu.</em></p>
+<p>Mỗi đêm từ 0 giờ đến 2 giờ, Shopee chạy hàng trăm báo cáo cho người bán. Trước khi đưa một báo cáo mới vào lịch, nhóm hạ tầng cần biết nó có chạy <strong>kịp trong khung giờ</strong> hay không. Đội phát triển chỉ cung cấp hai thông tin: <strong>độ phức tạp thời gian</strong> (ví dụ <code>"O(n log n)"</code>) và <strong>số lượng dữ liệu</strong> n.</p>
+<p>Bạn được giao viết công cụ ước lượng trong <code>uoc_luong.py</code>, dựa trên bảng các lớp độ phức tạp ở Lesson 02. Số bước ước lượng của mỗi lớp:</p>
+<table>
+<thead>
+<tr>
+<th>Độ phức tạp</th>
+<th>Số bước ước lượng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>O(1)</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>O(log n)</code></td>
+<td>số lần chia đôi n cho đến khi còn 1 (hàm <code>halvings</code> có sẵn)</td>
+</tr>
+<tr>
+<td><code>O(n)</code></td>
+<td>n</td>
+</tr>
+<tr>
+<td><code>O(n log n)</code></td>
+<td>n × số lần chia đôi n</td>
+</tr>
+<tr>
+<td><code>O(n^2)</code></td>
+<td>n × n</td>
+</tr>
+</tbody>
+</table>
+<p>Ví dụ với n = 1.000.000: O(log n) khoảng 19 bước, O(n²) tới 10¹² bước.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. Chuẩn hóa cách viết: <code>normalize(complexity)</code></strong></p>
+<p>Đội phát triển viết độ phức tạp không thống nhất. Hàm trả về một trong năm dạng chuẩn của list <code>SUPPORTED</code>, hoặc <code>None</code> nếu không hỗ trợ.</p>
+<p><strong>2.2. Số bước: <code>estimate_steps(complexity, n)</code></strong></p>
+<p>Trả về số bước theo bảng ở mục 1, <strong>ít nhất là 1</strong>; trả về <code>None</code> nếu độ phức tạp không hỗ trợ hoặc n không dương.</p>
+<p><strong>2.3. Tỉ lệ tăng: <code>growth_ratio(complexity, n1, n2)</code></strong></p>
+<p>Trả về số bước với n2 chia cho số bước với n1, làm tròn 1 chữ số thập phân (hàm <code>round</code>); <code>None</code> nếu một trong hai ước lượng là <code>None</code>. Ví dụ <code>growth_ratio("O(n^2)", 1000, 10000)</code> là <code>100.0</code>.</p>
+<p><strong>2.4. Có kịp không: <code>fits_window(complexity, n, steps_per_second, seconds)</code></strong></p>
+<p>Số bước cho phép = <code>steps_per_second</code> × <code>seconds</code>. Trả về một trong hai thông báo:</p>
+<pre><code>Kịp: cần khoảng 40000000 bước, khung giờ cho phép 72000000000 bước.&#10;Không kịp: cần khoảng 4000000000000 bước, vượt 3928000000000 bước.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Cách viết không thống nhất</strong></p>
+<ul>
+<li><code>" o(log N) "</code>, <code>"O( n log n )"</code>, <code>"O(n²)"</code> phải được nhận ra là <code>"O(log n)"</code>, <code>"O(n log n)"</code>, <code>"O(n^2)"</code>: bỏ mọi khoảng trắng, chữ <code>o</code> đầu thành <code>O</code>, chữ <code>N</code> thành <code>n</code>, <code>²</code> thành <code>^2</code>.</li>
+</ul>
+<p><strong>Bẫy 2 — Độ phức tạp không hỗ trợ</strong></p>
+<ul>
+<li><code>"O(n^3)"</code>, <code>"O(2^n)"</code>: <code>normalize</code> trả về <code>None</code>, <code>fits_window</code> trả về (giữ nguyên cách viết, chỉ bỏ khoảng trắng hai đầu):</li>
+</ul>
+<pre><code>Không hỗ trợ độ phức tạp O(2^n).&#10;</code></pre>
+<p><strong>Bẫy 3 — n bằng 1</strong></p>
+<ul>
+<li>Số lần chia đôi của 1 là 0, nên O(log n) và O(n log n) sẽ ra 0 bước. Báo cáo chạy vẫn tốn ít nhất 1 bước: kết quả phải là 1.</li>
+</ul>
+<p><strong>Bẫy 4 — n không dương</strong></p>
+<ul>
+<li><code>estimate_steps</code> trả về <code>None</code>; <code>fits_window</code> trả về:</li>
+</ul>
+<pre><code>Số lượng dữ liệu phải lớn hơn 0.&#10;</code></pre>
+<p><strong>Bẫy 5 — Số rất lớn</strong></p>
+<ul>
+<li>O(n²) với n = 2.000.000 là 4 × 10¹² bước. Dùng số nguyên của Python để tính chính xác, không dùng <code>math.log</code> hay số thực cho số bước.</li>
+</ul>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python uoc_luong.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>O(1)       n = 1.000.000: 1&#10;O(log n)   n = 1.000.000: 19&#10;O(n)       n = 1.000.000: 1000000&#10;O(n log n) n = 1.000.000: 19000000&#10;O(n^2)     n = 1.000.000: 1000000000000&#10;Tăng khi n từ 1.000 lên 10.000, O(n^2): 100.0&#10;Tăng khi n từ 1.000 lên 10.000, O(log n): 1.4&#10;O(n log n) với n = 1: 1&#10;Kịp: cần khoảng 40000000 bước, khung giờ cho phép 72000000000 bước.&#10;Không kịp: cần khoảng 4000000000000 bước, vượt 3928000000000 bước.&#10;Không hỗ trợ độ phức tạp O(2^n).&#10;Số lượng dữ liệu phải lớn hơn 0.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: liệt kê theo thứ tự các bước biến một chuỗi bất kỳ thành dạng chuẩn trong <code>normalize</code>; với mỗi cách viết ở bẫy 1, ghi chuỗi sau từng bước.</li>
+<li>Viết mã giả cho <code>estimate_steps</code>. Vì sao phải dùng lại <code>halvings</code> thay vì tự tính log?</li>
+<li>Từ bảng số bước, giải thích vì sao <code>growth_ratio</code> của O(n) luôn bằng n2 / n1, còn của O(log n) thì gần 1.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của <code>halvings</code> và của <code>estimate_steps</code> theo n. Vì sao công cụ ước lượng O(n²) với n = 2.000.000 vẫn chạy tức thì?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm trong <code>uoc_luong.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không dùng <code>math.log</code>; chỉ dùng phép tính số nguyên và hàm <code>halvings</code> có sẵn.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python uoc_luong.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex12</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-12">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-12</a> rồi chép các tệp vào kho: <code>uoc_luong.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>uoc_luong.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

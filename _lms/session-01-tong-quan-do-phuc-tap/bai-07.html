@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Báo cáo khách chi tiêu cao gửi nhầm mã tri ân và chạy cả đêm với gian hàng lớn." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-07/minh_hoa.png" /></p>
+<p><em>Báo cáo khách chi tiêu cao gửi nhầm mã tri ân và chạy cả đêm với gian hàng lớn.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm chăm sóc người bán của Shopee.</p>
+<p>Mỗi cuối tháng, gian hàng gửi <strong>mã giảm giá tri ân</strong> cho những khách có tổng chi tiêu <strong>lớn hơn hẳn mức trung bình</strong> của gian hàng. Mỗi khách là một dict:</p>
+<pre><code>{&quot;code&quot;: &quot;KH04&quot;, &quot;spent&quot;: 1500001}&#10;</code></pre>
+<p>Hàm <code>above_average(customers)</code> trả về bộ hai giá trị:</p>
+<ul>
+<li>List mã các khách có <code>spent</code> <strong>lớn hơn</strong> mức trung bình (khách chi đúng bằng mức trung bình thì không được chọn), giữ thứ tự như trong danh sách.</li>
+<li><strong>Số lần cộng</strong>: mỗi lần cộng một khoản chi tiêu vào tổng tính là 1. Nhóm hạ tầng dùng con số này để ước lượng thời gian chạy.</li>
+</ul>
+<p>Mức trung bình là tổng chi tiêu chia cho số khách, <strong>giữ nguyên phần lẻ</strong>. Gian hàng chưa có khách thì trả về (<code>[]</code>, 0).</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): một gian hàng 4 khách, hai khách chi bằng nhau, gian hàng chưa có khách, rồi đếm số lần cộng với 100 và 1.000 khách.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>4 khách: (['KH02', 'KH04'], 4)&#10;2 khách chi bằng nhau: ([], 2)&#10;Chưa có khách: ([], 0)&#10;100 khách: 100 lần cộng&#10;1000 khách: 1000 lần cộng&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người bán và nhóm hạ tầng phản ánh:</p>
+<ul>
+<li>Khách <code>KH03</code> chi 1.500.000đ, <strong>thấp hơn</strong> mức trung bình 1.500.000,25đ, nhưng vẫn nhận mã tri ân.</li>
+<li>Gian hàng có hai khách chi bằng nhau: cả hai đều nhận mã, trong khi không ai chi hơn mức trung bình.</li>
+<li>Gian hàng 200.000 khách chạy báo cáo <strong>cả đêm</strong> chưa xong.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03):</p>
+<ul>
+<li><strong>Nối tiếp thì cộng, lồng nhau thì nhân</strong>: một vòng lặp n lượt đặt bên trong một vòng lặp n lượt khác cho n × n bước; hai vòng lặp n lượt đặt nối tiếp nhau chỉ cho n + n bước.</li>
+<li>Một giá trị không đổi trong suốt vòng lặp (như tổng chi tiêu của cả gian hàng) chỉ cần tính <strong>một lần</strong>, trước vòng lặp.</li>
+<li>Phép <code>//</code> bỏ phần lẻ; phép <code>/</code> giữ phần lẻ.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>khach_hang.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def above_average(customers):&#10;    # Trả về (danh sách mã khách có tổng chi tiêu LỚN HƠN mức trung bình của gian hàng, số lần cộng).&#10;    # Số lần cộng: mỗi lần cộng một khoản chi tiêu vào tổng tính là 1.&#10;    result = []&#10;    additions = 0&#10;    for c in customers:&#10;        total = 0&#10;        for other in customers:&#10;            total += other[&quot;spent&quot;]&#10;            additions += 1&#10;        average = total // len(customers)&#10;        if c[&quot;spent&quot;] &gt;= average:&#10;            result.append(c[&quot;code&quot;])&#10;    return result, additions&#10;&#10;&#10;customers = [&#10;    {&quot;code&quot;: &quot;KH01&quot;, &quot;spent&quot;: 1000000},&#10;    {&quot;code&quot;: &quot;KH02&quot;, &quot;spent&quot;: 2000000},&#10;    {&quot;code&quot;: &quot;KH03&quot;, &quot;spent&quot;: 1500000},&#10;    {&quot;code&quot;: &quot;KH04&quot;, &quot;spent&quot;: 1500001},&#10;]&#10;print(&quot;4 khách:&quot;, above_average(customers))&#10;same = [{&quot;code&quot;: &quot;KH05&quot;, &quot;spent&quot;: 500000}, {&quot;code&quot;: &quot;KH06&quot;, &quot;spent&quot;: 500000}]&#10;print(&quot;2 khách chi bằng nhau:&quot;, above_average(same))&#10;print(&quot;Chưa có khách:&quot;, above_average([]))&#10;for n in [100, 1000]:&#10;    many = [{&quot;code&quot;: f&quot;KH{i}&quot;, &quot;spent&quot;: i * 1000} for i in range(n)]&#10;    print(f&quot;{n} khách:&quot;, above_average(many)[1], &quot;lần cộng&quot;)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>4 khách: (['KH02', 'KH03', 'KH04'], 16)&#10;2 khách chi bằng nhau: (['KH05', 'KH06'], 4)&#10;Chưa có khách: ([], 0)&#10;100 khách: 10000 lần cộng&#10;1000 khách: 1000000 lần cộng&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: gian hàng 4 khách chọn thêm <code>KH03</code> và tốn 16 lần cộng thay vì 4; hai khách chi bằng nhau đều được chọn; 100 khách tốn 10.000 lần cộng và 1.000 khách tốn 1.000.000 lần cộng thay vì 100 và 1.000.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Với gian hàng 4 khách, tính mức trung bình bằng <code>/</code> và bằng <code>//</code>. Vì sao <code>KH03</code> bị chọn nhầm? Hai lỗi nào cùng gây ra kết quả này?</li>
+<li>Với n khách, mã hiện tại thực hiện bao nhiêu lần cộng? Ghi biểu thức và Big-O. Vì sao lặp lại việc tính tổng ở mỗi khách là không cần thiết?</li>
+<li>Viết lại hàm thành hai vòng lặp <strong>nối tiếp</strong>: vòng thứ nhất làm gì, vòng thứ hai làm gì? Số lần cộng và Big-O sau khi sửa?</li>
+<li>Sau khi tách vòng lặp, gian hàng chưa có khách sẽ gặp lỗi gì nếu không xử lý riêng? Xử lý thế nào?</li>
+<li>Từ số lần cộng với 100 và 1.000 khách, n tăng 10 lần thì số lần cộng của mã cũ và mã mới tăng bao nhiêu lần?</li>
+<li>Ước lượng số lần cộng với gian hàng 200.000 khách cho mã cũ và mã mới. Giải thích vì sao báo cáo chạy cả đêm.</li>
+<li>Tháng sau, gian hàng chỉ muốn tri ân khách chi tiêu lớn hơn 1,5 lần mức trung bình. Hàm đã sửa cần đổi dòng nào? Số lần cộng và Big-O có thay đổi không?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hàm <code>above_average</code> trong <code>khach_hang.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về; không dùng hàm có sẵn <code>sum()</code> hay <code>statistics</code> để thay cho vòng lặp.</li>
+<li>Chạy <code>python khach_hang.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex07</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-07</a> rồi chép các tệp vào kho: <code>khach_hang.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>khach_hang.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

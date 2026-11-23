@@ -1,0 +1,73 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người bán muốn biết đợt tăng trưởng dài nhất trong tháng; báo cáo phải chạy một lượt trên dữ liệu nhiều năm." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-10/minh_hoa.png" /></p>
+<p><em>Người bán muốn biết đợt tăng trưởng dài nhất trong tháng; báo cáo phải chạy một lượt trên dữ liệu nhiều năm.</em></p>
+<p>Trong mục <strong>"Phân tích bán hàng"</strong> của Shopee, người bán muốn biết <strong>chuỗi ngày doanh thu tăng liên tiếp dài nhất</strong>: một dãy ngày liền nhau mà mỗi ngày doanh thu <strong>cao hơn hẳn</strong> ngày trước đó. Chuỗi này giúp người bán đối chiếu với lịch chạy quảng cáo để biết chiến dịch nào hiệu quả.</p>
+<p>Doanh thu được lưu bằng một list, ngày 1 ở vị trí 0 (đơn vị: triệu đồng):</p>
+<pre><code>[12, 15, 15, 18, 21, 25, 20, 22, 30]&#10;&#10;Ngày 3 → 6: 15 → 18 → 21 → 25  (4 ngày tăng liên tiếp)&#10;</code></pre>
+<p>Ngày 2 và ngày 3 cùng là 15 nên <strong>không</strong> tính là tăng: chuỗi mới bắt đầu từ ngày 3. Ngày 7 doanh thu giảm còn 20 nên chuỗi tiếp theo bắt đầu lại từ ngày 7 (20 → 22 → 30, dài 3 ngày).</p>
+<p>Cách dễ nghĩ nhất là xét mọi ngày bắt đầu, từ mỗi ngày đếm tới khi hết tăng. Cách này tốn tới O(n²) khi doanh thu tăng đều. Gian hàng lâu năm có dữ liệu hàng nghìn ngày và báo cáo chạy cho mọi gian hàng, nên nhóm yêu cầu: <strong>duyệt một lượt</strong>, mỗi cặp ngày liền nhau chỉ so sánh <strong>một lần</strong>, tức đúng n - 1 lần so sánh với n ngày.</p>
+<p>Bạn được giao viết hai hàm trong <code>chuoi_tang.py</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>longest_growth_streak(revenues)</code></strong></p>
+<p>Trả về bộ ba giá trị:</p>
+<ul>
+<li>Độ dài chuỗi dài nhất (tính bằng số ngày; một ngày đứng riêng là chuỗi dài 1).</li>
+<li>Ngày bắt đầu của chuỗi đó, <strong>tính từ 1</strong>.</li>
+<li>Số lần so sánh doanh thu hai ngày liền nhau đã thực hiện.</li>
+</ul>
+<p>Với ví dụ ở mục 1, hàm trả về <code>(4, 3, 8)</code>.</p>
+<p><strong>2.2. <code>streak_message(revenues)</code></strong></p>
+<p>Trả về thông báo cho người bán:</p>
+<pre><code>Chuỗi tăng dài nhất: 4 ngày, từ ngày 3 đến ngày 6.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Hai ngày bằng nhau</strong></p>
+<ul>
+<li>Bằng nhau không phải là tăng. <code>[9, 8, 6, 6, 2]</code> không có hai ngày liên tiếp nào tăng:</li>
+</ul>
+<pre><code>Chưa có hai ngày liên tiếp nào doanh thu tăng.&#10;</code></pre>
+<p><strong>Bẫy 2 — Hai chuỗi dài bằng nhau</strong></p>
+<ul>
+<li>Chọn chuỗi <strong>sớm hơn</strong>. <code>[5, 7, 9, 3, 4, 6]</code> có hai chuỗi 3 ngày:</li>
+</ul>
+<pre><code>Chuỗi tăng dài nhất: 3 ngày, từ ngày 1 đến ngày 3.&#10;</code></pre>
+<p><strong>Bẫy 3 — Chuỗi kéo dài tới ngày cuối</strong></p>
+<ul>
+<li><code>[4, 6, 2, 3, 5, 8]</code>: chuỗi dài nhất là ngày 3 đến ngày 6. Lỗi thường gặp là chỉ cập nhật kết quả khi chuỗi bị ngắt, nên chuỗi chạy tới ngày cuối bị bỏ sót.</li>
+</ul>
+<p><strong>Bẫy 4 — Chỉ có một ngày</strong></p>
+<ul>
+<li><code>[10]</code>: <code>longest_growth_streak</code> trả về <code>(1, 1, 0)</code>; thông báo giống bẫy 1.</li>
+</ul>
+<p><strong>Bẫy 5 — Chưa có dữ liệu</strong></p>
+<ul>
+<li><code>[]</code>: <code>longest_growth_streak</code> trả về <code>(0, None, 0)</code>, thông báo:</li>
+</ul>
+<pre><code>Chưa có dữ liệu doanh thu.&#10;</code></pre>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python chuoi_tang.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Tháng 11: (4, 3, 8)&#10;Chuỗi tăng dài nhất: 4 ngày, từ ngày 3 đến ngày 6.&#10;Chuỗi tăng dài nhất: 3 ngày, từ ngày 1 đến ngày 3.&#10;Chưa có hai ngày liên tiếp nào doanh thu tăng.&#10;Chuỗi tăng dài nhất: 4 ngày, từ ngày 3 đến ngày 6.&#10;Chưa có hai ngày liên tiếp nào doanh thu tăng.&#10;Chưa có dữ liệu doanh thu.&#10;1.000 ngày: 999 lần so sánh&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: trong một lượt duyệt, cần giữ những biến nào để biết chuỗi đang xét và chuỗi dài nhất đã gặp? Khi nào cập nhật chuỗi dài nhất, và vì sao cập nhật như vậy xử lý được bẫy 3?</li>
+<li>Lập bảng chạy tay trên ví dụ ở mục 1: sau mỗi ngày ghi giá trị các biến bạn dùng.</li>
+<li>Viết mã giả của <code>longest_growth_streak</code>.</li>
+<li>Người bán muốn xem thêm <strong>chuỗi ngày giảm liên tiếp dài nhất</strong> để biết lúc nào cần kích cầu. Cần đổi những chỗ nào? Có cần duyệt thêm một lượt không, hay làm chung trong một lượt?</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của hàm. Tính số bước của cách dễ nghĩ nhất (xét mọi ngày bắt đầu) khi doanh thu 1.000 ngày tăng đều, so với cách duyệt một lượt.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm trong <code>chuoi_tang.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sắp xếp, không tạo list phụ; chỉ dùng vài biến đơn (bộ nhớ phụ O(1)).</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python chuoi_tang.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex10</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-10</a> rồi chép các tệp vào kho: <code>chuoi_tang.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>chuoi_tang.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

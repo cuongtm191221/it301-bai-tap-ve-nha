@@ -4,6 +4,7 @@ Kho này chứa tệp khởi đầu và test của bài tập về nhà. Mỗi b
 
 | Thư mục | Buổi học | Số bài |
 |---|---|---|
+| `session-01-tong-quan-do-phuc-tap/` | Session 01: Tổng quan CTDL & GT và độ phức tạp | 20 bài: `bai-01` … `bai-20` |
 | `session-07-danh-sach-lien-ket/` | Session 07: Danh sách liên kết | 20 bài: `bai-01` … `bai-20` |
 
 ## Cách làm và nộp một bài
@@ -12,12 +13,9 @@ Kho này chứa tệp khởi đầu và test của bài tập về nhà. Mỗi b
 2. Tạo một kho GitHub **riêng cho từng bài**, đặt tên theo mẫu `[Tên Lớp]_IT301_SessionNN_ExNN`, ví dụ `KS26A_IT301_Session07_Ex01`.
 3. Tải kho này về (nút **Code**, chọn **Download ZIP**) và chép các tệp trong thư mục của bài vào kho của bạn.
 4. Điền phần phân tích vào `PHAN_TICH.md` và viết mã trong tệp mã của bài. Không đổi tên tệp, tên hàm, tên lớp; không sửa tệp test có sẵn.
-5. Tự kiểm tra tại máy bằng Python 3.10 trở lên: chạy tệp mã để đối chiếu với kết quả mẫu trong đề, rồi chạy bộ test có sẵn:
-
-   ```bash
-   pip install pytest
-   pytest -q
-   ```
+5. Tự kiểm tra tại máy bằng Python 3.10 trở lên: chạy tệp mã để đối chiếu với kết quả mẫu trong đề, rồi chạy bộ kiểm tra có sẵn trong thư mục của bài:
+   - Bài có tệp `kiem_tra.py` (các buổi trước khi học pytest): `python kiem_tra.py`.
+   - Bài có tệp `test_*.py`: cài pytest một lần (`pip install pytest`) rồi chạy `pytest -q`.
 
 6. Đưa bài làm lên kho của bạn và nộp **đường dẫn kho** vào đúng bài tập trên hệ thống.
 

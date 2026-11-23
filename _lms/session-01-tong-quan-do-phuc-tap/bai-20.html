@@ -1,0 +1,55 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Báo cáo cuối ngày chạy cả đêm với 200.000 đơn và còn làm đảo thứ tự đơn; cần viết lại cho kịp 3 giây." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-20/minh_hoa.png" /></p>
+<p><em>Báo cáo cuối ngày chạy cả đêm với 200.000 đơn và còn làm đảo thứ tự đơn; cần viết lại cho kịp 3 giây.</em></p>
+<p>Mỗi tối, hệ thống của Shopee chạy <strong>báo cáo cuối ngày</strong> cho một ngành hàng: tổng doanh thu, số khách mua, khách chi nhiều nhất, các đơn lớn bất thường và đơn có giá trị cao nhất. Mỗi đơn là một dict:</p>
+<pre><code>{&quot;code&quot;: &quot;DH06&quot;, &quot;buyer&quot;: &quot;dung&quot;, &quot;amount&quot;: 1600000}&#10;</code></pre>
+<p>Bản báo cáo đang chạy cho kết quả đúng với ngày thường vài nghìn đơn, nhưng ngày sale có <strong>200.000 đơn</strong>: báo cáo chạy <strong>cả đêm</strong> chưa xong. Ngoài ra, sau khi báo cáo chạy, <strong>thứ tự đơn</strong> trong hệ thống bị đảo lộn, và ngày không có đơn nào thì báo cáo báo lỗi.</p>
+<p>Bạn được giao viết bản mới <code>daily_report_fast</code>. Đây là bài <strong>mở</strong>: đề không chỉ ra chỗ nào chậm; bạn phải tự đọc mã, đo, tìm nguyên nhân và chọn cách viết lại.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bản đang chạy (hàm <code>daily_report</code>, có sẵn trong <code>bao_cao_ngay.py</code>, <strong>không sửa</strong> để còn đối chiếu):</p>
+<pre><code>def daily_report(orders):&#10;    &quot;&quot;&quot;Có sẵn: bản đang chạy. orders là list dict {&quot;code&quot;, &quot;buyer&quot;, &quot;amount&quot;}. Không sửa hàm này.&quot;&quot;&quot;&#10;    total = 0&#10;    for o in orders:&#10;        total += o[&quot;amount&quot;]&#10;&#10;    buyers = []&#10;    for o in orders:&#10;        if o[&quot;buyer&quot;] not in buyers:&#10;            buyers.append(o[&quot;buyer&quot;])&#10;&#10;    best_buyer, best_spent = None, -1&#10;    for b in buyers:&#10;        spent = 0&#10;        for o in orders:&#10;            if o[&quot;buyer&quot;] == b:&#10;                spent += o[&quot;amount&quot;]&#10;        if spent &gt; best_spent:&#10;            best_buyer, best_spent = b, spent&#10;&#10;    big = []&#10;    for o in orders:&#10;        average = sum(x[&quot;amount&quot;] for x in orders) / len(orders)&#10;        if o[&quot;amount&quot;] &gt; 2 * average:&#10;            big.append(o[&quot;code&quot;])&#10;&#10;    orders.sort(key=lambda o: o[&quot;amount&quot;], reverse=True)&#10;    return {&quot;total&quot;: total, &quot;buyers&quot;: len(buyers), &quot;best_buyer&quot;: best_buyer,&#10;            &quot;big_orders&quot;: big, &quot;largest&quot;: orders[0][&quot;code&quot;]}&#10;</code></pre>
+<p>Hàm <code>daily_report_fast(orders)</code> phải:</p>
+<ul>
+<li>Trả về dict <strong>giống hệt</strong> bản đang chạy với mọi list đơn không rỗng, gồm năm khóa: <code>total</code>, <code>buyers</code> (số khách khác nhau), <code>best_buyer</code>, <code>big_orders</code> (mã các đơn lớn hơn gấp đôi giá trị trung bình, theo thứ tự trong list), <code>largest</code> (mã đơn có giá trị cao nhất).</li>
+<li>Chạy xong 200.000 đơn trong <strong>3 giây</strong>.</li>
+<li><strong>Không sửa</strong> list <code>orders</code>.</li>
+</ul>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Hai khách chi bằng nhau:</strong> bản đang chạy chọn khách <strong>xuất hiện trước</strong> trong list (ví dụ ở kịch bản chạy thử: <code>binh</code> và <code>dung</code> cùng chi 1.600.000đ, kết quả là <code>binh</code>). Bản mới phải giữ đúng quy tắc này.</p>
+<p><strong>Bẫy 2 — Hai đơn cùng giá trị cao nhất:</strong> chọn đơn đứng trước trong list.</p>
+<p><strong>Bẫy 3 — Không sửa list đơn:</strong> bản đang chạy gọi <code>orders.sort(...)</code>, làm đảo thứ tự đơn của cả hệ thống. Bản mới không được sửa.</p>
+<p><strong>Bẫy 4 — Ngày không có đơn:</strong> trả về</p>
+<pre><code>{'total': 0, 'buyers': 0, 'best_buyer': None, 'big_orders': [], 'largest': None}&#10;</code></pre>
+<p><strong>Bẫy 5 — 200.000 đơn của 50.000 khách:</strong> chạy trong 3 giây. Không dùng <code>set</code>, <code>dict</code> để gom khách (sẽ học ở buổi bảng băm); hãy nghĩ cách gom các đơn của cùng một khách bằng những gì đã học trong buổi này.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python bao_cao_ngay.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Bản đang chạy: {'total': 4100000, 'buyers': 4, 'best_buyer': 'binh', 'big_orders': ['DH02', 'DH06'], 'largest': 'DH06'}&#10;Thứ tự đơn sau khi chạy: ['DH06', 'DH02', 'DH01', 'DH04', 'DH03', 'DH07', 'DH05']&#10;Bản của bạn:   {'total': 4100000, 'buyers': 4, 'best_buyer': 'binh', 'big_orders': ['DH02', 'DH06'], 'largest': 'DH06'}&#10;Thứ tự đơn sau khi chạy: ['DH01', 'DH02', 'DH03', 'DH04', 'DH05', 'DH06', 'DH07']&#10;Ngày chưa có đơn: {'total': 0, 'buyers': 0, 'best_buyer': None, 'big_orders': [], 'largest': None}&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, trong trường hợp thường và trong từng bẫy.</li>
+<li>Chia bản đang chạy thành các phần (tổng tiền, đếm khách, khách chi nhiều nhất, đơn lớn, đơn cao nhất). Với mỗi phần, ghi số bước theo n (số đơn) và k (số khách), Big-O, và chỉ ra phần nào làm báo cáo chạy cả đêm.</li>
+<li>Đo bản đang chạy bằng <code>timeit</code> với n = 1.000, 2.000, 4.000; dùng tỉ lệ thời gian để kiểm chứng Big-O bạn vừa ghi.</li>
+<li>Với mỗi phần, mô tả cách viết lại và Big-O sau khi viết lại. Giải thích cách bản mới giữ đúng bẫy 1 và bẫy 2.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của cả báo cáo trước và sau khi viết lại.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>bao_cao_ngay.py</code>; được thêm hàm phụ; không đổi tên và tham số đã có trong khung.</li>
+<li>Không sửa hàm <code>daily_report</code>; <code>daily_report_fast</code> không dùng <code>set</code>, <code>dict</code>, <code>collections</code> để gom khách và không sửa list <code>orders</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python bao_cao_ngay.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 5 mục.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu công cụ đo hiệu năng <code>cProfile</code> của Python (chạy <code>python -m cProfile -s cumtime &lt;tệp&gt;</code>): bảng kết quả có những cột nào, đọc thế nào.</li>
+<li>Tạo <code>nghien_cuu.py</code> chạy <code>daily_report</code> với 3.000 đơn; dùng <code>cProfile</code> để tìm 3 dòng hoặc hàm tốn thời gian nhất. Kết quả có khớp với phân tích của bạn ở phần (1) không? Chép bảng 5 dòng đầu vào <code>PHAN_TICH.md</code> và giải thích.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex20</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-20">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-20</a> rồi chép các tệp vào kho: <code>bao_cao_ngay.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>bao_cao_ngay.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần dùng <code>cProfile</code>.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

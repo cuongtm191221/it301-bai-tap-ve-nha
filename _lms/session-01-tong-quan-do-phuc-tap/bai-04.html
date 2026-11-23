@@ -1,0 +1,54 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Sau khi chạy báo cáo, thứ tự sản phẩm trên gian hàng bị đảo và giá niêm yết tự giảm." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-04/minh_hoa.png" /></p>
+<p><em>Sau khi chạy báo cáo, thứ tự sản phẩm trên gian hàng bị đảo và giá niêm yết tự giảm.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm công cụ dành cho người bán trên Shopee.</p>
+<p>Mỗi gian hàng có một list <strong>giá niêm yết</strong> (đơn vị: đồng), theo đúng thứ tự sản phẩm người bán sắp xếp trên trang gian hàng. Màn hình "Phân tích giá" gọi ba hàm trên <strong>chính list đó</strong>:</p>
+<ul>
+<li><code>top_prices(prices, k)</code>: k giá cao nhất, từ cao xuống thấp.</li>
+<li><code>average_price(prices)</code>: giá trung bình; gian hàng chưa có sản phẩm thì trả về <code>None</code>.</li>
+<li><code>cheapest_after_discount(prices, percent)</code>: giá thấp nhất nếu cả gian hàng giảm <code>percent</code>%, làm tròn xuống đồng (phép chia <code>//</code>).</li>
+</ul>
+<p>Yêu cầu bắt buộc: <strong>không hàm nào được sửa list <code>prices</code></strong>, vì sau khi xem phân tích, trang gian hàng tiếp tục hiển thị list đó. Gian hàng lớn có tới hàng trăm nghìn sản phẩm, nên nhóm còn yêu cầu mỗi hàm chỉ dùng bộ nhớ phụ khi thật cần.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): một gian hàng 5 sản phẩm; in giá niêm yết trước và sau mỗi lần gọi hàm; cuối cùng tính giá trung bình của một gian hàng mới chưa có sản phẩm.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Giá niêm yết: [259000, 99000, 1490000, 459000, 189000]&#10;3 giá cao nhất: [1490000, 459000, 259000]&#10;Giá niêm yết sau khi lập top: [259000, 99000, 1490000, 459000, 189000]&#10;Giá trung bình: 499200.0&#10;Rẻ nhất sau khi giảm 10%: 89100&#10;Giá niêm yết sau khi tính giảm giá: [259000, 99000, 1490000, 459000, 189000]&#10;Giá trung bình của gian hàng mới: None&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người bán phản ánh: vừa mở màn hình "Phân tích giá" xong thì <strong>thứ tự sản phẩm</strong> trên gian hàng bị đảo thành từ đắt đến rẻ, và <strong>giá niêm yết</strong> của mọi sản phẩm tự giảm 10%. Gian hàng mới mở thì màn hình báo lỗi.</p>
+<p>Nhắc lại kiến thức (Lesson 04):</p>
+<ul>
+<li><strong>Bộ nhớ phụ</strong> là bộ nhớ hàm tạo thêm ngoài dữ liệu đầu vào. Vài biến đơn là O(1); một list có n phần tử là O(n).</li>
+<li><code>list.sort()</code> sắp xếp <strong>tại chỗ</strong>, sửa list cũ và trả về <code>None</code>. <code>sorted(list)</code> tạo <strong>bản sao</strong> đã sắp xếp, list cũ giữ nguyên.</li>
+<li>Lát cắt <code>prices[:]</code> tạo một <strong>list mới</strong> n phần tử. Ngược lại, lệnh gán <code>a = prices</code> <strong>không</strong> tạo bản sao: <code>a</code> và <code>prices</code> là hai tên của cùng một list, sửa qua tên này thì nhìn qua tên kia cũng thấy đổi.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>bang_gia.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def top_prices(prices, k):&#10;    # Trả về k giá cao nhất, từ cao xuống thấp.&#10;    # Danh sách prices phải giữ nguyên thứ tự niêm yết (màn hình gian hàng dùng thứ tự này).&#10;    prices.sort(reverse=True)&#10;    return prices[:k]&#10;&#10;&#10;def average_price(prices):&#10;    # Giá trung bình. Gian hàng chưa có sản phẩm thì trả về None. Chỉ cần bộ nhớ phụ O(1).&#10;    copy = prices[:]&#10;    total = 0&#10;    for p in copy:&#10;        total += p&#10;    return total / len(copy)&#10;&#10;&#10;def cheapest_after_discount(prices, percent):&#10;    # Giá thấp nhất sau khi giảm percent% (làm tròn xuống đồng). Không được sửa danh sách prices.&#10;    discounted = prices&#10;    for i in range(len(discounted)):&#10;        discounted[i] = discounted[i] * (100 - percent) // 100&#10;    return min(discounted)&#10;&#10;&#10;prices = [259000, 99000, 1490000, 459000, 189000]&#10;print(&quot;Giá niêm yết:&quot;, prices)&#10;print(&quot;3 giá cao nhất:&quot;, top_prices(prices, 3))&#10;print(&quot;Giá niêm yết sau khi lập top:&quot;, prices)&#10;print(&quot;Giá trung bình:&quot;, average_price(prices))&#10;print(&quot;Rẻ nhất sau khi giảm 10%:&quot;, cheapest_after_discount(prices, 10))&#10;print(&quot;Giá niêm yết sau khi tính giảm giá:&quot;, prices)&#10;print(&quot;Giá trung bình của gian hàng mới:&quot;, average_price([]))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Giá niêm yết: [259000, 99000, 1490000, 459000, 189000]&#10;3 giá cao nhất: [1490000, 459000, 259000]&#10;Giá niêm yết sau khi lập top: [1490000, 459000, 259000, 189000, 99000]&#10;Giá trung bình: 499200.0&#10;Rẻ nhất sau khi giảm 10%: 89100&#10;Giá niêm yết sau khi tính giảm giá: [1341000, 413100, 233100, 170100, 89100]&#10;Traceback (most recent call last):&#10;  ...&#10;    return total / len(copy)&#10;ZeroDivisionError: division by zero&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: sau <code>top_prices</code>, giá niêm yết đã bị sắp lại từ cao xuống thấp; sau <code>cheapest_after_discount</code>, mọi giá niêm yết đều đã bị giảm 10%; giá trung bình của gian hàng mới gây lỗi <code>ZeroDivisionError</code> thay vì trả về <code>None</code>.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Dòng lệnh nào trong <code>top_prices</code> làm đổi thứ tự niêm yết? Viết lại bằng cách tạo bản sao đã sắp xếp. Bộ nhớ phụ của <code>top_prices</code> sau khi sửa là O(1) hay O(n)?</li>
+<li>Nếu viết <code>ranked = prices.sort(reverse=True)</code> rồi <code>return ranked[:k]</code> thì chuyện gì xảy ra? Vì sao?</li>
+<li>Trong <code>average_price</code>, dòng <code>copy = prices[:]</code> tạo thêm bao nhiêu phần tử với gian hàng 100.000 sản phẩm? Hàm có cần bản sao này không? Bộ nhớ phụ trước và sau khi sửa?</li>
+<li>Vì sao <code>average_price([])</code> báo <code>ZeroDivisionError</code>? Sửa thế nào để trả về <code>None</code>?</li>
+<li>Trong <code>cheapest_after_discount</code>, sau lệnh <code>discounted = prices</code>, <code>discounted</code> và <code>prices</code> có phải hai list khác nhau không? Lệnh nào làm giá niêm yết bị giảm?</li>
+<li>Viết lại <code>cheapest_after_discount</code> mà không sửa <code>prices</code> và chỉ dùng bộ nhớ phụ O(1). Vì sao không cần tạo list giá sau giảm?</li>
+<li>Lập bảng: tên hàm, thời gian (Big-O), bộ nhớ phụ (Big-O) của ba hàm sau khi sửa.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa ba hàm trong <code>bang_gia.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về. <code>average_price</code> và <code>cheapest_after_discount</code> không được tạo list mới.</li>
+<li>Chạy <code>python bang_gia.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex04</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-04">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-04</a> rồi chép các tệp vào kho: <code>bang_gia.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>bang_gia.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

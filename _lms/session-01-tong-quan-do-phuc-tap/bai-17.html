@@ -1,0 +1,96 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhóm hiệu năng có bảng số đo của hàng trăm báo cáo và cần biết báo cáo nào đang tăng theo n² trước đợt sale." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-17/minh_hoa.png" /></p>
+<p><em>Nhóm hiệu năng có bảng số đo của hàng trăm báo cáo và cần biết báo cáo nào đang tăng theo n² trước đợt sale.</em></p>
+<p>Trước mỗi đợt sale lớn, <strong>nhóm hiệu năng</strong> của Shopee chạy thử hàng trăm báo cáo với n = 1.000, 2.000, 4.000, 8.000 đơn và ghi <strong>số bước</strong> của từng lần chạy. Từ số đo, nhóm cần biết mỗi báo cáo thuộc lớp độ phức tạp nào để loại các báo cáo O(n²) khỏi lịch chạy ngày sale. Làm tay với hàng trăm báo cáo là không thể, nên bạn được giao viết công cụ tự phân loại.</p>
+<p>Mỗi báo cáo có một list số đo, mỗi số đo là một bộ <code>(n, số bước)</code>:</p>
+<pre><code>[(1000, 1002), (2000, 2002), (4000, 4002), (8000, 8002)]&#10;</code></pre>
+<p>Ý tưởng dựa trên Lesson 02 và 03: khi <strong>n tăng gấp đôi</strong>, số bước của O(n) tăng khoảng <strong>2 lần</strong>, của O(n²) tăng khoảng <strong>4 lần</strong>, của O(1) không đổi, của O(log n) chỉ thêm một chút. Công cụ tính <strong>tỉ lệ</strong> số bước giữa hai lần đo liên tiếp rồi so với bảng quy tắc.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>check_measurements(measurements)</code></strong>: kiểm tra số đo và trả về một <strong>bản sao</strong> đã xếp theo n tăng dần (số đo có thể được nhập không theo thứ tự). Số đo không hợp lệ thì báo <code>ValueError</code> với một trong ba thông báo ở mục 3.</p>
+<p><strong>2.2. <code>growth_ratios(measurements)</code></strong>: trả về list tỉ lệ <code>số bước lần sau / số bước lần trước</code>, làm tròn 2 chữ số, theo n tăng dần.</p>
+<p><strong>2.3. <code>classify(measurements)</code></strong>: áp dụng bảng quy tắc theo đúng thứ tự từ trên xuống, gặp dòng nào đúng thì dừng (r là trung bình cộng các tỉ lệ):</p>
+<table>
+<thead>
+<tr>
+<th>Thứ tự</th>
+<th>Điều kiện</th>
+<th>Kết quả</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Mọi lần đo có cùng số bước</td>
+<td><code>O(1)</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Có tỉ lệ nhỏ hơn 1 (số bước giảm)</td>
+<td><code>Không xác định</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>r &lt; 1,5</td>
+<td><code>O(log n)</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>r &lt; 2,15</td>
+<td><code>O(n)</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>r &lt; 3</td>
+<td><code>O(n log n)</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>r &lt; 5</td>
+<td><code>O(n^2)</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Còn lại</td>
+<td><code>Không xác định</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>2.4. <code>report_line(name, measurements)</code></strong>: trả về một dòng của bảng hiệu năng, r in 2 chữ số thập phân:</p>
+<pre><code>tong_doanh_thu: O(n) (tỉ lệ trung bình 2.00)&#10;thieu_so_do: số đo không hợp lệ - Cần ít nhất 3 lần đo.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Quá ít lần đo:</strong> ít hơn 3 lần đo thì báo <code>Cần ít nhất 3 lần đo.</code></p>
+<p><strong>Bẫy 2 — n không tăng gấp đôi:</strong> ví dụ 1.000, 3.000, 9.000: báo <code>Các lần đo phải có n tăng gấp đôi.</code></p>
+<p><strong>Bẫy 3 — Số bước không dương:</strong> báo <code>Số bước phải lớn hơn 0.</code> (tránh chia cho 0).</p>
+<p><strong>Bẫy 4 — Số đo không theo thứ tự:</strong> <code>[(4000, ...), (1000, ...), (2000, ...)]</code> vẫn phân loại đúng, và list số đo của người gọi <strong>không bị đổi thứ tự</strong>.</p>
+<p><strong>Bẫy 5 — Số bước giảm hoặc tăng quá nhanh:</strong> cả hai đều ra <code>Không xác định</code>, không được xếp nhầm vào lớp nào.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python do_tang.py</code> (đoạn chạy thử có sẵn ở cuối tệp, gồm số đo của 8 báo cáo) phải in ra đúng:</p>
+<pre><code>in_tieu_de: O(1) (tỉ lệ trung bình 1.00)&#10;tim_don: O(log n) (tỉ lệ trung bình 1.09)&#10;tong_doanh_thu: O(n) (tỉ lệ trung bình 2.00)&#10;xep_hang: O(n log n) (tỉ lệ trung bình 2.18)&#10;don_trung: O(n^2) (tỉ lệ trung bình 4.00)&#10;do_nham: số đo không hợp lệ - Các lần đo phải có n tăng gấp đôi.&#10;thieu_so_do: số đo không hợp lệ - Cần ít nhất 3 lần đo.&#10;giam_dan: Không xác định (tỉ lệ trung bình 0.58)&#10;Tỉ lệ của don_trung: [4.0, 4.0]&#10;Số đo don_trung giữ nguyên thứ tự: (4000, 7998000)&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi lớp độ phức tạp, tính tỉ lệ số bước khi n tăng từ 1.000 lên 2.000 (dùng số bước ước lượng của Lesson 02) và giải thích vì sao các ngưỡng 1,5; 2,15; 3; 5 trong bảng quy tắc tách được các lớp.</li>
+<li>Vì sao <code>check_measurements</code> phải trả về bản sao chứ không sắp xếp list được truyền vào?</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của bốn hàm theo m (số lần đo).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>do_tang.py</code>; được thêm hàm phụ; không đổi tên và tham số đã có trong khung.</li>
+<li>Dùng lại <code>check_measurements</code> và <code>growth_ratios</code> trong các hàm sau, không viết lặp phần kiểm tra.</li>
+<li>Xử lý đủ 5 bẫy; <code>python do_tang.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 5 mục.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu <code>timeit</code> và <code>time.perf_counter</code>: khác nhau thế nào, vì sao khi đo nên chạy lặp nhiều lần và lấy <strong>thời gian nhỏ nhất</strong>.</li>
+<li>Tạo <code>nghien_cuu.py</code>: đo <strong>thời gian</strong> (thay cho số bước) của hai hàm bạn tự viết, một hàm O(n) và một hàm O(n²), với n = 1.000, 2.000, 4.000, 8.000; đưa kết quả vào <code>classify</code>. Kết quả có luôn đúng lớp không? Giải thích vì sao phân loại bằng thời gian kém ổn định hơn bằng số bước.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex17</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-17">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-17</a> rồi chép các tệp vào kho: <code>do_tang.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>do_tang.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần đo thời gian.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

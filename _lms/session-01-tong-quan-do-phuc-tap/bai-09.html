@@ -1,0 +1,70 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người bán muốn biết khung giờ nào khách đặt nhiều nhất để xếp ca đóng gói; dữ liệu giờ đặt có cả dòng lỗi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-09/minh_hoa.png" /></p>
+<p><em>Người bán muốn biết khung giờ nào khách đặt nhiều nhất để xếp ca đóng gói; dữ liệu giờ đặt có cả dòng lỗi.</em></p>
+<p>Người bán trên Shopee muốn biết <strong>khung giờ nào trong ngày khách đặt hàng nhiều nhất</strong> để xếp ca đóng gói và hẹn giờ chạy quảng cáo. Khung giờ được tính theo giờ tròn: mọi đơn từ 20:00 đến 20:59 thuộc khung giờ 20, mọi đơn từ 00:00 đến 00:59 thuộc khung giờ 0. Hệ thống xuất danh sách <strong>thời điểm đặt</strong> của các đơn trong ngày, mỗi thời điểm là một chuỗi dạng <code>"HH:MM"</code>:</p>
+<pre><code>[&quot;20:15&quot;, &quot; 09:05 &quot;, &quot;20:47&quot;, &quot;13:30&quot;, &quot;24:10&quot;, &quot;21:02&quot;, ...]&#10;</code></pre>
+<p>Dữ liệu được ghép từ nhiều nguồn nên có dòng thừa khoảng trắng và có cả dòng lỗi (giờ 24, phút 60, thiếu số 0 ở đầu...).</p>
+<p>Một gian hàng lớn có hàng trăm nghìn đơn mỗi ngày, và báo cáo chạy cho mọi gian hàng cùng lúc. Vì vậy nhóm đặt yêu cầu: chỉ duyệt danh sách <strong>một lần</strong>, và <strong>không lưu lại từng đơn</strong>: chỉ dùng <strong>24 ô đếm</strong>, mỗi ô ứng với một giờ. 24 ô này không tăng theo số đơn, nên bộ nhớ phụ là O(1).</p>
+<p>Bạn được giao viết ba hàm trong <code>khung_gio.py</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. Đọc giờ: <code>parse_hour(text)</code></strong></p>
+<ul>
+<li>Xóa khoảng trắng hai đầu. Chuỗi hợp lệ có đúng 5 ký tự: hai chữ số giờ, dấu <code>:</code>, hai chữ số phút; giờ từ 00 đến 23, phút từ 00 đến 59.</li>
+<li>Hợp lệ thì trả về <strong>giờ</strong> (số nguyên), ví dụ <code>"20:15"</code> trả về <code>20</code>. Không hợp lệ thì trả về <code>None</code>.</li>
+</ul>
+<p><strong>2.2. Đếm theo giờ: <code>count_by_hour(times)</code></strong></p>
+<p>Trả về bộ (list đúng 24 số nguyên, số dòng không hợp lệ). Ô thứ h là số đơn đặt trong giờ h.</p>
+<p><strong>2.3. Thông báo: <code>peak_hour_message(times)</code></strong></p>
+<p>Trả về thông báo cho người bán, gồm khung giờ có nhiều đơn nhất, số đơn, và số dòng bị bỏ qua:</p>
+<pre><code>Giờ cao điểm: 20:00 - 20:59 (3 đơn). Bỏ qua 3 dòng lỗi.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Thừa khoảng trắng</strong></p>
+<ul>
+<li><code>" 09:05 "</code> vẫn là giờ 9.</li>
+</ul>
+<p><strong>Bẫy 2 — Chuỗi sai định dạng hoặc ngoài khoảng</strong></p>
+<ul>
+<li><code>"24:10"</code>, <code>"07:60"</code>, <code>"9:05"</code>, <code>"ab:cd"</code>, <code>""</code> đều không hợp lệ: bỏ qua và cộng vào số dòng lỗi, không được làm chương trình dừng.</li>
+</ul>
+<p><strong>Bẫy 3 — Hai khung giờ bằng nhau</strong></p>
+<ul>
+<li>Chọn khung giờ <strong>sớm hơn</strong>. Với <code>["13:10", "08:00", "13:55", "08:30"]</code>:</li>
+</ul>
+<pre><code>Giờ cao điểm: 08:00 - 08:59 (2 đơn). Bỏ qua 0 dòng lỗi.&#10;</code></pre>
+<p><strong>Bẫy 4 — Giờ một chữ số khi hiển thị</strong></p>
+<ul>
+<li>Giờ 0 hiển thị là <code>00:00 - 00:59</code>, giờ 8 là <code>08:00 - 08:59</code>.</li>
+</ul>
+<p><strong>Bẫy 5 — Không có đơn hợp lệ</strong></p>
+<ul>
+<li>Danh sách rỗng hoặc toàn dòng lỗi:</li>
+</ul>
+<pre><code>Chưa có đơn hàng hợp lệ. Bỏ qua 2 dòng lỗi.&#10;</code></pre>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python khung_gio.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>parse_hour(&quot; 09:05 &quot;): 9 | parse_hour(&quot;24:10&quot;): None&#10;Số đơn lúc 20 giờ: 3 | số dòng lỗi: 3&#10;Giờ cao điểm: 20:00 - 20:59 (3 đơn). Bỏ qua 3 dòng lỗi.&#10;Giờ cao điểm: 08:00 - 08:59 (2 đơn). Bỏ qua 0 dòng lỗi.&#10;Giờ cao điểm: 00:00 - 00:59 (2 đơn). Bỏ qua 0 dòng lỗi.&#10;Chưa có đơn hàng hợp lệ. Bỏ qua 2 dòng lỗi.&#10;Chưa có đơn hàng hợp lệ. Bỏ qua 0 dòng lỗi.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế giải pháp: vì sao 24 ô đếm đủ để tìm giờ cao điểm mà không cần lưu từng đơn? Vẽ 24 ô đếm sau khi xử lý danh sách trong kịch bản chạy thử (chỉ cần ghi các ô khác 0).</li>
+<li>Liệt kê các bước kiểm tra một chuỗi trong <code>parse_hour</code> theo thứ tự; vì sao phải kiểm tra độ dài và dấu <code>:</code> trước khi gọi <code>int()</code>?</li>
+<li>Viết mã giả cho <code>peak_hour_message</code>; chỉ rõ chỗ bảo đảm chọn khung giờ sớm hơn khi bằng nhau.</li>
+<li>Tuần sau người bán muốn xem thêm <strong>khung giờ vắng nhất</strong> (trong các giờ có ít nhất một đơn). Cần thêm gì vào thiết kế? Độ phức tạp có thay đổi không?</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của ba hàm theo n (số dòng). So với cách lưu tất cả các giờ vào một list rồi sắp xếp, cách 24 ô đếm khác nhau thế nào về thời gian và bộ nhớ?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm trong <code>khung_gio.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sắp xếp, không lưu lại từng đơn vào list hay dict; chỉ dùng list 24 ô đếm.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python khung_gio.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ quyết định độ phức tạp.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex09</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-09</a> rồi chép các tệp vào kho: <code>khung_gio.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>khung_gio.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

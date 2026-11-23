@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Năm phút trước flash sale, công cụ kiểm tra báo nhầm sản phẩm hết hàng và chạy hết cả gian hàng mới trả lời." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-05/minh_hoa.png" /></p>
+<p><em>Năm phút trước flash sale, công cụ kiểm tra báo nhầm sản phẩm hết hàng và chạy hết cả gian hàng mới trả lời.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm Flash Sale của Shopee.</p>
+<p>Năm phút trước giờ mở một đợt flash sale, hệ thống kiểm tra từng gian hàng tham gia: nếu có sản phẩm <strong>hết hàng</strong> thì báo ngay cho người bán để bổ sung hoặc gỡ sản phẩm khỏi đợt sale. Mỗi sản phẩm là một dict:</p>
+<pre><code>{&quot;code&quot;: &quot;SP04&quot;, &quot;stock&quot;: -2}&#10;</code></pre>
+<p>Quy tắc nghiệp vụ:</p>
+<ul>
+<li>Hết hàng là <strong>tồn kho từ 0 trở xuống</strong>. Tồn kho âm xảy ra khi đơn được đặt nhanh hơn lúc kho cập nhật (bán vượt tồn kho), và càng phải báo gấp.</li>
+<li>Hàm <code>first_out_of_stock(products)</code> báo <strong>sản phẩm hết hàng đầu tiên</strong> theo thứ tự trên trang gian hàng và <strong>dừng ngay</strong> khi gặp, vì hàng nghìn gian hàng phải kiểm tra xong trong năm phút.</li>
+<li>Hàm trả về bộ (mã sản phẩm, số sản phẩm đã xét). Không có sản phẩm hết hàng thì trả về (<code>None</code>, số sản phẩm đã xét).</li>
+</ul>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): gian hàng 6 sản phẩm, gian hàng đủ hàng, gian hàng có sản phẩm bán vượt, gian hàng chưa có sản phẩm, rồi hai gian hàng 1.000 sản phẩm có sản phẩm hết hàng ở đầu và ở cuối.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Gian hàng 6 sản phẩm: ('SP02', 2)&#10;Gian hàng đủ hàng: (None, 3)&#10;Bán vượt tồn kho: ('SP04', 2)&#10;Gian hàng chưa có sản phẩm: (None, 0)&#10;1.000 sản phẩm, hết hàng ở đầu: ('SPX', 1)&#10;1.000 sản phẩm, hết hàng ở cuối: ('SPX', 1000)&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người bán và nhóm vận hành phản ánh:</p>
+<ul>
+<li>Gian hàng có sản phẩm <code>SP02</code> hết hàng nhưng hệ thống lại báo <code>SP06</code>, sản phẩm đứng cuối trang.</li>
+<li>Gian hàng <strong>đủ hàng</strong> vẫn bị báo là <code>SP01</code> hết hàng.</li>
+<li>Sản phẩm bán vượt (tồn kho -2) không được báo.</li>
+<li>Gian hàng mới mở chưa có sản phẩm thì công cụ báo lỗi và dừng cả lượt kiểm tra.</li>
+<li>Đợt kiểm tra trước giờ sale luôn chạy rất lâu: gian hàng nào cũng bị xét đến sản phẩm cuối cùng.</li>
+</ul>
+<p>Nhắc lại kiến thức:</p>
+<ul>
+<li>Tìm kiếm tuần tự có <strong>trường hợp tốt nhất</strong> (gặp ngay phần tử đầu: 1 bước) và <strong>trường hợp xấu nhất</strong> (phần tử ở cuối hoặc không có: n bước). Muốn có trường hợp tốt nhất, hàm phải <strong>dừng ngay</strong> khi tìm thấy (Lesson 01, Lesson 03).</li>
+<li>Biến kết quả phải được khởi tạo bằng giá trị có nghĩa "chưa tìm thấy", không được lấy sẵn một phần tử của danh sách.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>ton_kho.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def first_out_of_stock(products):&#10;    # Trả về (mã sản phẩm hết hàng đầu tiên theo thứ tự trên trang, số sản phẩm đã xét).&#10;    # Hết hàng: tồn kho từ 0 trở xuống (số âm là đã bán vượt tồn kho).&#10;    # Gặp sản phẩm hết hàng đầu tiên thì dừng ngay. Không có thì trả về (None, số sản phẩm đã xét).&#10;    result = products[0][&quot;code&quot;]&#10;    checked = 0&#10;    for p in products:&#10;        checked += 1&#10;        if p[&quot;stock&quot;] == 0:&#10;            result = p[&quot;code&quot;]&#10;    return result, checked&#10;&#10;&#10;shop = [&#10;    {&quot;code&quot;: &quot;SP01&quot;, &quot;stock&quot;: 12},&#10;    {&quot;code&quot;: &quot;SP02&quot;, &quot;stock&quot;: 0},&#10;    {&quot;code&quot;: &quot;SP03&quot;, &quot;stock&quot;: 5},&#10;    {&quot;code&quot;: &quot;SP04&quot;, &quot;stock&quot;: -2},&#10;    {&quot;code&quot;: &quot;SP05&quot;, &quot;stock&quot;: 30},&#10;    {&quot;code&quot;: &quot;SP06&quot;, &quot;stock&quot;: 0},&#10;]&#10;print(&quot;Gian hàng 6 sản phẩm:&quot;, first_out_of_stock(shop))&#10;print(&quot;Gian hàng đủ hàng:&quot;, first_out_of_stock([shop[0], shop[2], shop[4]]))&#10;print(&quot;Bán vượt tồn kho:&quot;, first_out_of_stock([shop[0], shop[3], shop[4]]))&#10;print(&quot;Gian hàng chưa có sản phẩm:&quot;, first_out_of_stock([]))&#10;full = [{&quot;code&quot;: &quot;SP&quot;, &quot;stock&quot;: 9}] * 999&#10;print(&quot;1.000 sản phẩm, hết hàng ở đầu:&quot;, first_out_of_stock([{&quot;code&quot;: &quot;SPX&quot;, &quot;stock&quot;: 0}] + full))&#10;print(&quot;1.000 sản phẩm, hết hàng ở cuối:&quot;, first_out_of_stock(full + [{&quot;code&quot;: &quot;SPX&quot;, &quot;stock&quot;: 0}]))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Gian hàng 6 sản phẩm: ('SP06', 6)&#10;Gian hàng đủ hàng: ('SP01', 3)&#10;Bán vượt tồn kho: ('SP01', 3)&#10;Traceback (most recent call last):&#10;  ...&#10;    result = products[0][&quot;code&quot;]&#10;IndexError: list index out of range&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: gian hàng 6 sản phẩm ra <code>SP06</code> thay vì <code>SP02</code> và xét cả 6 sản phẩm; gian hàng đủ hàng ra <code>SP01</code> thay vì <code>None</code>; sản phẩm bán vượt không được nhận ra; gian hàng chưa có sản phẩm gây lỗi <code>IndexError</code> nên hai dòng cuối không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Vì sao gian hàng đủ hàng vẫn bị báo <code>SP01</code>? Dòng nào gây ra lỗi này, và cũng chính dòng đó gây <code>IndexError</code> với gian hàng rỗng như thế nào?</li>
+<li>Lập bảng chạy tay trên gian hàng 6 sản phẩm: sau mỗi lượt ghi <code>checked</code>, <code>p["code"]</code>, <code>p["stock"]</code> và <code>result</code>. Vì sao kết quả cuối là <code>SP06</code>?</li>
+<li>Điều kiện <code>p["stock"] == 0</code> bỏ sót trường hợp nào? Viết lại điều kiện theo đúng quy tắc nghiệp vụ.</li>
+<li>Sửa thế nào để hàm dừng ngay khi gặp sản phẩm hết hàng đầu tiên? Sau khi sửa, cần trả về gì khi vòng lặp chạy hết mà không gặp?</li>
+<li>Với gian hàng n sản phẩm, số sản phẩm đã xét trong trường hợp tốt nhất và xấu nhất là bao nhiêu? Ghi Big-O của từng trường hợp. Khi nói độ phức tạp của hàm, ta dùng trường hợp nào, vì sao?</li>
+<li>Mã hiện tại xét bao nhiêu sản phẩm với mọi gian hàng n sản phẩm? Đợt kiểm tra 3.000 gian hàng, mỗi gian hàng 1.000 sản phẩm và hầu hết có sản phẩm hết hàng ngay ở đầu trang: mã hiện tại và mã đã sửa xét tổng cộng khoảng bao nhiêu sản phẩm?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hàm <code>first_out_of_stock</code> trong <code>ton_kho.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về.</li>
+<li>Chạy <code>python ton_kho.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex05</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-05</a> rồi chép các tệp vào kho: <code>ton_kho.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>ton_kho.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

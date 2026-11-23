@@ -1,0 +1,53 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trợ lý AI viết xong báo cáo khách thân thiết trong vài giây, ba mục kiểm tra đều đạt. Có nên dùng ngay?" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-15/minh_hoa.png" /></p>
+<p><em>Trợ lý AI viết xong báo cáo khách thân thiết trong vài giây, ba mục kiểm tra đều đạt. Có nên dùng ngay?</em></p>
+<p>Mỗi quý, gian hàng trên Shopee gửi <strong>quà tặng</strong> cho khách hàng thân thiết: những khách có <strong>từ <code>min_orders</code> đơn trở lên</strong> trong quý. Dữ liệu là list mã khách của từng đơn, theo thứ tự đặt:</p>
+<pre><code>[&quot;KH03&quot;, &quot;KH01&quot;, &quot;kh03 &quot;, &quot;KH02&quot;, &quot; kh01&quot;, &quot;KH03&quot;]&#10;</code></pre>
+<p>Mã khách được nhập từ nhiều kênh nên có thể bị viết thường hoặc thừa khoảng trắng: <code>"kh03 "</code> và <code>"KH03"</code> là <strong>cùng một khách</strong>. Báo cáo trả về list mã khách thân thiết đã chuẩn hóa (chữ hoa, không khoảng trắng), <strong>xếp tăng dần theo mã</strong> để bộ phận kho đóng quà theo thứ tự. Gian hàng lớn có tới <strong>50.000 đơn</strong> mỗi quý.</p>
+<p>Một đồng nghiệp đã nhờ trợ lý AI viết hàm này. AI trả về đoạn mã kèm tệp <code>kiem_tra.py</code> có ba mục kiểm tra, cả ba đều đạt, và đồng nghiệp đề nghị đưa vào báo cáo quý này. Bạn là người <strong>duyệt mã</strong>. Quy định của nhóm: mã do AI sinh chỉ được dùng khi người duyệt đã tự chạy thử với dữ liệu của mình và chịu trách nhiệm về nó.</p>
+<h2><strong>2. Mã do AI sinh</strong></h2>
+<p>Tệp <code>than_thiet.py</code> trong thư mục khởi đầu có hàm do AI viết:</p>
+<pre><code>def loyal_customers(buyers, min_orders):&#10;    &quot;&quot;&quot;Trả về list mã khách có từ min_orders đơn trở lên, xếp tăng dần theo mã.&quot;&quot;&quot;&#10;    # Duyệt từng đơn, đếm số đơn của khách đó, thêm vào kết quả nếu đủ điều kiện.&#10;    # Độ phức tạp: O(n), bộ nhớ phụ O(1).&#10;    result = []&#10;    for b in buyers:&#10;        if buyers.count(b) &gt; min_orders and b not in result:&#10;            result.append(b)&#10;    return result&#10;</code></pre>
+<p>Lời giải thích AI gửi kèm: "Hàm duyệt từng đơn một lần, dùng <code>count()</code> để đếm số đơn của khách. Độ phức tạp O(n), bộ nhớ phụ O(1). Đã kiểm tra với ba trường hợp."</p>
+<p>Ba mục trong <code>kiem_tra.py</code>: ví dụ 5 đơn với ngưỡng 2, danh sách không có khách đủ ngưỡng, danh sách rỗng. Chạy đoạn cuối tệp:</p>
+<pre><code>Danh sách đơn: ['KH01', 'KH02', 'KH01', 'KH03', 'KH01']&#10;Khách có từ 2 đơn: ['KH01']&#10;</code></pre>
+<p>Kết quả trông đúng. Nhiệm vụ của bạn là tìm ra những dữ liệu mà đoạn mã này <strong>không</strong> xử lý đúng.</p>
+<h2><strong>3. Các hướng cần kiểm chứng</strong></h2>
+<p>Ba mục kiểm tra của AI đều dùng dữ liệu "đẹp". Hãy kiểm chứng đoạn mã với các tình huống có thật trong nghiệp vụ. Đề không cho biết tình huống nào làm lộ lỗi; bạn phải tự chạy tay hoặc chạy thử để biết.</p>
+<p><strong>Hướng 1 — Ngưỡng:</strong> khách có <strong>đúng</strong> <code>min_orders</code> đơn.</p>
+<p><strong>Hướng 2 — Cách viết mã khách:</strong> cùng một khách nhưng viết thường hoặc thừa khoảng trắng.</p>
+<p><strong>Hướng 3 — Thứ tự kết quả:</strong> khách đặt đơn đầu tiên không theo thứ tự mã (ví dụ <code>KH09</code> đặt trước <code>KH02</code>).</p>
+<p><strong>Hướng 4 — Dữ liệu lớn:</strong> 50.000 đơn của 25.000 khách. Đo thời gian chạy (có thể mất vài chục giây). Lời giải thích "O(n), bộ nhớ phụ O(1)" có đúng không? Phương thức <code>count()</code> của list phải làm gì mỗi lần được gọi?</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò người duyệt mã, bạn phải thực hiện đầy đủ bốn phần sau:</p>
+<p><strong>(1) Tìm dữ liệu làm lộ lỗi</strong></p>
+<ul>
+<li>Theo các hướng ở mục 3, tự nghĩ ra <strong>ít nhất 6 bộ dữ liệu thử</strong>. Với mỗi bộ: dự đoán kết quả đúng trước, rồi sửa đoạn chạy thử ở cuối <code>than_thiet.py</code> để chạy hàm của AI và in kết quả.</li>
+<li>Ghi vào bảng trong <code>PHAN_TICH.md</code>: dữ liệu, kết quả đúng, kết quả thực tế, đúng hay sai. Các bộ dữ liệu phải làm lộ <strong>ít nhất 3 lỗi khác nhau</strong>.</li>
+</ul>
+<p><strong>(2) Phân tích (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Với mỗi lỗi: dòng lệnh gây lỗi, nguyên nhân, và bảng chạy tay trên bộ dữ liệu nhỏ nhất làm lộ lỗi đó.</li>
+<li>Đếm số lần so sánh mà <code>count()</code> và <code>in result</code> thực hiện với n đơn của n khách khác nhau; kết luận Big-O thời gian và bộ nhớ phụ thật của hàm. Ghi thời gian đo với 50.000 đơn.</li>
+<li>Điền bảng <strong>"Nhật ký giữ – sửa – loại bỏ"</strong>: phần nào trong mã của AI bạn giữ, phần nào sửa, phần nào bỏ, kèm lý do.</li>
+<li>Đề xuất <strong>giải pháp thứ hai</strong> nhanh hơn cho gian hàng lớn. So sánh hai giải pháp theo 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), thời gian đo với 50.000 đơn, độ dễ đọc, mức phù hợp với gian hàng 100 đơn và 50.000 đơn. Nêu rõ bạn chọn giải pháp nào cho báo cáo quý.</li>
+</ul>
+<p><strong>(3) Sửa mã và cài giải pháp thứ hai (trong <code>than_thiet.py</code>)</strong></p>
+<ul>
+<li>Sửa <code>loyal_customers</code> (giữ cách đếm bằng <code>count()</code>) để hết mọi lỗi bạn tìm được.</li>
+<li>Viết <code>loyal_customers_fast</code> theo giải pháp thứ hai: cùng kết quả, chạy 50.000 đơn trong vài giây. Không dùng <code>set</code>, <code>dict</code> hay <code>collections</code> (sẽ học ở buổi bảng băm).</li>
+<li>Cả hai hàm không được sửa list đầu vào.</li>
+</ul>
+<p><strong>(4) Kiểm chứng sau khi sửa</strong></p>
+<ul>
+<li>Chạy lại toàn bộ các bộ dữ liệu thử ở phần (1) trên cả hai hàm, ghi vào cột "Sau khi sửa". Mọi dòng phải đúng.</li>
+<li><code>python kiem_tra.py</code> vẫn đạt cả 3 mục của AI.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex15</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-15">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-15</a> rồi chép các tệp vào kho: <code>than_thiet.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền <code>PHAN_TICH.md</code>, sửa và viết mã trong <code>than_thiet.py</code>.</li>
+<li>Mức AI của bài: AI-2 cho phần phản biện (đề đã cung cấp mã do AI sinh; bạn được hỏi AI để hiểu đoạn mã, nhưng dữ liệu thử, phân tích và mã sửa phải do bạn tự làm và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

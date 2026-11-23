@@ -1,0 +1,86 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên tổng đài gõ lệnh tra cứu trong lúc khách đang chờ máy; dữ liệu ngày sale có 200.000 đơn." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-19/minh_hoa.png" /></p>
+<p><em>Nhân viên tổng đài gõ lệnh tra cứu trong lúc khách đang chờ máy; dữ liệu ngày sale có 200.000 đơn.</em></p>
+<p>Nhân viên tổng đài chăm sóc khách hàng của Shopee cần tra cứu nhanh <strong>trong lúc khách đang chờ máy</strong>. Nhóm công cụ nội bộ đề nghị một <strong>công cụ dòng lệnh</strong>: gõ một lệnh ngắn, nhận ngay một dòng trả lời. Dữ liệu là list đơn trong ngày, mỗi đơn là một dict:</p>
+<pre><code>{&quot;code&quot;: &quot;DH1004&quot;, &quot;buyer&quot;: &quot;chi.le&quot;, &quot;status&quot;: &quot;Đang giao&quot;}&#10;</code></pre>
+<p>Bốn lệnh cần có, mỗi lệnh dùng một kỹ thuật đã học trong buổi:</p>
+<table>
+<thead>
+<tr>
+<th>Lệnh</th>
+<th>Ý nghĩa</th>
+<th>Ví dụ trả lời</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TIM &lt;mã đơn&gt;</code></td>
+<td>tìm kiếm tuần tự, dừng ngay khi thấy</td>
+<td><code>Đơn DH1004: Đang giao (vị trí 4, đã xét 4 đơn).</code></td>
+</tr>
+<tr>
+<td><code>DEM &lt;trạng thái&gt;</code></td>
+<td>đếm số đơn có trạng thái đó</td>
+<td><code>Có 2 đơn "đang giao".</code></td>
+</tr>
+<tr>
+<td><code>KHACH &lt;mã khách&gt;</code></td>
+<td>liệt kê mã đơn của một khách</td>
+<td><code>Khách an.nguyen có 3 đơn: DH1001, DH1003, DH1005.</code></td>
+</tr>
+<tr>
+<td><code>TRUNG</code></td>
+<td>các mã đơn bị ghi trùng (lỗi đồng bộ)</td>
+<td><code>Có 1 mã đơn trùng: DH1002.</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ngày sale có tới 200.000 đơn, và câu trả lời phải hiện ra trong lúc khách còn chờ: lệnh <code>TRUNG</code> phải chạy xong trong <strong>3 giây</strong>. List đơn dùng chung cho nhiều màn hình nên <strong>không được sửa</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. Bốn hàm tra cứu</strong>, mỗi hàm phục vụ một lệnh:</p>
+<ul>
+<li><code>find_order(orders, code)</code>: trả về (vị trí tính từ 1, số đơn đã xét), không có thì (<code>None</code>, số đơn đã xét).</li>
+<li><code>count_status(orders, status)</code>: số đơn có trạng thái <code>status</code>, không phân biệt hoa thường.</li>
+<li><code>orders_of(orders, buyer)</code>: list mã đơn của khách, theo thứ tự trong <code>orders</code>.</li>
+<li><code>duplicate_codes(orders)</code>: list các mã xuất hiện từ hai lần trở lên, <strong>mỗi mã một lần</strong>, xếp tăng dần.</li>
+</ul>
+<p><strong>2.2. <code>handle(orders, line)</code></strong>: tách dòng lệnh theo khoảng trắng, gọi hàm phù hợp và trả về câu trả lời như bảng ở mục 1. Tên lệnh không phân biệt hoa thường; mã đơn chuyển thành chữ hoa; mã khách chuyển thành chữ thường; trạng thái là phần còn lại của dòng sau tên lệnh, các từ cách nhau một khoảng trắng.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Gõ vội:</strong> <code>"TIM dh1004"</code>, <code>"  dem   đang giao "</code>, <code>"KHACH An.Nguyen"</code> đều hợp lệ.</p>
+<p><strong>Bẫy 2 — Thiếu thông tin hoặc lệnh lạ:</strong></p>
+<pre><code>Thiếu thông tin. Cú pháp: TIM &lt;mã đơn&gt;&#10;Lệnh không hợp lệ: XOA&#10;Chưa nhập lệnh.&#10;</code></pre>
+<p>(<code>DEM</code> và <code>KHACH</code> thiếu thông tin thì báo cú pháp <code>DEM &lt;trạng thái&gt;</code>, <code>KHACH &lt;mã khách&gt;</code>.)</p>
+<p><strong>Bẫy 3 — Không có kết quả:</strong> <code>Không tìm thấy DH9999 (đã xét 6 đơn).</code>, <code>Khách dung.pham chưa có đơn.</code>, <code>Không có mã đơn trùng.</code></p>
+<p><strong>Bẫy 4 — Mã xuất hiện nhiều lần:</strong> mã xuất hiện 3 lần chỉ ghi một lần trong kết quả <code>TRUNG</code>.</p>
+<p><strong>Bẫy 5 — 200.000 đơn:</strong> <code>TRUNG</code> chạy trong 3 giây và không sửa list đơn.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python cskh.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>&gt; TIM dh1004&#10;Đơn DH1004: Đang giao (vị trí 4, đã xét 4 đơn).&#10;&gt; TIM DH9999&#10;Không tìm thấy DH9999 (đã xét 6 đơn).&#10;&gt;   dem   đang giao &#10;Có 2 đơn &quot;đang giao&quot;.&#10;&gt; KHACH An.Nguyen&#10;Khách an.nguyen có 3 đơn: DH1001, DH1003, DH1005.&#10;&gt; KHACH dung.pham&#10;Khách dung.pham chưa có đơn.&#10;&gt; TRUNG&#10;Có 1 mã đơn trùng: DH1002.&#10;&gt; TIM&#10;Thiếu thông tin. Cú pháp: TIM &lt;mã đơn&gt;&#10;&gt; XOA DH1001&#10;Lệnh không hợp lệ: XOA&#10;&gt; &#10;Chưa nhập lệnh.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm tra cứu, nêu cách làm và trường hợp tốt nhất, xấu nhất (nếu có).</li>
+<li><code>duplicate_codes</code>: so sánh hai cách (so từng cặp; sắp xếp bản sao) về thời gian với 200.000 đơn; vì sao chọn cách của bạn? Viết mã giả, chỉ rõ chỗ bảo đảm mỗi mã chỉ ghi một lần.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ của bốn hàm tra cứu theo n (số đơn).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>cskh.py</code>; được thêm hàm phụ; không đổi tên và tham số đã có trong khung.</li>
+<li>Không dùng <code>set</code>, <code>dict</code>, <code>collections</code> trong <code>cskh.py</code>; không sửa list <code>orders</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python cskh.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 5 mục.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu <code>dict</code> và <code>collections.Counter</code> của Python (sẽ học kỹ ở buổi bảng băm): vì sao tra một khóa trong <code>dict</code> thường không phải duyệt cả danh sách?</li>
+<li>Tạo <code>nghien_cuu.py</code>: viết lại <code>duplicate_codes</code> bằng <code>Counter</code>, đo bằng <code>timeit</code> với 200.000 đơn so với bản sắp xếp của bạn. Lập bảng số đo; kết quả có giữ được thứ tự tăng dần không, phải làm thêm gì?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex19</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-19">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-19</a> rồi chép các tệp vào kho: <code>cskh.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>cskh.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần so sánh với <code>Counter</code>.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

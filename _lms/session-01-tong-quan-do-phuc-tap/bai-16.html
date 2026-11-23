@@ -1,0 +1,67 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Cuối ngày sale, hai bên phải xác nhận cùng một danh sách 50.000 đơn trước 23 giờ để thanh toán phí giao hàng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-16/minh_hoa.png" /></p>
+<p><em>Cuối ngày sale, hai bên phải xác nhận cùng một danh sách 50.000 đơn trước 23 giờ để thanh toán phí giao hàng.</em></p>
+<p>Cuối mỗi ngày, Shopee <strong>đối soát</strong> với đơn vị vận chuyển: hai bên gửi cho nhau danh sách mã các đơn đã giao trong ngày. Nếu hai danh sách <strong>khớp</strong>, phí giao hàng được thanh toán tự động; nếu <strong>lệch</strong>, kế toán phải kiểm tra thủ công.</p>
+<p>Hai danh sách thường <strong>không cùng thứ tự</strong> (mỗi bên xếp theo giờ quét của mình), và danh sách của đơn vị vận chuyển được nhân viên bưu cục nhập tay nên có mã viết thường hoặc thừa khoảng trắng. Hàm <code>normalize_code</code> có sẵn để chuẩn hóa một mã.</p>
+<p>Hai danh sách <strong>khớp</strong> khi có cùng các mã sau khi chuẩn hóa, <strong>mỗi mã xuất hiện cùng số lần</strong> ở hai bên, không kể thứ tự. Một đơn có thể được giao hai lần (giao lại sau khi khách vắng nhà) nên một mã có thể xuất hiện nhiều lần.</p>
+<p>Ngày sale, mỗi bên có tới <strong>50.000 đơn</strong>, và kết quả đối soát phải có trong <strong>3 giây</strong>. Hai danh sách còn được dùng để lưu trữ nên <strong>không được sửa</strong>. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Tệp <code>doi_soat.py</code> có sẵn hàm <code>normalize_code</code>. Bạn viết ba hàm.</p>
+<p><strong>2.1. Hai hàm đối soát: <code>same_orders_v1(ours, carrier)</code> và <code>same_orders_v2(ours, carrier)</code></strong></p>
+<p>Mỗi hàm cài một giải pháp của bạn, trả về <code>True</code> nếu hai list khớp, ngược lại <code>False</code>. Hai hàm cho cùng kết quả với mọi dữ liệu nhưng <strong>khác nhau về cách làm</strong>.</p>
+<p><strong>2.2. Thông báo: <code>reconcile_message(ours, carrier)</code></strong></p>
+<p>Dùng giải pháp bạn chọn, trả về một trong các thông báo:</p>
+<pre><code>Khớp 5 đơn.&#10;Lệch: số đơn khác nhau (5 và 4).&#10;Lệch: có mã đơn không khớp.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khác thứ tự, khác cách viết</strong></p>
+<ul>
+<li><code>["DH9001", "DH9002", ...]</code> và <code>["DH9003", " dh9001", ...]</code> vẫn khớp nếu cùng các mã.</li>
+</ul>
+<p><strong>Bẫy 2 — Cùng các mã nhưng khác số lần</strong></p>
+<ul>
+<li><code>["DH9001", "DH9001", "DH9002"]</code> và <code>["DH9001", "DH9002", "DH9002"]</code> <strong>không</strong> khớp, dù cả hai đều chỉ chứa <code>DH9001</code> và <code>DH9002</code>. Cách làm "mỗi mã bên này đều có ở bên kia" sẽ kết luận sai.</li>
+</ul>
+<p><strong>Bẫy 3 — Khác số đơn</strong></p>
+<ul>
+<li>Kiểm tra số đơn trước: khác nhau thì lệch ngay, không cần so từng mã. Thông báo ghi rõ số đơn hai bên.</li>
+</ul>
+<p><strong>Bẫy 4 — Hai bên chưa có đơn</strong></p>
+<ul>
+<li>Hai hàm đối soát trả về <code>True</code>; thông báo:</li>
+</ul>
+<pre><code>Chưa có đơn để đối soát.&#10;</code></pre>
+<p><strong>Bẫy 5 — 50.000 đơn mỗi bên, không sửa dữ liệu</strong></p>
+<ul>
+<li><code>reconcile_message</code> trả lời trong 3 giây với 50.000 đơn mỗi bên; sau khi đối soát, hai list vẫn giữ nguyên thứ tự và cách viết.</li>
+</ul>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python doi_soat.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Ngày 11/11: True True | Khớp 5 đơn.&#10;Thiếu một đơn: Lệch: số đơn khác nhau (5 và 4).&#10;Trùng số lần khác nhau: False False&#10;Sai một mã: Lệch: có mã đơn không khớp.&#10;Hai bên chưa có đơn: Chưa có đơn để đối soát.&#10;List của đơn vị vận chuyển giữ nguyên: ['DH9003', ' dh9001', 'DH9005', 'DH9002', 'DH9004 ']&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc đối soát hai danh sách. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> (như bài đọc Lesson 03, mục 3.3) với n = 1.000, 2.000 và 4.000 đơn mỗi bên, hai bên khớp nhưng khác thứ tự (trường hợp xấu nhất); ghi bảng số đo, phiên bản Python và máy đo.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>reconcile_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay trên hai list ở bẫy 2: ghi các bước cho tới khi hàm trả về <code>False</code>.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>doi_soat.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không dùng <code>set</code>, <code>dict</code> hay <code>collections</code> (sẽ học ở buổi bảng băm); không sửa hai list đầu vào.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python doi_soat.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 7 mục (mỗi mục về hai giải pháp chạy trên cả hai hàm).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex16</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-16">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-16</a> rồi chép các tệp vào kho: <code>doi_soat.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>doi_soat.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

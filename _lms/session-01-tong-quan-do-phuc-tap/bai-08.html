@@ -1,0 +1,61 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Khách mở trang 1 của lịch sử đơn thì không thấy đơn mới nhất, đơn cũ nhất thì biến mất." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-08/minh_hoa.png" /></p>
+<p><em>Khách mở trang 1 của lịch sử đơn thì không thấy đơn mới nhất, đơn cũ nhất thì biến mất.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm ứng dụng di động của Shopee.</p>
+<p>Màn hình <strong>"Đơn mua"</strong> hiển thị lịch sử đơn hàng theo <strong>trang</strong>, mỗi trang <code>size</code> đơn, <strong>đơn mới nhất ở trang 1</strong>. Danh sách mã đơn của khách được lưu theo thứ tự <strong>từ cũ đến mới</strong>:</p>
+<pre><code>[&quot;DH8001&quot;, &quot;DH8002&quot;, &quot;DH8003&quot;, &quot;DH8004&quot;, &quot;DH8005&quot;, &quot;DH8006&quot;, &quot;DH8007&quot;]&#10;</code></pre>
+<p>Với 3 đơn mỗi trang, khách thấy: trang 1 là <code>DH8007</code>, <code>DH8006</code>, <code>DH8005</code>; trang 2 là <code>DH8004</code>, <code>DH8003</code>, <code>DH8002</code>; trang 3 chỉ còn <code>DH8001</code>.</p>
+<p>Hai hàm cần viết:</p>
+<ul>
+<li><code>total_pages(n_orders, size)</code>: số trang cần để hiển thị hết các đơn. Trang cuối thiếu đơn vẫn là một trang.</li>
+<li><code>get_page(orders, page, size)</code>: list mã đơn của trang <code>page</code> (tính từ 1), đơn mới nhất trước. Trang không tồn tại (0, số âm, quá số trang) thì trả về list rỗng.</li>
+</ul>
+<p>Một khách mua nhiều có tới vài chục nghìn đơn, và mỗi lần vuốt sang trang, ứng dụng gọi <code>get_page</code> một lần. Vì vậy <code>get_page</code> chỉ được tạo list cho <strong>đúng các đơn của trang đó</strong>, không tạo bản sao cả danh sách.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): 7 đơn, 3 đơn mỗi trang; in số trang, các trang 1 đến 4 và trang 0; cuối cùng in số trang của 6 đơn và của 0 đơn.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Số trang (3 đơn mỗi trang): 3&#10;Trang 1: ['DH8007', 'DH8006', 'DH8005']&#10;Trang 2: ['DH8004', 'DH8003', 'DH8002']&#10;Trang 3: ['DH8001']&#10;Trang 0: []&#10;Trang 4: []&#10;Số trang của 6 đơn: 2 | của 0 đơn: 0&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Khách hàng phản ánh:</p>
+<ul>
+<li>Mở "Đơn mua" thì <strong>trang 1 không có đơn vừa đặt</strong>.</li>
+<li>Ứng dụng báo chỉ có 2 trang, đơn <strong>cũ nhất</strong> <code>DH8001</code> không xem được ở đâu.</li>
+<li>Vào trang 0 (khi ứng dụng gửi sai số trang) lại hiện ra các đơn.</li>
+</ul>
+<p>Nhóm hạ tầng thêm: mỗi lần khách vuốt sang trang, bộ nhớ ứng dụng tăng theo <strong>toàn bộ</strong> số đơn của khách.</p>
+<p>Nhắc lại kiến thức (Lesson 04):</p>
+<ul>
+<li>Lát cắt, kể cả <code>orders[::-1]</code>, tạo một <strong>list mới</strong>: lát cắt cả danh sách tốn O(n) bộ nhớ phụ.</li>
+<li>Một hàm chỉ tạo list k phần tử thì bộ nhớ phụ là O(k), không phụ thuộc n.</li>
+<li>Trang <code>page</code> tính từ 1, nên trang 1 ứng với k = 0 đơn đã đi qua; công thức vị trí phải dùng <code>page - 1</code>.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>phan_trang.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def total_pages(n_orders, size):&#10;    # Số trang cần để hiển thị n_orders đơn, mỗi trang size đơn&#10;    return n_orders // size&#10;&#10;&#10;def get_page(orders, page, size):&#10;    # orders xếp từ cũ đến mới. Trả về list các đơn của trang page (tính từ 1), mỗi trang size đơn,&#10;    # đơn mới nhất đứng trước. Trang không tồn tại thì trả về list rỗng.&#10;    newest_first = orders[::-1]&#10;    start = page * size&#10;    return newest_first[start:start + size]&#10;&#10;&#10;orders = [&quot;DH8001&quot;, &quot;DH8002&quot;, &quot;DH8003&quot;, &quot;DH8004&quot;, &quot;DH8005&quot;, &quot;DH8006&quot;, &quot;DH8007&quot;]&#10;print(&quot;Số trang (3 đơn mỗi trang):&quot;, total_pages(len(orders), 3))&#10;print(&quot;Trang 1:&quot;, get_page(orders, 1, 3))&#10;print(&quot;Trang 2:&quot;, get_page(orders, 2, 3))&#10;print(&quot;Trang 3:&quot;, get_page(orders, 3, 3))&#10;print(&quot;Trang 0:&quot;, get_page(orders, 0, 3))&#10;print(&quot;Trang 4:&quot;, get_page(orders, 4, 3))&#10;print(&quot;Số trang của 6 đơn:&quot;, total_pages(6, 3), &quot;| của 0 đơn:&quot;, total_pages(0, 3))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Số trang (3 đơn mỗi trang): 2&#10;Trang 1: ['DH8004', 'DH8003', 'DH8002']&#10;Trang 2: ['DH8001']&#10;Trang 3: []&#10;Trang 0: ['DH8007', 'DH8006', 'DH8005']&#10;Trang 4: []&#10;Số trang của 6 đơn: 2 | của 0 đơn: 0&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: chỉ có 2 trang thay vì 3; trang 1 bắt đầu từ <code>DH8004</code> thay vì <code>DH8007</code>; trang 3 rỗng nên <code>DH8001</code> không xem được; trang 0 lại hiện ra ba đơn mới nhất.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Với 7 đơn và 3 đơn mỗi trang, <code>7 // 3</code> bằng bao nhiêu? Viết công thức số trang làm tròn lên chỉ dùng phép tính số nguyên, kiểm tra với 6 đơn, 7 đơn, 0 đơn.</li>
+<li>Với trang 1, mã hiện tại tính <code>start</code> bằng bao nhiêu? Đơn mới nhất nằm ở vị trí nào trong <code>newest_first</code>? Sửa công thức thế nào?</li>
+<li>Vì sao trang 0 lại hiện ra ba đơn? Cần kiểm tra điều kiện gì trước khi lấy đơn?</li>
+<li>Lát cắt <code>orders[::-1]</code> tạo thêm bao nhiêu phần tử với khách có 50.000 đơn? Bộ nhớ phụ của <code>get_page</code> hiện tại là O(?)</li>
+<li>Viết lại <code>get_page</code> sao cho chỉ tạo list <code>size</code> phần tử: đơn mới nhất của trang <code>page</code> nằm ở vị trí nào trong <code>orders</code>? Chạy tay với trang 2 (7 đơn, 3 đơn mỗi trang).</li>
+<li>Lập bảng thời gian và bộ nhớ phụ (Big-O theo n và size) của <code>get_page</code> trước và sau khi sửa.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm trong <code>phan_trang.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về; <code>get_page</code> không được dùng lát cắt đảo ngược, <code>reverse()</code>, <code>reversed()</code> hay tạo bản sao cả danh sách, và không được sửa list <code>orders</code>.</li>
+<li>Chạy <code>python phan_trang.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex08</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-08</a> rồi chép các tệp vào kho: <code>phan_trang.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>phan_trang.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

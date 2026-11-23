@@ -1,0 +1,74 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người bán muốn xem top sản phẩm bán chạy ngay trên ứng dụng; có gian hàng 200.000 sản phẩm nhưng chỉ cần top 3." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-14/minh_hoa.png" /></p>
+<p><em>Người bán muốn xem top sản phẩm bán chạy ngay trên ứng dụng; có gian hàng 200.000 sản phẩm nhưng chỉ cần top 3.</em></p>
+<p>Màn hình <strong>"Sản phẩm bán chạy"</strong> trong ứng dụng người bán của Shopee hiện <strong>top k sản phẩm</strong> có số lượng bán cao nhất trong tháng. Phần lớn người bán chỉ xem top 3 hoặc top 10, nhưng gian hàng lớn có tới 200.000 sản phẩm, và người bán cũng có thể chọn xem toàn bộ bảng xếp hạng.</p>
+<p>Dữ liệu là list sản phẩm theo thứ tự đăng bán, mỗi sản phẩm là một dict:</p>
+<pre><code>{&quot;code&quot;: &quot;SP03&quot;, &quot;sold&quot;: 120}&#10;</code></pre>
+<p>Quy tắc xếp hạng:</p>
+<ul>
+<li>Số lượng bán <strong>giảm dần</strong>.</li>
+<li>Hai sản phẩm bán <strong>bằng nhau</strong> thì sản phẩm <strong>đăng bán trước</strong> (đứng trước trong list) xếp trên.</li>
+<li>List sản phẩm dùng cho các màn hình khác, nên <strong>không được đổi thứ tự</strong> của nó.</li>
+</ul>
+<p>Có nhiều cách lấy top k. Có cách tốn thời gian như nhau dù k là 3 hay 200.000; có cách nhanh khi k nhỏ nhưng chậm khi k lớn. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi chọn cách dùng cho màn hình.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. Hai hàm lấy top k: <code>top_k_v1(sales, k)</code> và <code>top_k_v2(sales, k)</code></strong></p>
+<p>Mỗi hàm cài một giải pháp của bạn, trả về list các bộ <code>(mã, số lượng bán)</code> của k sản phẩm đứng đầu bảng xếp hạng, theo đúng thứ tự xếp hạng. Ví dụ với 6 sản phẩm trong kịch bản chạy thử và k = 3:</p>
+<pre><code>[('SP03', 120), ('SP01', 95), ('SP05', 95)]&#10;</code></pre>
+<p><strong>2.2. Thông báo: <code>top_message(sales, k)</code></strong></p>
+<p>Dùng giải pháp bạn chọn, trả về:</p>
+<pre><code>Top 3 bán chạy: SP03 (120), SP01 (95), SP05 (95)&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bán bằng nhau</strong></p>
+<ul>
+<li><code>SP01</code> và <code>SP05</code> cùng bán 95: <code>SP01</code> đăng trước nên đứng trên.</li>
+</ul>
+<p><strong>Bẫy 2 — k lớn hơn số sản phẩm</strong></p>
+<ul>
+<li>Trả về toàn bộ bảng xếp hạng. Thông báo ghi đúng số sản phẩm thật: <code>Top 6 bán chạy: ...</code>.</li>
+</ul>
+<p><strong>Bẫy 3 — k không dương</strong></p>
+<ul>
+<li>Hai hàm top k trả về <code>[]</code>; <code>top_message</code> trả về:</li>
+</ul>
+<pre><code>Số sản phẩm cần xếp hạng phải lớn hơn 0.&#10;</code></pre>
+<p><strong>Bẫy 4 — Gian hàng chưa bán được gì</strong></p>
+<ul>
+<li><code>sales</code> rỗng: hai hàm trả về <code>[]</code>; thông báo:</li>
+</ul>
+<pre><code>Gian hàng chưa bán được sản phẩm nào.&#10;</code></pre>
+<p><strong>Bẫy 5 — Không đổi thứ tự list sản phẩm</strong></p>
+<ul>
+<li>Sau khi xếp hạng, list <code>sales</code> vẫn theo thứ tự đăng bán.</li>
+</ul>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python ban_chay.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Top 3 (cách 1): [('SP03', 120), ('SP01', 95), ('SP05', 95)]&#10;Top 3 (cách 2): [('SP03', 120), ('SP01', 95), ('SP05', 95)]&#10;Top 3 bán chạy: SP03 (120), SP01 (95), SP05 (95)&#10;Top 6 bán chạy: SP03 (120), SP01 (95), SP05 (95), SP06 (60), SP02 (40), SP04 (7)&#10;Số sản phẩm cần xếp hạng phải lớn hơn 0.&#10;Gian hàng chưa bán được sản phẩm nào.&#10;Thứ tự gốc giữ nguyên: ['SP01', 'SP02', 'SP03', 'SP04', 'SP05', 'SP06']&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc lấy top k. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> (như bài đọc Lesson 03, mục 3.3) với n = 200.000 sản phẩm, lần lượt k = 3, k = 100 và k = 2.000; ghi bảng số đo, phiên bản Python và máy đo.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>top_message</code>, biết rằng phần lớn người bán xem k = 3 hoặc k = 10 và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay trên 6 sản phẩm của kịch bản chạy thử với k = 3: ghi trạng thái dữ liệu trung gian (list đã sắp xếp, hoặc các sản phẩm đang giữ) sau mỗi sản phẩm được xét.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>ban_chay.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không sửa list <code>sales</code>; mỗi giải pháp nêu rõ Big-O theo cả n và k.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python ban_chay.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục (mỗi mục về hai giải pháp chạy trên cả hai hàm).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex14</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-14">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-14</a> rồi chép các tệp vào kho: <code>ban_chay.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>ban_chay.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

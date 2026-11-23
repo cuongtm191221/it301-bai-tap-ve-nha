@@ -1,0 +1,58 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Báo cáo doanh thu ghi số bước sai, nhóm hạ tầng không ước lượng được thời gian chạy cho gian hàng lớn." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-01-tong-quan-do-phuc-tap/bai-02/minh_hoa.png" /></p>
+<p><em>Báo cáo doanh thu ghi số bước sai, nhóm hạ tầng không ước lượng được thời gian chạy cho gian hàng lớn.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm báo cáo dành cho người bán trên Shopee.</p>
+<p>Cuối mỗi ngày, hệ thống chạy hai báo cáo cho từng gian hàng: <strong>tổng doanh thu</strong> và <strong>số đơn lớn</strong> (đơn có giá trị từ 500.000đ trở lên, để gian hàng biết cần đóng gói chống sốc bao nhiêu kiện). Mỗi đơn là một dict:</p>
+<pre><code>{&quot;code&quot;: &quot;DH2002&quot;, &quot;amount&quot;: 560000}&#10;</code></pre>
+<p>Gian hàng lớn có hàng trăm nghìn đơn mỗi ngày. Để ước lượng thời gian chạy trước khi bật báo cáo, nhóm hạ tầng yêu cầu mỗi hàm trả thêm <strong>số bước</strong> đã thực hiện, theo đúng quy ước của Lesson 02: <strong>mỗi dòng lệnh được thực hiện là một bước</strong>. Cụ thể:</p>
+<ul>
+<li>Dòng khởi tạo (<code>total = 0</code>, <code>count = 0</code>): 1 bước.</li>
+<li>Dòng trong thân vòng lặp: mỗi lần chạy là 1 bước. Dòng <code>if</code> chạy ở mọi lượt, dù điều kiện đúng hay sai; dòng bên trong <code>if</code> chỉ chạy khi điều kiện đúng.</li>
+<li>Dòng <code>return</code>: 1 bước.</li>
+</ul>
+<p>Dòng <code>for</code> và các dòng cộng vào biến <code>steps</code> không tính. Với cách đếm này, <code>total_revenue</code> có số bước <strong>n + 2</strong> với n đơn.</p>
+<p>Ngoài ra, tài liệu kỹ thuật của nhóm ghi Big-O thời gian của hai hàm trong dict <code>COMPLEXITY</code>, viết ở dạng <strong>đã rút gọn</strong>.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): chạy hai báo cáo trên 5 đơn mẫu, rồi đo số bước trên 1.000 đơn toàn đơn nhỏ và 1.000 đơn toàn đơn lớn.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Tổng doanh thu: (2519000, 7)&#10;Đơn từ 500.000đ: (3, 10)&#10;1.000 đơn, tổng doanh thu: 1002 bước&#10;1.000 đơn nhỏ, đếm đơn lớn: 1002 bước&#10;1.000 đơn lớn, đếm đơn lớn: 2002 bước&#10;Big-O: {'total_revenue': 'O(n)', 'count_big_orders': 'O(n)'}&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhóm hạ tầng phản ánh: theo số bước báo cáo ghi lại, gian hàng 1.000 đơn chỉ tốn <strong>1 bước</strong> để tính tổng doanh thu, điều không thể đúng. Họ đã cấp quá ít thời gian chạy cho đêm sale và báo cáo bị cắt giữa chừng.</p>
+<p>Người bán thì phản ánh: số đơn lớn <strong>thiếu</strong>, những đơn đúng 500.000đ không được tính, nên gian hàng chuẩn bị thiếu thùng chống sốc.</p>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li>Số bước là một <strong>biểu thức theo n</strong>, ví dụ f(n) = n + 2. Muốn kiểm chứng biểu thức, đặt biến đếm đúng vào chỗ dòng lệnh chạy, rồi chạy với nhiều giá trị n và so với biểu thức.</li>
+<li><strong>Big-O</strong> giữ số hạng tăng nhanh nhất và bỏ hệ số: n + 2 là O(n); 3n + 5 là O(n); hằng số là O(1).</li>
+<li>Có hàm mà số bước còn phụ thuộc vào dữ liệu (Lesson 03): khi đó ghi số bước theo trường hợp xấu nhất.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>bao_cao.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>&quot;&quot;&quot;Báo cáo doanh thu cuối ngày của gian hàng trên Shopee, có đếm số bước.&quot;&quot;&quot;&#10;&#10;# Quy ước đếm: mỗi dòng lệnh được thực hiện là một bước (như bài đọc Lesson 02).&#10;&#10;&#10;def total_revenue(orders):&#10;    # Tổng tiền các đơn; trả về (tổng tiền, số bước)&#10;    steps = 0&#10;    total = 0&#10;    for order in orders:&#10;        total += order[&quot;amount&quot;]&#10;    steps += 1&#10;    return total, steps&#10;&#10;&#10;def count_big_orders(orders, threshold):&#10;    # Đếm đơn có giá trị từ threshold trở lên; trả về (số đơn, số bước)&#10;    steps = 1            # count = 0&#10;    count = 0&#10;    for order in orders:&#10;        if order[&quot;amount&quot;] &gt; threshold:&#10;            count += 1&#10;            steps += 1&#10;    steps += 1           # return&#10;    return count, steps&#10;&#10;&#10;# Big-O thời gian của hai hàm, ghi trong tài liệu kỹ thuật của nhóm&#10;COMPLEXITY = {&#10;    &quot;total_revenue&quot;: &quot;O(n + 2)&quot;,&#10;    &quot;count_big_orders&quot;: &quot;O(2n + 2)&quot;,&#10;}&#10;&#10;&#10;orders = [&#10;    {&quot;code&quot;: &quot;DH2001&quot;, &quot;amount&quot;: 120000},&#10;    {&quot;code&quot;: &quot;DH2002&quot;, &quot;amount&quot;: 560000},&#10;    {&quot;code&quot;: &quot;DH2003&quot;, &quot;amount&quot;: 500000},&#10;    {&quot;code&quot;: &quot;DH2004&quot;, &quot;amount&quot;: 89000},&#10;    {&quot;code&quot;: &quot;DH2005&quot;, &quot;amount&quot;: 1250000},&#10;]&#10;print(&quot;Tổng doanh thu:&quot;, total_revenue(orders))&#10;print(&quot;Đơn từ 500.000đ:&quot;, count_big_orders(orders, 500000))&#10;&#10;small = [{&quot;code&quot;: &quot;DH&quot;, &quot;amount&quot;: 100000}] * 1000&#10;big = [{&quot;code&quot;: &quot;DH&quot;, &quot;amount&quot;: 600000}] * 1000&#10;print(&quot;1.000 đơn, tổng doanh thu:&quot;, total_revenue(small)[1], &quot;bước&quot;)&#10;print(&quot;1.000 đơn nhỏ, đếm đơn lớn:&quot;, count_big_orders(small, 500000)[1], &quot;bước&quot;)&#10;print(&quot;1.000 đơn lớn, đếm đơn lớn:&quot;, count_big_orders(big, 500000)[1], &quot;bước&quot;)&#10;print(&quot;Big-O:&quot;, COMPLEXITY)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Tổng doanh thu: (2519000, 1)&#10;Đơn từ 500.000đ: (2, 4)&#10;1.000 đơn, tổng doanh thu: 1 bước&#10;1.000 đơn nhỏ, đếm đơn lớn: 2 bước&#10;1.000 đơn lớn, đếm đơn lớn: 1002 bước&#10;Big-O: {'total_revenue': 'O(n + 2)', 'count_big_orders': 'O(2n + 2)'}&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: số bước của <code>total_revenue</code> là 1 ở mọi trường hợp thay vì n + 2; số đơn lớn là 2 thay vì 3; số bước của <code>count_big_orders</code> chỉ tăng theo số đơn lớn; Big-O trong <code>COMPLEXITY</code> chưa rút gọn.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Theo quy ước đếm, liệt kê các dòng lệnh của <code>total_revenue</code> được thực hiện với n đơn và số lần chạy của từng dòng. Tổng là bao nhiêu? Biến <code>steps</code> trong mã hiện tại đang đếm được dòng nào?</li>
+<li>Lệnh <code>steps += 1</code> đặt ngoài vòng lặp thì đếm được mấy lần dù n là 10 hay 1.000? Phải đặt ở đâu?</li>
+<li>Trong <code>count_big_orders</code>, dòng <code>if</code> chạy bao nhiêu lần với n đơn? Dòng <code>count += 1</code> chạy bao nhiêu lần nếu có k đơn lớn? Viết số bước f(n, k).</li>
+<li>Với 1.000 đơn, số bước của <code>count_big_orders</code> nhỏ nhất và lớn nhất là bao nhiêu? Mỗi trường hợp xảy ra khi nào?</li>
+<li>Đơn 500.000đ có phải đơn lớn không? Dòng điều kiện nào sai?</li>
+<li>Rút gọn "O(n + 2)" và "O(2n + 2)" theo quy tắc Big-O. Vì sao hai hàm có số bước khác nhau lại có cùng Big-O?</li>
+<li>Nếu gian hàng tăng từ 1.000 lên 10.000 đơn, số bước của <code>total_revenue</code> tăng khoảng bao nhiêu lần?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm và dict <code>COMPLEXITY</code> trong <code>bao_cao.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về; chỉ thêm, bớt, dời các lệnh đếm <code>steps</code> và sửa điều kiện.</li>
+<li>Chạy <code>python bao_cao.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session01_Ex02</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-01-tong-quan-do-phuc-tap/bai-02</a> rồi chép các tệp vào kho: <code>bao_cao.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>bao_cao.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
