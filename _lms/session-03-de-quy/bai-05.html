@@ -1,0 +1,61 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Bản đồ nhiều ô làm màn hình trò chơi đứng yên, bản đồ ít ô thì đếm sai số cách đi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-05/minh_hoa.png" /></p>
+<p><em>Bản đồ nhiều ô làm màn hình trò chơi đứng yên, bản đồ ít ô thì đếm sai số cách đi.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm trò chơi Tết của ví MoMo.</p>
+<p>Trò chơi <strong>"Lì xì"</strong>: bản đồ có một số ô xếp thành một hàng, người chơi đứng trước ô đầu tiên. Mỗi lượt, người chơi chọn tiến <strong>1 ô</strong> hoặc <strong>2 ô</strong>, đi tới ô cuối cùng thì nhận lì xì. Mỗi <strong>cách đi</strong> là một dãy lượt khác nhau; ví dụ bản đồ 3 ô có 3 cách đi: 1-1-1, 1-2, 2-1. Màn hình trò chơi hiện <strong>số cách đi</strong> để người chơi biết bản đồ "khó" hay "dễ", và hệ thống dùng con số này để chia số phần quà.</p>
+<p>Quy ước:</p>
+<ul>
+<li>Bản đồ <strong>0 ô</strong>: người chơi đã ở đích, có đúng <strong>1 cách</strong> (không đi lượt nào).</li>
+<li>Số ô âm không có ý nghĩa: 0 cách.</li>
+<li>Nhóm thiết kế đã tạo bản đồ tới <strong>80 ô</strong> cho sự kiện cuối năm.</li>
+</ul>
+<p>Hàm <code>route_count(cells)</code> được viết bằng đệ quy: lượt đầu tiên tiến 1 ô thì còn lại bản đồ <code>cells - 1</code> ô; tiến 2 ô thì còn lại <code>cells - 2</code> ô. Số cách đi là tổng hai trường hợp đó.</p>
+<p>Ngày khai mạc sự kiện có hàng trăm nghìn người chơi cùng lúc, nên màn hình phải hiện số cách đi ngay, không được chờ. Nhóm sản phẩm cần bản sửa trước khi mở bản đồ lớn.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): bản đồ 1, 2, 5, 10 ô, bản đồ 0 ô, rồi bản đồ 40 ô và 80 ô.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Bản đồ 1 ô: 1 cách đi&#10;Bản đồ 2 ô: 2 cách đi&#10;Bản đồ 5 ô: 8 cách đi&#10;Bản đồ 10 ô: 89 cách đi&#10;Bản đồ 0 ô (đã ở đích): 1 cách đi&#10;Bản đồ 40 ô: 165580141 cách đi&#10;Bản đồ 80 ô: 37889062373143906 cách đi&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Nhóm kiểm thử phản ánh:</p>
+<ul>
+<li>Bản đồ 2 ô hiện <strong>1 cách đi</strong>, trong khi đếm tay được 2 cách (1-1 và 2). Bản đồ 5 ô hiện 5 cách thay vì 8.</li>
+<li>Bản đồ 0 ô hiện 0 cách.</li>
+<li>Mở bản đồ 40 ô thì màn hình <strong>đứng yên</strong>, không hiện gì; bản đồ 80 ô không bao giờ mở được.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01, Lesson 04):</p>
+<ul>
+<li>Mỗi hàm đệ quy phải trả lời đúng <strong>ba câu hỏi</strong> (Lesson 01): (1) trường hợp cơ sở trả đúng chưa; (2) từ kết quả của bài toán nhỏ hơn, phần ghép ra kết quả lớn đúng chưa; (3) mỗi lần gọi có tiến về trường hợp cơ sở không.</li>
+<li>Một hàm gọi chính nó <strong>hai lần</strong> trên hai bài toán con chồng lấn nhau thì cùng một bài toán con bị tính đi tính lại; số lời gọi tăng theo hàm mũ, cỡ O(2ⁿ).</li>
+<li><code>@lru_cache(maxsize=None)</code> (từ <code>functools</code>) ghi nhớ kết quả theo tham số: mỗi giá trị chỉ tính một lần. Cũng có thể viết lại bằng vòng lặp đi từ bài toán nhỏ lên.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>li_xi.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def route_count(cells):&#10;    # Số cách đi hết bản đồ cells ô, mỗi lượt tiến 1 ô hoặc 2 ô.&#10;    # Bản đồ 0 ô: đã ở đích, có đúng 1 cách (không đi). cells âm: 0 cách.&#10;    if cells &lt;= 1:&#10;        return cells&#10;    return route_count(cells - 1) + route_count(cells - 2)&#10;&#10;&#10;for cells in (1, 2, 5, 10):&#10;    print(f&quot;Bản đồ {cells} ô:&quot;, route_count(cells), &quot;cách đi&quot;)&#10;print(&quot;Bản đồ 0 ô (đã ở đích):&quot;, route_count(0), &quot;cách đi&quot;)&#10;print(&quot;Bản đồ 40 ô:&quot;, route_count(40), &quot;cách đi&quot;)&#10;print(&quot;Bản đồ 80 ô:&quot;, route_count(80), &quot;cách đi&quot;)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Bản đồ 1 ô: 1 cách đi&#10;Bản đồ 2 ô: 1 cách đi&#10;Bản đồ 5 ô: 5 cách đi&#10;Bản đồ 10 ô: 55 cách đi&#10;Bản đồ 0 ô (đã ở đích): 0 cách đi&#10;(chương trình đứng yên, không in thêm gì; phải bấm Ctrl + C để dừng)&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: bản đồ 1 ô đúng, nhưng 2, 5, 10 ô và 0 ô đều sai; tới bản đồ 40 ô thì chương trình đứng yên.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Liệt kê tay mọi cách đi của bản đồ 2, 3, 4 ô. Từ đó trả lời: <code>route_count(0)</code> và <code>route_count(1)</code> phải bằng bao nhiêu? Trường hợp cơ sở <code>return cells</code> sai ở đâu?</li>
+<li>Trả lời ba câu hỏi kiểm tra cho <code>route_count</code> của mã hiện tại. Với <code>cells</code> âm thì hàm trả về gì?</li>
+<li>Vẽ cây lời gọi của <code>route_count(5)</code>. Lời gọi <code>route_count(3)</code> và <code>route_count(2)</code> xuất hiện bao nhiêu lần?</li>
+<li>Thêm một biến đếm toàn cục để đo số lời gọi của <code>route_count(n)</code> với n = 10, 20, 25. Ghi bảng kết quả. Vì sao bản đồ 40 ô làm màn hình đứng yên?</li>
+<li>Chọn một cách cải thiện (ghi nhớ kết quả hoặc vòng lặp). Sau khi sửa, <code>route_count(80)</code> cần bao nhiêu lần tính thật sự? Ghi Big-O thời gian.</li>
+<li>Ghi ba bộ dữ liệu thử bạn dùng, kèm kết quả mong đợi: bản đồ 0 ô, bản đồ 4 ô, số ô âm.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hàm <code>route_count</code> trong <code>li_xi.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Bản đồ 80 ô phải có kết quả trong vòng 2 giây.</li>
+<li>Chạy <code>python li_xi.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 4 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex05</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-05</a> rồi chép các tệp vào kho: <code>li_xi.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>li_xi.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

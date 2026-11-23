@@ -1,0 +1,62 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Số dư dự kiến sau 3 năm thấp hơn ngân hàng tính, lịch sử số dư báo lỗi, gửi rồi rút ngay thì ứng dụng sập." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-07/minh_hoa.png" /></p>
+<p><em>Số dư dự kiến sau 3 năm thấp hơn ngân hàng tính, lịch sử số dư báo lỗi, gửi rồi rút ngay thì ứng dụng sập.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm tính năng "Tiết kiệm online" của ví MoMo, liên kết với ngân hàng đối tác.</p>
+<p>Người dùng gửi một khoản tiền, kỳ hạn 1 năm, <strong>tự tái tục</strong>: hết mỗi năm, lãi được cộng vào số dư và cả số dư mới tiếp tục gửi năm sau (lãi kép). Quy định của ngân hàng:</p>
+<ul>
+<li>Lãi của một năm = <strong>số dư đầu năm</strong> × lãi suất (%) // 100, <strong>làm tròn xuống tới đồng ngay trong năm đó</strong>, rồi cộng vào số dư.</li>
+<li>Sau <strong>0 năm</strong> (rút ngay trong năm đầu, không hưởng lãi), số dư bằng số tiền gửi.</li>
+</ul>
+<p>Ví dụ gửi 10.000.000đ, lãi 6%/năm: hết năm 1 được 10.600.000đ; năm 2 lãi tính trên 10.600.000đ nên được 11.236.000đ.</p>
+<p>Nhóm viết hai hàm bằng đệ quy:</p>
+<ul>
+<li><code>balance_after(principal, rate, years)</code>: số dư sau <code>years</code> năm. Số dư sau n năm tính từ số dư sau n - 1 năm.</li>
+<li><code>history(principal, rate, years)</code>: list số dư từ năm 0 đến năm <code>years</code>, để vẽ biểu đồ tăng trưởng. Lịch sử n năm là lịch sử n - 1 năm thêm một phần tử ở cuối.</li>
+</ul>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): số dư sau 1 năm, sau 3 năm, lịch sử 3 năm, rồi số dư sau 0 năm.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Gửi 10.000.000đ, lãi 6%/năm, sau 1 năm: 10600000&#10;Gửi 10.000.000đ, lãi 6%/năm, sau 3 năm: 11910160&#10;Lịch sử 3 năm: [10000000, 10600000, 11236000, 11910160]&#10;Rút ngay trong năm đầu (0 năm): 10000000&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người dùng và ngân hàng đối tác phản ánh:</p>
+<ul>
+<li>Số dư dự kiến sau 1 năm khớp với ngân hàng, nhưng sau 3 năm ứng dụng hiện <strong>11.800.000đ</strong>, thấp hơn số ngân hàng tính.</li>
+<li>Mở biểu đồ tăng trưởng thì ứng dụng báo lỗi.</li>
+<li>Người dùng chọn rút ngay trong năm đầu thì ứng dụng báo <code>RecursionError</code>.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01, Lesson 03):</p>
+<ul>
+<li>Mỗi hàm đệ quy phải trả lời đúng <strong>ba câu hỏi</strong> (Lesson 01): (1) trường hợp cơ sở trả đúng chưa; (2) từ kết quả của bài toán nhỏ hơn, phần ghép ra kết quả lớn đúng chưa; (3) mỗi lần gọi có tiến về trường hợp cơ sở không.</li>
+<li>Cơ sở phải là <strong>đầu vào hợp lệ nhỏ nhất</strong>. Nếu đầu vào nhỏ nhất bị bỏ sót, lời gọi với đầu vào đó đi mãi về phía số âm cho tới khi gặp <code>RecursionError</code>.</li>
+<li>Phần ghép phải trả về <strong>giá trị</strong>. Lưu ý: <code>list.append(x)</code> sửa list tại chỗ và trả về <code>None</code>; viết <code>return lst.append(x)</code> là trả về <code>None</code> cho tầng trên.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>tiet_kiem_online.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def balance_after(principal, rate, years):&#10;    # Số dư sau years năm. Mỗi năm: lãi = số dư đầu năm * rate // 100, cộng vào số dư.&#10;    if years == 1:&#10;        return principal + principal * rate // 100&#10;    return balance_after(principal, rate, years - 1) + principal * rate // 100&#10;&#10;&#10;def history(principal, rate, years):&#10;    # List số dư cuối mỗi năm, từ năm 0 (số tiền gửi ban đầu) đến năm years.&#10;    if years == 0:&#10;        return [principal]&#10;    return history(principal, rate, years - 1).append(balance_after(principal, rate, years))&#10;&#10;&#10;print(&quot;Gửi 10.000.000đ, lãi 6%/năm, sau 1 năm:&quot;, balance_after(10000000, 6, 1))&#10;print(&quot;Gửi 10.000.000đ, lãi 6%/năm, sau 3 năm:&quot;, balance_after(10000000, 6, 3))&#10;print(&quot;Lịch sử 3 năm:&quot;, history(10000000, 6, 3))&#10;print(&quot;Rút ngay trong năm đầu (0 năm):&quot;, balance_after(10000000, 6, 0))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Gửi 10.000.000đ, lãi 6%/năm, sau 1 năm: 10600000&#10;Gửi 10.000.000đ, lãi 6%/năm, sau 3 năm: 11800000&#10;Traceback (most recent call last):&#10;  ...&#10;    return history(principal, rate, years - 1).append(balance_after(principal, rate, years))&#10;AttributeError: 'NoneType' object has no attribute 'append'&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: 1 năm đúng; 3 năm thiếu 110.160đ; lịch sử 3 năm gây lỗi <code>AttributeError</code>, nên dòng 0 năm không được chạy tới (chạy riêng thì gặp <code>RecursionError</code>).</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay <code>balance_after(10000000, 6, 3)</code> của mã hiện tại: ghi giá trị trả về ở mỗi tầng. Lãi mỗi năm đang được tính trên số tiền nào? Vì sao năm 1 vẫn đúng?</li>
+<li>Viết lại phần ghép của <code>balance_after</code> theo đúng quy định lãi kép. Kiểm tra lại với 3 năm.</li>
+<li>Với <code>years = 0</code>, lời gọi tiếp theo của mã hiện tại là gì? Sửa trường hợp cơ sở thế nào?</li>
+<li>Chạy tay <code>history(10000000, 6, 2)</code> của mã hiện tại: tầng nào trả về <code>None</code>, vì sao? Tầng nào gây <code>AttributeError</code>?</li>
+<li>Sửa <code>history</code> để trả về list đúng. Bản sửa của bạn có gọi lại <code>balance_after</code> ở mỗi tầng không? Nếu có, với <code>years = n</code> tổng số lời gọi là bao nhiêu; có cách nào chỉ cần n lời gọi?</li>
+<li>Vì sao phải làm tròn xuống từng năm thay vì tính một lần ở cuối? Tìm một bộ (số tiền, lãi suất, số năm) mà hai cách cho kết quả khác nhau.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm trong <code>tiet_kiem_online.py</code>, giữ cách viết đệ quy. Không đổi tên hàm, tham số; chỉ dùng số nguyên (không dùng số thực).</li>
+<li>Chạy <code>python tiet_kiem_online.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex07</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-07</a> rồi chép các tệp vào kho: <code>tiet_kiem_online.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>tiet_kiem_online.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

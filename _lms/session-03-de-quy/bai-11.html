@@ -1,0 +1,58 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người dùng gõ số tiền theo nhiều kiểu: có dấu chấm, có chữ đ, thừa dấu cách; hệ thống phải đọc đúng hoặc từ chối rõ ràng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-11/minh_hoa.png" /></p>
+<p><em>Người dùng gõ số tiền theo nhiều kiểu: có dấu chấm, có chữ đ, thừa dấu cách; hệ thống phải đọc đúng hoặc từ chối rõ ràng.</em></p>
+<p>Ở màn hình <strong>"Chia tiền nhóm"</strong> của ví MoMo, mỗi thành viên gõ số tiền mình đã trả vào ô nhập. Người dùng gõ theo thói quen:</p>
+<pre><code>&quot;50000&quot;   &quot;1.234.567đ&quot;   &quot; 20.000 đ &quot;   &quot;1.23.456&quot;   &quot;12a&quot;&#10;</code></pre>
+<p>Hệ thống phải đổi chuỗi thành <strong>số nguyên</strong> để cộng tổng, hoặc từ chối chuỗi sai để ô nhập hiện viền đỏ. Đọc sai một dấu chấm là sai tiền thật giữa các thành viên.</p>
+<p>Giống bài định dạng biên lai, mã này chạy trên thiết bị có bản Python rút gọn, <strong>không có <code>int()</code></strong>. Nhóm viết hàm đọc chữ số bằng đệ quy theo ý: giá trị của chuỗi chữ số = giá trị của chuỗi <strong>bỏ chữ số cuối</strong> × 10 + <strong>chữ số cuối</strong>. Giá trị một chữ số lấy bằng vị trí của nó trong chuỗi <code>DIGITS = "0123456789"</code> (ví dụ <code>DIGITS.index("7")</code> là 7).</p>
+<p>Mỗi bữa ăn nhóm có thể có tới vài chục thành viên, và người tạo nhóm thường dán cả một danh sách số tiền vào một lần. Dòng nào sai thì chỉ dòng đó bị từ chối, các dòng khác vẫn được cộng, và màn hình báo số dòng cần nhập lại để người dùng sửa.</p>
+<p>Bạn được giao viết ba hàm trong <code>doc_so_tien.py</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>digits_value(digits)</code></strong></p>
+<ul>
+<li>Chuỗi chỉ gồm chữ số trả về giá trị số nguyên: <code>"2024"</code> thành <code>2024</code>, <code>"007"</code> thành <code>7</code>. Chuỗi rỗng hoặc có ký tự khác chữ số trả về <code>None</code>.</li>
+</ul>
+<p><strong>2.2. <code>parse_amount(text)</code></strong></p>
+<ul>
+<li>Bỏ khoảng trắng hai đầu; nếu cuối chuỗi có chữ <code>đ</code> thì bỏ chữ <code>đ</code> và khoảng trắng trước nó.</li>
+<li>Dấu chấm (nếu có) ngăn cách hàng nghìn: <strong>nhóm đầu 1 đến 3 chữ số, mỗi nhóm sau đúng 3 chữ số</strong>. Hợp lệ thì trả về số nguyên, không hợp lệ trả về <code>None</code>.</li>
+</ul>
+<p><strong>2.3. <code>total_amounts(texts)</code></strong></p>
+<ul>
+<li>Nhận list chuỗi, trả về bộ (tổng các số tiền hợp lệ, số dòng không hợp lệ).</li>
+</ul>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chữ đ và khoảng trắng.</strong> <code>" 20.000 đ "</code> là 20000; chuỗi chỉ có <code>"đ"</code> là <code>None</code>.</p>
+<p><strong>Bẫy 2 — Nhóm chữ số sai.</strong> <code>"1.23.456"</code>, <code>"1234.567"</code>, <code>".500"</code>, <code>"1.000."</code>, <code>"1..000"</code> đều là <code>None</code>.</p>
+<p><strong>Bẫy 3 — Ký tự lạ.</strong> <code>"12a"</code>, <code>"-5.000"</code>, <code>"5,000"</code> (dấu phẩy) là <code>None</code>.</p>
+<p><strong>Bẫy 4 — Chuỗi rỗng và số 0.</strong> <code>""</code> là <code>None</code>; <code>"0"</code> là 0 (hợp lệ, ví dụ thành viên không trả gì).</p>
+<p><strong>Bẫy 5 — Tổng có dòng sai.</strong> Dòng sai không được cộng và không làm dừng chương trình: <code>["120.000đ", "85.500", "abc", "1.000.000đ"]</code> cho <code>(1205500, 1)</code>. List rỗng cho <code>(0, 0)</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python doc_so_tien.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>'50000' -&gt; 50000&#10;'1.234.567đ' -&gt; 1234567&#10;' 20.000 đ ' -&gt; 20000&#10;'0' -&gt; 0&#10;'1.23.456' -&gt; None&#10;'12a' -&gt; None&#10;'' -&gt; None&#10;'.500' -&gt; None&#10;'1.000.' -&gt; None&#10;Tổng hóa đơn chia nhóm: (1205500, 1)&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm đệ quy, trả lời ba câu hỏi kiểm tra (Lesson 01): trường hợp cơ sở là gì, phần ghép từ kết quả nhỏ hơn ra sao, mỗi lần gọi tiến về cơ sở thế nào.</li>
+<li>Thiết kế giải pháp: chạy tay <code>digits_value("305")</code>: ghi chuỗi ở mỗi lời gọi và giá trị trả về khi quay lên. Khi một tầng gặp ký tự lạ, giá trị <code>None</code> được truyền lên các tầng trên thế nào?</li>
+<li>Liệt kê các bước kiểm tra trong <code>parse_amount</code> theo thứ tự (bỏ khoảng trắng, bỏ chữ đ, kiểm tra nhóm, đọc chữ số). Bước nào phải làm trước bước nào, vì sao?</li>
+<li>So sánh hai cách chia bài toán của <code>digits_value</code>: bỏ chữ số <strong>cuối</strong> và bỏ chữ số <strong>đầu</strong>. Cách bỏ chữ số đầu cần biết thêm thông tin gì?</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của <code>digits_value</code> theo d (số chữ số) và của <code>total_amounts</code> theo n (số dòng) khi mỗi dòng có tối đa d chữ số.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm còn trống trong <code>doc_so_tien.py</code>. Không đổi tên hàm, tham số; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li><code>digits_value</code> và <code>total_amounts</code> viết bằng đệ quy: không dùng vòng lặp, không dùng <code>int()</code>, <code>isdigit()</code> hay <code>sum()</code>. <code>parse_amount</code> được dùng vòng lặp để kiểm tra các nhóm.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python doc_so_tien.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở trường hợp cơ sở và phần ghép.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex11</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-11">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-11</a> rồi chép các tệp vào kho: <code>doc_so_tien.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>doc_so_tien.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

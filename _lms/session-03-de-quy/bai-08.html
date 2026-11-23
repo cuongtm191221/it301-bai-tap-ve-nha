@@ -1,0 +1,65 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Mã giới thiệu đúng quy định bị từ chối, mã có ký tự lạ lại được chấp nhận." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-08/minh_hoa.png" /></p>
+<p><em>Mã giới thiệu đúng quy định bị từ chối, mã có ký tự lạ lại được chấp nhận.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm chương trình "Giới thiệu bạn bè" của ví MoMo.</p>
+<p>Người dùng tự đặt <strong>mã giới thiệu</strong> để bạn bè nhập khi đăng ký; cả hai cùng nhận thưởng. Mã hợp lệ phải thỏa <strong>tất cả</strong> quy định:</p>
+<ol>
+<li>Dài từ <strong>6 đến 10</strong> ký tự (tính cả hai đầu).</li>
+<li>Bắt đầu bằng một <strong>chữ in hoa</strong> A-Z.</li>
+<li>Chỉ gồm chữ in hoa A-Z và chữ số 0-9.</li>
+<li>Có <strong>ít nhất 2 chữ số</strong>.</li>
+</ol>
+<p>Nhóm viết ba hàm; hai hàm đầu viết bằng đệ quy trên chuỗi (Lesson 02):</p>
+<ul>
+<li><code>valid_chars(code)</code>: <code>True</code> nếu <strong>mọi</strong> ký tự là chữ in hoa hoặc chữ số; chuỗi rỗng trả về <code>True</code>.</li>
+<li><code>count_digit_chars(code)</code>: số ký tự là chữ số.</li>
+<li><code>is_valid_code(code)</code>: kết hợp bốn quy định.</li>
+</ul>
+<p>Mã không hợp lệ phải bị từ chối ngay lúc đặt, vì mã có ký tự lạ làm lỗi đường link chia sẻ và tin nhắn gửi bạn bè.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): tám mã, gồm mã đúng quy định, mã có ký tự lạ, mã dài đúng 6 ký tự, mã có chữ số 0, mã bắt đầu bằng chữ số, mã không có chữ số và mã rỗng.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>'MOMO2024'   hợp lệ&#10;'MOMO@24'    không hợp lệ&#10;'MOMO10'     hợp lệ&#10;'AB1234'     hợp lệ&#10;'MOMO100'    hợp lệ&#10;'1MOMO23'    không hợp lệ&#10;'MOMOVN'     không hợp lệ&#10;''           không hợp lệ&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Bộ phận chăm sóc khách hàng nhận phản ánh:</p>
+<ul>
+<li>Mã <code>MOMO10</code>, <code>AB1234</code> (đúng 6 ký tự) bị báo không hợp lệ.</li>
+<li>Mã <code>MOMO100</code> có 3 chữ số vẫn bị từ chối.</li>
+<li>Mã <code>MOMO@24</code> có ký tự <code>@</code> lại được chấp nhận, làm hỏng đường link chia sẻ.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01, Lesson 02):</p>
+<ul>
+<li>Mỗi hàm đệ quy phải trả lời đúng <strong>ba câu hỏi</strong> (Lesson 01): (1) trường hợp cơ sở trả đúng chưa; (2) từ kết quả của bài toán nhỏ hơn, phần ghép ra kết quả lớn đúng chưa; (3) mỗi lần gọi có tiến về trường hợp cơ sở không.</li>
+<li>Kiểm tra "<strong>mọi</strong> ký tự đều thỏa": ký tự đầu thỏa <strong>và</strong> phần còn lại đều thỏa. Kiểm tra "<strong>có ít nhất một</strong> ký tự thỏa": ký tự đầu thỏa <strong>hoặc</strong> phần còn lại có ký tự thỏa. Nhầm <code>and</code> với <code>or</code> làm đổi hẳn ý nghĩa của hàm.</li>
+<li>Khi chạy tay, ghi chuỗi ở mỗi lời gọi và giá trị trả về khi quay lên; đó là cách nhanh nhất để thấy phần ghép sai.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>ma_gioi_thieu.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>LETTERS = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;&#10;DIGITS = &quot;0123456789&quot;&#10;&#10;&#10;def valid_chars(code):&#10;    # True nếu mọi ký tự của code là chữ in hoa hoặc chữ số. Chuỗi rỗng: True.&#10;    if code == &quot;&quot;:&#10;        return True&#10;    return code[0] in LETTERS + DIGITS or valid_chars(code[1:])&#10;&#10;&#10;def count_digit_chars(code):&#10;    # Số ký tự là chữ số trong code.&#10;    if code == &quot;&quot;:&#10;        return 0&#10;    if code[0] in &quot;123456789&quot;:&#10;        return 1 + count_digit_chars(code[1:])&#10;    return count_digit_chars(code[1:])&#10;&#10;&#10;def is_valid_code(code):&#10;    # Mã hợp lệ: dài 6 đến 10 ký tự, bắt đầu bằng chữ in hoa,&#10;    # chỉ gồm chữ in hoa và chữ số, có ít nhất 2 chữ số.&#10;    return (len(code) &gt; 6 and len(code) &lt;= 10 and code[0] in LETTERS&#10;            and valid_chars(code) and count_digit_chars(code) &gt;= 2)&#10;&#10;&#10;for code in (&quot;MOMO2024&quot;, &quot;MOMO@24&quot;, &quot;MOMO10&quot;, &quot;AB1234&quot;, &quot;MOMO100&quot;, &quot;1MOMO23&quot;, &quot;MOMOVN&quot;, &quot;&quot;):&#10;    print(f&quot;{code!r:12}&quot;, &quot;hợp lệ&quot; if is_valid_code(code) else &quot;không hợp lệ&quot;)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>'MOMO2024'   hợp lệ&#10;'MOMO@24'    hợp lệ&#10;'MOMO10'     không hợp lệ&#10;'AB1234'     không hợp lệ&#10;'MOMO100'    không hợp lệ&#10;'1MOMO23'    không hợp lệ&#10;'MOMOVN'     không hợp lệ&#10;''           không hợp lệ&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: bốn mã <code>MOMO@24</code>, <code>MOMO10</code>, <code>AB1234</code>, <code>MOMO100</code> cho kết quả ngược với quy định; bốn mã còn lại đúng.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay <code>valid_chars("@B")</code> và <code>valid_chars("A@")</code> của mã hiện tại: ghi chuỗi ở mỗi lời gọi và giá trị trả về. Hàm hiện tại đang kiểm tra điều gì? Sửa phần ghép thế nào?</li>
+<li>Với phần ghép đã sửa, cơ sở <code>code == ""</code> trả về <code>True</code> có đúng không? Nếu trả về <code>False</code> thì chuyện gì xảy ra với mọi mã?</li>
+<li>Chạy tay <code>count_digit_chars("MOMO100")</code>. Vì sao ra 1? Sửa thế nào?</li>
+<li>Quy định "dài từ 6 đến 10 ký tự" bị viết sai ở đâu trong <code>is_valid_code</code>? Ghi các độ dài biên cần thử.</li>
+<li>Vì sao <code>is_valid_code("")</code> không báo <code>IndexError</code> dù có <code>code[0]</code>? Nếu đổi thứ tự các điều kiện thì sao?</li>
+<li>Lập bảng tám mã của kịch bản và bốn mã biên (dài 5, 6, 10, 11 ký tự): kết quả của mã hiện tại, kết quả mong đợi, quy định liên quan.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa ba hàm trong <code>ma_gioi_thieu.py</code>. <code>valid_chars</code> và <code>count_digit_chars</code> giữ cách viết đệ quy, không dùng vòng lặp hay <code>isdigit()</code>. Không đổi tên hàm, tham số.</li>
+<li>Chạy <code>python ma_gioi_thieu.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex08</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-08</a> rồi chép các tệp vào kho: <code>ma_gioi_thieu.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>ma_gioi_thieu.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

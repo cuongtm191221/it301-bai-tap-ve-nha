@@ -1,0 +1,54 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người dùng có nhiều thẻ quà mệnh giá khác nhau; màn hình gợi ý cần biết có bao nhiêu cách ghép đúng số tiền đơn hàng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-13/minh_hoa.png" /></p>
+<p><em>Người dùng có nhiều thẻ quà mệnh giá khác nhau; màn hình gợi ý cần biết có bao nhiêu cách ghép đúng số tiền đơn hàng.</em></p>
+<p>Ví MoMo phát <strong>thẻ quà tặng</strong> nhiều mệnh giá (tính theo nghìn đồng), ví dụ thẻ 10, 20, 50. Khi người dùng thanh toán, màn hình <strong>"Gợi ý dùng thẻ quà"</strong> cho biết có bao nhiêu cách ghép thẻ để trả <strong>đúng</strong> số tiền đơn hàng, để nhóm sản phẩm chọn cách gợi ý phù hợp. Mỗi mệnh giá dùng bao nhiêu thẻ cũng được; hai cách chỉ khác thứ tự thẻ được coi là <strong>một cách</strong>. Ví dụ 100 nghìn đồng từ thẻ 10, 20, 50 có 10 cách, trong đó có 50 + 50, 50 + 20 + 20 + 10, 20 × 5.</p>
+<p>Danh sách mệnh giá do hệ thống khuyến mãi gửi sang nên có thể <strong>lặp lại</strong> (hai chiến dịch cùng phát thẻ 20) hoặc có mệnh giá <strong>0, âm</strong> do lỗi cấu hình; các mệnh giá này phải bị bỏ qua.</p>
+<p>Một bạn trong nhóm đã viết thử bằng đệ quy theo ý: xét mệnh giá thứ nhất, hoặc dùng thêm một thẻ mệnh giá đó, hoặc bỏ hẳn mệnh giá đó rồi xét các mệnh giá còn lại. Cách này cho kết quả đúng với đơn nhỏ, nhưng với thẻ 1, 2, 5, 10, 20, 50 và đơn 200 nghìn đồng đã mất gần một giây, đơn 1 triệu đồng thì không bao giờ chạy xong. Màn hình gợi ý phải trả lời trong <strong>2 giây</strong> với đơn tới <strong>1.000 nghìn đồng</strong>. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bạn viết bốn hàm trong <code>the_qua.py</code>.</p>
+<p><strong>2.1. <code>clean_values(values)</code></strong></p>
+<ul>
+<li>Trả về list mệnh giá hợp lệ (số nguyên dương), mỗi mệnh giá một lần, xếp tăng dần.</li>
+</ul>
+<p><strong>2.2. Hai hàm đếm: <code>count_pay_ways_v1(amount, values)</code> và <code>count_pay_ways_v2(amount, values)</code></strong></p>
+<p>Mỗi hàm cài một giải pháp, trả về số cách ghép đúng <code>amount</code> nghìn đồng. Hai hàm cho cùng kết quả với mọi dữ liệu nhưng <strong>khác nhau về cách làm</strong>.</p>
+<p><strong>2.3. <code>pay_ways_message(amount, values)</code></strong></p>
+<p>Dùng giải pháp bạn chọn, trả về một trong ba thông báo (mệnh giá in theo thứ tự tăng dần, đã làm sạch):</p>
+<pre><code>Có 10 cách ghép 100 nghìn đồng từ các thẻ 10, 20, 50.&#10;Không ghép được 35 nghìn đồng từ các thẻ hiện có.&#10;Số tiền không hợp lệ.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mệnh giá lặp lại.</strong> <code>[50, 20, 10, 20]</code> cho cùng kết quả với <code>[10, 20, 50]</code>; không đếm hai lần.</p>
+<p><strong>Bẫy 2 — Mệnh giá 0 hoặc âm.</strong> <code>[0, -10, 20, 30]</code> chỉ còn thẻ 20, 30. Thẻ 0 nếu không bị loại sẽ làm số tiền không giảm sau mỗi lần dùng thẻ.</p>
+<p><strong>Bẫy 3 — Không ghép được.</strong> 35 nghìn đồng từ thẻ 10, 20: 0 cách.</p>
+<p><strong>Bẫy 4 — Số tiền 0 hoặc âm.</strong> Hai hàm đếm trả về 1 với <code>amount = 0</code> (không dùng thẻ nào) và 0 với <code>amount &lt; 0</code>; thông báo với số tiền từ 0 trở xuống là "Số tiền không hợp lệ."</p>
+<p><strong>Bẫy 5 — Đơn lớn.</strong> 1.000 nghìn đồng từ thẻ 1, 2, 5, 10, 20, 50: thông báo trong 2 giây, không báo <code>RecursionError</code>. Lưu ý thẻ 1 nghìn đồng làm số tầng gọi đệ quy có thể lên tới 1.000.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python the_qua.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Có 10 cách ghép 100 nghìn đồng từ các thẻ 10, 20, 50.&#10;Có 10 cách ghép 100 nghìn đồng từ các thẻ 10, 20, 50.&#10;Không ghép được 35 nghìn đồng từ các thẻ hiện có.&#10;Có 2 cách ghép 60 nghìn đồng từ các thẻ 20, 30.&#10;Số tiền không hợp lệ.&#10;Có 103119386 cách ghép 1000 nghìn đồng từ các thẻ 1, 2, 5, 10, 20, 50.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc đếm số cách ghép. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả. Nếu giải pháp là đệ quy, trả lời ba câu hỏi kiểm tra (Lesson 01) và ghi độ sâu call stack lớn nhất.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với thẻ 1, 2, 5, 10, 20, 50 và số tiền 50, 100, 150, 200 nghìn đồng; ghi bảng số đo, phiên bản Python và máy đo. Với giải pháp đệ quy, đếm thêm số lời gọi bằng một biến đếm (hoặc <code>cache_info()</code> nếu dùng <code>lru_cache</code>).</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ kể cả call stack (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>pay_ways_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay <code>40</code> nghìn đồng từ thẻ 10, 20: ghi các bài toán con được tính (hoặc các ô được điền) theo thứ tự, và chỉ ra bài toán con nào bị tính lặp lại ở giải pháp đệ quy thuần.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân bốn hàm trong <code>the_qua.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không dùng <code>set</code> hay <code>dict</code> (sẽ học ở buổi bảng băm); được dùng <code>functools.lru_cache</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python the_qua.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục (các mục về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex13</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-13">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-13</a> rồi chép các tệp vào kho: <code>the_qua.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>the_qua.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

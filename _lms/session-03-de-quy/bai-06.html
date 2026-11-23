@@ -1,0 +1,61 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Màn hình &quot;Giao dịch lớn nhất tháng&quot; báo lỗi với người dùng mới và treo với người dùng chi tiêu tăng dần." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-06/minh_hoa.png" /></p>
+<p><em>Màn hình "Giao dịch lớn nhất tháng" báo lỗi với người dùng mới và treo với người dùng chi tiêu tăng dần.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm tính năng "Quản lý chi tiêu" của ví MoMo.</p>
+<p>Cuối tháng, ứng dụng hiện thẻ <strong>"Giao dịch lớn nhất tháng"</strong> để người dùng biết khoản chi nào đáng chú ý. Giao dịch trong tháng là một list số tiền (đồng), theo thứ tự thời gian:</p>
+<pre><code>[150000, 2500000, 49000, 1000000, 320000]&#10;</code></pre>
+<p>Hàm <code>largest(transactions)</code> được viết bằng đệ quy trên danh sách (Lesson 02): giao dịch lớn nhất của cả list là số lớn hơn giữa <strong>giao dịch đầu</strong> và <strong>giao dịch lớn nhất của phần còn lại</strong>. Quy định:</p>
+<ul>
+<li>Tháng chưa có giao dịch nào: trả về <code>None</code>, ứng dụng ẩn thẻ.</li>
+<li>Không được sửa list giao dịch đầu vào, vì list này còn dùng cho các thẻ thống kê khác.</li>
+<li>Một người dùng có tối đa vài trăm giao dịch mỗi tháng.</li>
+</ul>
+<p>Nhiều người dùng mới có thói quen chi tiêu tăng dần trong tháng (đầu tháng mua nhỏ, cuối tháng mua lớn), nên list tăng dần là trường hợp gặp hằng ngày, không phải trường hợp hiếm. Thẻ thống kê được tính lại mỗi khi người dùng mở ứng dụng.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): tháng 6 có 5 giao dịch, tháng có một giao dịch, tháng chưa có giao dịch, tháng có 30 giao dịch tăng dần; cuối cùng in lại số giao dịch tháng 6 để chắc list không bị sửa.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Giao dịch lớn nhất tháng 6: 2500000&#10;Một giao dịch: 75000&#10;Tháng chưa có giao dịch: None&#10;30 giao dịch tăng dần: 300000&#10;Số giao dịch tháng 6 không đổi: 5&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người dùng và nhóm hạ tầng phản ánh:</p>
+<ul>
+<li>Người dùng mới, chưa có giao dịch, mở màn hình thống kê thì ứng dụng báo lỗi.</li>
+<li>Người dùng có 30 giao dịch tăng dần trong tháng mở màn hình thì <strong>đứng yên</strong> rất lâu; máy chủ thống kê tăng tải bất thường vào cuối tháng.</li>
+<li>Người dùng có giao dịch giảm dần thì vẫn thấy nhanh và đúng.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02, Lesson 04):</p>
+<ul>
+<li>Khuôn đệ quy trên danh sách: cơ sở là danh sách rỗng (hoặc một phần tử, nếu danh sách rỗng đã được xử lý riêng); bước đệ quy xử lý phần tử đầu và gọi lại trên <code>transactions[1:]</code>.</li>
+<li>Một tầng gọi đệ quy <strong>hai lần</strong> trên cùng phần còn lại thì số lời gọi nhân đôi sau mỗi tầng: n tầng có thể tới cỡ 2ⁿ lời gọi. Gọi một lần, lưu kết quả vào biến rồi dùng lại thì chỉ còn n lời gọi.</li>
+<li>Mỗi hàm đệ quy phải trả lời đúng <strong>ba câu hỏi</strong> (Lesson 01): (1) trường hợp cơ sở trả đúng chưa; (2) từ kết quả của bài toán nhỏ hơn, phần ghép ra kết quả lớn đúng chưa; (3) mỗi lần gọi có tiến về trường hợp cơ sở không.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>giao_dich_lon.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def largest(transactions):&#10;    # Số tiền lớn nhất trong list transactions. List rỗng: trả về None.&#10;    if len(transactions) == 1:&#10;        return transactions[0]&#10;    if transactions[0] &gt; largest(transactions[1:]):&#10;        return transactions[0]&#10;    return largest(transactions[1:])&#10;&#10;&#10;june = [150000, 2500000, 49000, 1000000, 320000]&#10;print(&quot;Giao dịch lớn nhất tháng 6:&quot;, largest(june))&#10;print(&quot;Một giao dịch:&quot;, largest([75000]))&#10;print(&quot;Tháng chưa có giao dịch:&quot;, largest([]))&#10;growing = [10000 * k for k in range(1, 31)]&#10;print(&quot;30 giao dịch tăng dần:&quot;, largest(growing))&#10;print(&quot;Số giao dịch tháng 6 không đổi:&quot;, len(june))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Giao dịch lớn nhất tháng 6: 2500000&#10;Một giao dịch: 75000&#10;Traceback (most recent call last):&#10;  ...&#10;    if transactions[0] &gt; largest(transactions[1:]):&#10;IndexError: list index out of range&#10;</code></pre>
+<p>Hai dòng đầu đúng. Tháng chưa có giao dịch gây lỗi <code>IndexError</code>, nên dòng 30 giao dịch tăng dần không được chạy tới; khi chạy riêng dòng đó, chương trình đứng yên.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Vì sao <code>largest([])</code> gây <code>IndexError</code>? Sửa trường hợp cơ sở thế nào để vẫn đúng với list một phần tử?</li>
+<li>Với list <code>[1, 2, 3]</code> (tăng dần), vẽ cây lời gọi của mã hiện tại. Có bao nhiêu lời gọi? Làm lại với <code>[3, 2, 1]</code> (giảm dần).</li>
+<li>Đếm số lời gọi của mã hiện tại với list tăng dần dài 10, 15, 20 (dùng biến đếm toàn cục). Ghi bảng và giải thích vì sao list giảm dần lại nhanh.</li>
+<li>Sửa phần ghép để mỗi tầng chỉ gọi đệ quy một lần. Sau khi sửa, list dài n cần bao nhiêu lời gọi? Ghi Big-O thời gian.</li>
+<li>Mỗi lời gọi tạo lát cắt <code>transactions[1:]</code> dài bao nhiêu? Tổng số phần tử được sao chép với list dài n là bao nhiêu? Có ảnh hưởng gì khi n chỉ vài trăm?</li>
+<li>Ghi bốn bộ dữ liệu thử: list rỗng, một phần tử, tăng dần, có hai giao dịch bằng nhau và lớn nhất; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hàm <code>largest</code> trong <code>giao_dich_lon.py</code>, giữ cách viết đệ quy. Không đổi tên hàm, tham số; không dùng <code>max()</code> hay vòng lặp; không sửa list đầu vào.</li>
+<li>30 giao dịch tăng dần phải có kết quả trong vòng 1 giây.</li>
+<li>Chạy <code>python giao_dich_lon.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex06</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-06</a> rồi chép các tệp vào kho: <code>giao_dich_lon.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>giao_dich_lon.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

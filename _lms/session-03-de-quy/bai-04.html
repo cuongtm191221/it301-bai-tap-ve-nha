@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người dùng đặt mục tiêu tiết kiệm thì ứng dụng báo lỗi, góp 0đ mỗi tháng hay mục tiêu lớn thì sập." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-04/minh_hoa.png" /></p>
+<p><em>Người dùng đặt mục tiêu tiết kiệm thì ứng dụng báo lỗi, góp 0đ mỗi tháng hay mục tiêu lớn thì sập.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm tính năng tiết kiệm "Heo đất" của ví MoMo.</p>
+<p>Người dùng đặt <strong>mục tiêu</strong> (ví dụ 5.000.000đ), cho biết <strong>số dư hiện có</strong> và <strong>số tiền góp mỗi tháng</strong>. Ứng dụng hiện: "Bạn cần thêm N tháng để đạt mục tiêu". Quy tắc:</p>
+<ul>
+<li>Số dư đã <strong>bằng hoặc vượt</strong> mục tiêu thì cần 0 tháng.</li>
+<li>Mỗi tháng số dư tăng thêm đúng số tiền góp; tháng nào số dư bằng hoặc vượt mục tiêu thì dừng đếm.</li>
+<li>Góp 0đ hoặc số âm thì không bao giờ đạt: hàm trả về <code>None</code> để ứng dụng hiện lời nhắc tăng số tiền góp.</li>
+</ul>
+<p>Hàm <code>months_to_goal(balance, goal, monthly)</code> được viết bằng đệ quy: số tháng từ số dư hiện tại bằng 1 cộng số tháng từ số dư của tháng sau. Có người dùng đặt mục tiêu 100 triệu đồng với mức góp 50.000đ mỗi tháng, tức <strong>2.000 tháng</strong>.</p>
+<p>Con số này hiện ngay trên màn hình đặt mục tiêu, nên lỗi ở đây làm người dùng bỏ dở việc mở Heo đất. Nhóm sản phẩm muốn hàm trả lời đúng với mọi mục tiêu, kể cả mục tiêu dài hạn như mua nhà hay quỹ hưu trí.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): số dư vừa đủ, ví dụ cần 5 tháng, số dư đã vượt mục tiêu, góp 0đ mỗi tháng, và mục tiêu 100 triệu đồng.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Vừa đủ tiền: 0 tháng&#10;Mục tiêu 5.000.000đ, đang có 1.000.000đ, góp 800.000đ/tháng: 5 tháng&#10;Đã đủ tiền: 0 tháng&#10;Góp 0đ mỗi tháng: None&#10;Mục tiêu 100 triệu, góp 50.000đ/tháng: 2000 tháng&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người dùng và nhóm hạ tầng phản ánh:</p>
+<ul>
+<li>Đặt mục tiêu bình thường thì màn hình báo lỗi <code>TypeError</code>.</li>
+<li>Số dư đã <strong>vượt</strong> mục tiêu hoặc góp vượt ở tháng cuối thì ứng dụng chạy mãi rồi báo <code>RecursionError</code>.</li>
+<li>Nhập nhầm mức góp 0đ thì ứng dụng cũng báo <code>RecursionError</code> thay vì nhắc tăng mức góp.</li>
+<li>Mục tiêu 100 triệu đồng góp 50.000đ mỗi tháng thì báo <code>RecursionError</code>, dù mọi thứ khác đều đúng.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 03):</p>
+<ul>
+<li>Ba lỗi thường gặp khi viết đệ quy: <strong>cơ sở bỏ sót đầu vào hợp lệ</strong>, <strong>lời gọi không tiến về cơ sở</strong>, <strong>quên <code>return</code> ở bước đệ quy</strong> (hàm trả về <code>None</code> và phép cộng ở tầng trên báo <code>TypeError</code>).</li>
+<li>Mỗi lời gọi chưa xong là một khung trên call stack; đệ quy n tầng tốn O(n) bộ nhớ. Python mặc định cho khoảng 1.000 tầng (<code>sys.getrecursionlimit()</code>). Khi n có thể lên hàng nghìn, dùng <strong>vòng lặp</strong> với bộ nhớ O(1).</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>tiet_kiem.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def months_to_goal(balance, goal, monthly):&#10;    # Số tháng góp thêm monthly đồng mỗi tháng để số dư balance đạt ít nhất goal.&#10;    # Đã đủ thì 0 tháng. monthly không dương thì không bao giờ đạt: trả về None.&#10;    if balance == goal:&#10;        return 0&#10;    months_to_goal(balance + monthly, goal, monthly) + 1&#10;&#10;&#10;print(&quot;Vừa đủ tiền:&quot;, months_to_goal(5000000, 5000000, 800000), &quot;tháng&quot;)&#10;print(&quot;Mục tiêu 5.000.000đ, đang có 1.000.000đ, góp 800.000đ/tháng:&quot;, months_to_goal(1000000, 5000000, 800000), &quot;tháng&quot;)&#10;print(&quot;Đã đủ tiền:&quot;, months_to_goal(6000000, 5000000, 800000), &quot;tháng&quot;)&#10;print(&quot;Góp 0đ mỗi tháng:&quot;, months_to_goal(1000000, 5000000, 0))&#10;print(&quot;Mục tiêu 100 triệu, góp 50.000đ/tháng:&quot;, months_to_goal(0, 100000000, 50000), &quot;tháng&quot;)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Vừa đủ tiền: 0 tháng&#10;Traceback (most recent call last):&#10;  ...&#10;  [Previous line repeated 1 more time]&#10;TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'&#10;</code></pre>
+<p>Dòng đầu (số dư vừa đủ) đúng. Ngay ở ví dụ cần 5 tháng, chương trình dừng với lỗi <code>TypeError</code>, nên mọi dòng sau không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay lời gọi ví dụ (1.000.000đ, mục tiêu 5.000.000đ, góp 800.000đ): ghi số dư ở mỗi tầng và giá trị mỗi tầng trả về. Tầng nào trả về <code>None</code>, vì sao? Vì sao lỗi lại là <code>TypeError</code>?</li>
+<li>Với số dư 0đ, mục tiêu 1.000.000đ, góp 300.000đ, điều kiện <code>balance == goal</code> có bao giờ đúng không? Chuyện gì xảy ra? Sửa cơ sở thế nào?</li>
+<li>Với mức góp 0đ, lời gọi đệ quy có tiến về cơ sở không? Cần kiểm tra gì, đặt ở đâu?</li>
+<li>Sau khi sửa ba lỗi trên, mục tiêu 100 triệu góp 50.000đ/tháng cần bao nhiêu tầng đệ quy? Vì sao vẫn báo <code>RecursionError</code>?</li>
+<li>Viết lại hàm bằng vòng lặp. So sánh bộ nhớ phụ (Big-O) của cách đệ quy và cách vòng lặp với n tháng.</li>
+<li>Vì sao không nên giải quyết bằng <code>sys.setrecursionlimit(100000)</code>?</li>
+<li>Ghi bốn bộ dữ liệu thử: số dư vượt mục tiêu, góp vượt ở tháng cuối, góp 0đ, mục tiêu cần 20.000 tháng; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hàm <code>months_to_goal</code> trong <code>tiet_kiem.py</code>. Không đổi tên hàm, tham số và dạng giá trị trả về. Hàm phải tính được cả mục tiêu cần hàng chục nghìn tháng.</li>
+<li>Chạy <code>python tiet_kiem.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 5 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex04</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-04">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-04</a> rồi chép các tệp vào kho: <code>tiet_kiem.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>tiet_kiem.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

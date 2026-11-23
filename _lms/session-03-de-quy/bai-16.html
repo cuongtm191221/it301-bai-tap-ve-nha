@@ -1,0 +1,50 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trò chơi cho chọn k hộp trong n hộp; nhóm thiết kế cần số cách chọn để tính xác suất trúng giải, nhưng bản đồ lớn làm màn hình đứng yên." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-16/minh_hoa.png" /></p>
+<p><em>Trò chơi cho chọn k hộp trong n hộp; nhóm thiết kế cần số cách chọn để tính xác suất trúng giải, nhưng bản đồ lớn làm màn hình đứng yên.</em></p>
+<p>Trò chơi <strong>"Mở hộp may mắn"</strong> của ví MoMo bày <code>n</code> hộp quà, người chơi được chọn <code>k</code> hộp khác nhau cùng lúc (không kể thứ tự chọn). Để tính <strong>xác suất trúng giải</strong> hiện trên màn hình, nhóm thiết kế cần biết <strong>số cách chọn k hộp trong n hộp</strong>. Ví dụ 5 hộp chọn 2 có 10 cách.</p>
+<p>Một bạn trong nhóm viết bằng đệ quy theo ý: xét hộp cuối cùng, hoặc chọn nó (còn phải chọn <code>k - 1</code> hộp trong <code>n - 1</code> hộp còn lại), hoặc không chọn (chọn <code>k</code> hộp trong <code>n - 1</code> hộp). Cách viết rất ngắn và đúng với trò chơi nhỏ, nhưng màn hình <strong>đứng yên</strong> khi nhóm thử bản đồ 40 hộp chọn 20. Sự kiện cuối năm có bản đồ tới <strong>300 hộp chọn 150</strong>, và con số phải có trong <strong>2 giây</strong>.</p>
+<p>Nhóm không được dùng <code>math.comb</code> hay <code>math.factorial</code> vì cùng thư viện sẽ được chuyển sang thiết bị chạy bản Python rút gọn. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bạn viết ba hàm trong <code>chon_qua.py</code>.</p>
+<p><strong>2.1. Hai hàm đếm: <code>choose_count_v1(n, k)</code> và <code>choose_count_v2(n, k)</code></strong></p>
+<p>Mỗi hàm cài một giải pháp, trả về số cách chọn <code>k</code> hộp trong <code>n</code> hộp. Hai hàm cho cùng kết quả với mọi dữ liệu nhưng <strong>khác nhau về cách làm</strong>.</p>
+<p><strong>2.2. <code>prize_message(n, k)</code></strong></p>
+<p>Dùng giải pháp bạn chọn, trả về một trong ba thông báo:</p>
+<pre><code>Có 10 cách chọn 2 ô trong 5 ô.&#10;Không đủ ô: cần chọn 6 ô nhưng chỉ có 4 ô.&#10;Dữ liệu trò chơi không hợp lệ.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chọn hết hoặc không chọn.</strong> Chọn <code>n</code> hộp trong <code>n</code> hộp, hoặc chọn 0 hộp: đúng 1 cách (hai hàm đếm).</p>
+<p><strong>Bẫy 2 — k ngoài khoảng.</strong> <code>k &gt; n</code> hoặc <code>k &lt; 0</code>: hai hàm đếm trả về 0; thông báo với <code>k &gt; n</code> là "Không đủ ô...".</p>
+<p><strong>Bẫy 3 — Dữ liệu trò chơi sai.</strong> <code>n</code> hoặc <code>k</code> từ 0 trở xuống: "Dữ liệu trò chơi không hợp lệ."</p>
+<p><strong>Bẫy 4 — Kết quả rất lớn.</strong> 300 hộp chọn 150 cho một số có 89 chữ số; Python lưu được số nguyên lớn, nhưng giải pháp không được đi qua số thực (sai số làm tròn).</p>
+<p><strong>Bẫy 5 — Bản đồ lớn.</strong> 40 chọn 20 và 300 chọn 150: thông báo trong 2 giây, không báo <code>RecursionError</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python chon_qua.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Có 10 cách chọn 2 ô trong 5 ô.&#10;Có 1 cách chọn 10 ô trong 10 ô.&#10;Không đủ ô: cần chọn 6 ô nhưng chỉ có 4 ô.&#10;Dữ liệu trò chơi không hợp lệ.&#10;Có 137846528820 cách chọn 20 ô trong 40 ô.&#10;Có 118264581564861424 cách chọn 30 ô trong 60 ô.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc đếm số cách chọn. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả. Nếu giải pháp là đệ quy, trả lời ba câu hỏi kiểm tra (Lesson 01) và ghi độ sâu call stack lớn nhất.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với n = 16, 18, 20, 22 và k = n / 2; ghi bảng số đo, phiên bản Python và máy đo. Với giải pháp đệ quy, đếm thêm số lời gọi bằng một biến đếm (hoặc <code>cache_info()</code> nếu dùng <code>lru_cache</code>).</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ kể cả call stack (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>prize_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay 5 hộp chọn 2: vẽ cây lời gọi (hoặc bảng giá trị được điền), đánh dấu các bài toán con bị tính lặp lại, và đếm tổng số lời gọi hoặc số ô được tính.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>chon_qua.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không dùng <code>math.comb</code>, <code>math.factorial</code> hay số thực; được dùng <code>functools.lru_cache</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python chon_qua.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục (các mục về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex16</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-16">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-16</a> rồi chép các tệp vào kho: <code>chon_qua.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>chon_qua.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,57 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên tổng đài nhập mã giao dịch khách đọc qua điện thoại; mã có thể viết thường, thừa khoảng trắng hoặc bị trùng." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-09/minh_hoa.png" /></p>
+<p><em>Nhân viên tổng đài nhập mã giao dịch khách đọc qua điện thoại; mã có thể viết thường, thừa khoảng trắng hoặc bị trùng.</em></p>
+<p>Khi khách gọi tổng đài ví MoMo khiếu nại một giao dịch, nhân viên nhập <strong>mã giao dịch</strong> khách đọc qua điện thoại để tìm dòng tương ứng trong danh sách giao dịch của khách. Danh sách là một list chuỗi theo thứ tự thời gian:</p>
+<pre><code>[&quot;MM2401&quot;, &quot; mm2402&quot;, &quot;MM2403 &quot;, &quot;MM2402&quot;, &quot;MM2405&quot;]&#10;</code></pre>
+<p>Dữ liệu được ghép từ nhiều hệ thống nên có mã viết thường, thừa khoảng trắng, và đôi khi một mã xuất hiện hai lần do lỗi đồng bộ. Mã khách đọc cũng có thể bị nhân viên gõ thường hoặc thừa dấu cách.</p>
+<p>Nhóm muốn viết phần tra cứu theo cách đệ quy để thống nhất với bộ thư viện thống kê đã có. Một khách có tối đa vài trăm giao dịch. Vì danh sách được đọc trực tiếp từ bộ nhớ đệm dùng chung, nhóm hạ tầng đặt hai ràng buộc: <strong>không sửa list</strong>, và <strong>không tạo list mới ở mỗi lời gọi</strong> (mỗi lần cắt <code>codes[1:]</code> là một bản sao, vài trăm lần cắt là vài chục nghìn phần tử bị sao chép cho một lần tra cứu).</p>
+<p>Hàm <code>normalize(code)</code> (có sẵn) bỏ khoảng trắng hai đầu và đổi sang chữ in hoa. Bạn được giao viết ba hàm trong <code>tim_giao_dich.py</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>find_transaction(codes, target, index=0)</code></strong></p>
+<ul>
+<li>Trả về vị trí (đánh số từ 0) của giao dịch <strong>đầu tiên</strong>, xét từ vị trí <code>index</code> trở đi, có mã bằng <code>target</code> sau khi chuẩn hóa cả hai; không có thì trả về <code>-1</code>.</li>
+</ul>
+<p><strong>2.2. <code>count_matches(codes, target, index=0)</code></strong></p>
+<ul>
+<li>Trả về số giao dịch, xét từ vị trí <code>index</code> trở đi, có mã bằng <code>target</code> sau khi chuẩn hóa.</li>
+</ul>
+<p><strong>2.3. <code>search_message(codes, target)</code></strong></p>
+<p>Trả về thông báo cho nhân viên, số dòng đánh số từ 1:</p>
+<pre><code>Tìm thấy MM2403 ở dòng 3.&#10;Không tìm thấy giao dịch MM9999.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mã viết thường, thừa khoảng trắng.</strong> <code>"mm2405 "</code> vẫn phải tìm thấy <code>"MM2405"</code>; thông báo in mã đã chuẩn hóa.</p>
+<p><strong>Bẫy 2 — Mã bị trùng.</strong> Trả về dòng đầu tiên và nhắc kiểm tra:</p>
+<pre><code>Tìm thấy MM2402 ở dòng 2 (mã xuất hiện 2 lần, cần kiểm tra trùng).&#10;</code></pre>
+<p><strong>Bẫy 3 — Danh sách rỗng.</strong> Khách mới chưa có giao dịch: <code>find_transaction</code> trả về <code>-1</code>, <code>count_matches</code> trả về <code>0</code>, không báo lỗi.</p>
+<p><strong>Bẫy 4 — Mã cần tìm trống.</strong> Nhân viên lỡ bấm tìm khi ô mã chỉ có dấu cách:</p>
+<pre><code>Mã giao dịch trống, vui lòng nhập lại.&#10;</code></pre>
+<p><strong>Bẫy 5 — Danh sách dài.</strong> 600 giao dịch, mã cần tìm ở dòng cuối: phải tìm được, không báo <code>RecursionError</code>, không cắt list.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python tim_giao_dich.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Tìm thấy MM2403 ở dòng 3.&#10;Tìm thấy MM2405 ở dòng 5.&#10;Tìm thấy MM2402 ở dòng 2 (mã xuất hiện 2 lần, cần kiểm tra trùng).&#10;Không tìm thấy giao dịch MM9999.&#10;Không tìm thấy giao dịch MM2401.&#10;Mã giao dịch trống, vui lòng nhập lại.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm đệ quy, trả lời ba câu hỏi kiểm tra (Lesson 01): trường hợp cơ sở là gì, phần ghép từ kết quả nhỏ hơn ra sao, mỗi lần gọi tiến về cơ sở thế nào.</li>
+<li>Thiết kế giải pháp: so sánh hai cách đệ quy trên danh sách, cắt <code>codes[1:]</code> và truyền vị trí <code>index</code>. Với n giao dịch, mỗi cách sao chép tổng cộng bao nhiêu phần tử?</li>
+<li>Chạy tay <code>find_transaction(["A", "B", "C"], "C")</code>: ghi <code>index</code> ở mỗi lời gọi và giá trị trả về khi quay lên.</li>
+<li>Vẽ call stack lúc sâu nhất khi tìm mã ở dòng 600. Nếu khách có 5.000 giao dịch thì chuyện gì xảy ra (Lesson 03)? Đề xuất cách xử lý.</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ phụ (kể cả call stack) của ba hàm theo n (số giao dịch). <code>search_message</code> gọi hai hàm đệ quy: tổng số lời gọi là bao nhiêu?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm còn trống trong <code>tim_giao_dich.py</code>. Không đổi tên hàm, tham số; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Hai hàm <code>find_transaction</code>, <code>count_matches</code> viết bằng đệ quy theo vị trí: không dùng vòng lặp, không cắt list, không dùng <code>.index()</code>, <code>.count()</code> hay toán tử <code>in</code> trên list.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python tim_giao_dich.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 5 mục.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở trường hợp cơ sở và phần ghép.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex09</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-09</a> rồi chép các tệp vào kho: <code>tim_giao_dich.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>tim_giao_dich.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

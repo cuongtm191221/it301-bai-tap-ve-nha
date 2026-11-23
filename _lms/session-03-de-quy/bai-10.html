@@ -1,0 +1,58 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Biên lai phải hiện 1.005.000đ, nhưng cách định dạng đơn giản lại cho ra 1.5.0đ." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-10/minh_hoa.png" /></p>
+<p><em>Biên lai phải hiện 1.005.000đ, nhưng cách định dạng đơn giản lại cho ra 1.5.0đ.</em></p>
+<p>Sau mỗi lần chuyển tiền, ví MoMo hiện <strong>biên lai</strong> cho người gửi. Số tiền phải có <strong>dấu chấm ngăn cách hàng nghìn</strong> theo cách viết của Việt Nam:</p>
+<pre><code>Chuyển tiền cho Nguyễn Văn An: 1.005.000đ&#10;</code></pre>
+<p>Nhóm biên lai không được dùng các cách định dạng có sẵn của Python (<code>f"{amount:,}"</code>, <code>format()</code>), vì biên lai còn được sinh trên thiết bị đọc thẻ đời cũ chạy một bản Python rút gọn không có các hàm đó; mã của bạn sẽ được chuyển sang thiết bị này.</p>
+<p>Nhóm muốn viết bằng đệ quy theo ý: số tiền có từ bốn chữ số trở lên = <strong>phần đầu</strong> (bỏ ba chữ số cuối, tức <code>amount // 1000</code>) đã định dạng, nối dấu chấm, nối <strong>ba chữ số cuối</strong> (<code>amount % 1000</code>). Một lập trình viên đã thử viết nhanh và nhận được <code>1.5.0</code> cho số 1.005.000; nhóm cần một bản đúng với mọi số tiền.</p>
+<p>Cùng hàm này còn được dùng cho màn hình lịch sử giao dịch, thông báo đẩy và sao kê tháng gửi qua email, nên chỉ cần sai ở một nhóm chữ số là khách hàng thấy số tiền khác nhau trên ba nơi. Bộ phận chăm sóc khách hàng ghi nhận nhiều cuộc gọi hỏi vì sao biên lai ghi "1.5.0đ" trong khi tài khoản bị trừ 1.005.000đ; vài khách còn nghi ngờ bị trừ tiền hai lần.</p>
+<p>Tên người nhận lấy từ danh bạ của người gửi nên thường thừa dấu cách ở đầu, ở cuối hoặc giữa họ và tên; có trường hợp danh bạ chỉ lưu số điện thoại, tên để trống.</p>
+<p>Bạn được giao viết hai hàm trong <code>dinh_dang_tien.py</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. <code>format_money(amount)</code></strong></p>
+<ul>
+<li>Nhận số nguyên <code>amount</code>, trả về chuỗi có dấu chấm ngăn cách mỗi nhóm ba chữ số tính từ phải sang: <code>1234567</code> thành <code>"1.234.567"</code>, <code>45000</code> thành <code>"45.000"</code>.</li>
+<li>Số âm (hoàn tiền, điều chỉnh) có dấu <code>-</code> ở đầu.</li>
+</ul>
+<p><strong>2.2. <code>receipt_line(name, amount)</code></strong></p>
+<ul>
+<li>Trả về dòng biên lai <code>Chuyển tiền cho &lt;tên&gt;: &lt;số tiền&gt;đ</code>.</li>
+<li>Tên người nhận được bỏ khoảng trắng thừa ở hai đầu và giữa các từ (chỉ giữ một dấu cách giữa hai từ).</li>
+</ul>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Số dưới 1.000.</strong> <code>0</code>, <code>7</code>, <code>950</code> giữ nguyên, không có dấu chấm.</p>
+<p><strong>Bẫy 2 — Nhóm có chữ số 0 ở đầu.</strong> <code>1005</code> phải thành <code>"1.005"</code>, không phải <code>"1.5"</code>; <code>1000005</code> thành <code>"1.000.005"</code>. Mọi nhóm sau nhóm đầu luôn đủ ba chữ số.</p>
+<p><strong>Bẫy 3 — Số âm.</strong> <code>-1500000</code> thành <code>"-1.500.000"</code>; <code>-999</code> thành <code>"-999"</code>. Dấu chấm không được chen giữa dấu <code>-</code> và chữ số.</p>
+<p><strong>Bẫy 4 — Số rất lớn.</strong> Tổng chuyển khoản của doanh nghiệp tới hàng tỷ: <code>2500000000</code> thành <code>"2.500.000.000"</code>.</p>
+<p><strong>Bẫy 5 — Tên người nhận trống.</strong> Tên chỉ gồm dấu cách thì ghi <code>Không rõ người nhận</code>:</p>
+<pre><code>Chuyển tiền cho Không rõ người nhận: 20.000đ&#10;</code></pre>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python dinh_dang_tien.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>0&#10;950&#10;1.000&#10;1.005&#10;45.000&#10;1.234.567&#10;1.000.005&#10;2.500.000.000&#10;-1.500.000&#10;Chuyển tiền cho Nguyễn Văn An: 1.005.000đ&#10;Chuyển tiền cho Không rõ người nhận: 20.000đ&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng hàm, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm đệ quy, trả lời ba câu hỏi kiểm tra (Lesson 01): trường hợp cơ sở là gì, phần ghép từ kết quả nhỏ hơn ra sao, mỗi lần gọi tiến về cơ sở thế nào.</li>
+<li>Thiết kế giải pháp: chạy tay <code>format_money(1005000)</code>: ghi <code>amount</code> ở mỗi lời gọi, phần đầu, ba chữ số cuối và chuỗi trả về khi quay lên. Chỉ ra bước làm cách viết nhanh ra <code>1.5.0</code>.</li>
+<li>Số âm nên xử lý ở đâu: trong trường hợp cơ sở, trong phần ghép, hay trước khi đệ quy? Vì sao?</li>
+<li>Một số tiền có d chữ số cần bao nhiêu lời gọi đệ quy? Có cần lo <code>RecursionError</code> không?</li>
+<li>Nhóm biên lai định đổi sang cách viết <code>str(amount)</code> rồi chèn dấu chấm từ phải sang. Cách đó có cần đệ quy không? Nêu một ưu điểm và một nhược điểm so với cách chia cho 1000.</li>
+<li>Bộ dữ liệu thử: lập bảng ít nhất 6 đầu vào phủ đủ 5 bẫy ở mục 3, mỗi dòng ghi kết quả mong đợi (tính tay trước khi chạy) và kết quả chạy thật của bài làm.</li>
+<li>Độ phức tạp: ghi Big-O thời gian theo d (số chữ số của số tiền) và theo giá trị n của số tiền. Vì sao hai cách ghi đều đúng?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân các hàm còn trống trong <code>dinh_dang_tien.py</code>. Không đổi tên hàm, tham số; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li><code>format_money</code> viết bằng đệ quy: không dùng vòng lặp, không dùng <code>f"{amount:,}"</code>, <code>format()</code> hay <code>replace()</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python dinh_dang_tien.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở trường hợp cơ sở và phần ghép.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex10</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-10</a> rồi chép các tệp vào kho: <code>dinh_dang_tien.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>dinh_dang_tien.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

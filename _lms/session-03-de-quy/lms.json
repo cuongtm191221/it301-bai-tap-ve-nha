@@ -1,0 +1,142 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Lỗi tính điểm thưởng chuỗi ngày điểm danh trên ví MoMo",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6218
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Lỗi thống kê chi tiêu tháng trên ví MoMo",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6837
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Lỗi trò chơi \"Mã may mắn\" trên ví MoMo",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6709
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Lỗi tính số tháng tiết kiệm \"Heo đất\" trên ví MoMo",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6717
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Lỗi đếm số cách đi trong trò chơi \"Lì xì\" trên ví MoMo",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 6405
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Lỗi tìm giao dịch lớn nhất tháng trên ví MoMo",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 6748
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Lỗi tính số dư tiết kiệm online tự tái tục trên ví MoMo",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 6907
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Lỗi kiểm tra mã giới thiệu bạn bè trên ví MoMo",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 6989
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Tra cứu giao dịch theo mã cho tổng đài MoMo",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6498
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Định dạng số tiền trên biên lai chuyển tiền MoMo",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6663
+ },
+ {
+  "n": 11,
+  "t": "Bài 11: Đọc số tiền người dùng nhập ở ô \"Số tiền\" của MoMo",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6702
+ },
+ {
+  "n": 12,
+  "t": "Bài 12: Tóm tắt lịch sử nạp tiền điện thoại tự động trên MoMo",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6495
+ },
+ {
+  "n": 13,
+  "t": "Bài 13: Đếm số cách ghép thẻ quà tặng để thanh toán trên MoMo",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6859
+ },
+ {
+  "n": 14,
+  "t": "Bài 14: Sinh mã xác thực theo bộ đếm cho thiết bị thanh toán MoMo",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6463
+ },
+ {
+  "n": 15,
+  "t": "Bài 15: Phản biện mã do AI viết: thống kê chi tiêu theo nhóm lồng nhau trên MoMo",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6888
+ },
+ {
+  "n": 16,
+  "t": "Bài 16: Đếm số cách chọn ô quà trong trò chơi \"Mở hộp may mắn\" của MoMo",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6227
+ },
+ {
+  "n": 17,
+  "t": "Bài 17: Sinh mã quà tặng cho chiến dịch khuyến mãi MoMo",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6856
+ },
+ {
+  "n": 18,
+  "t": "Bài 18: Kế hoạch tiết kiệm góp tăng dần cho \"Heo đất\" MoMo",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6786
+ },
+ {
+  "n": 19,
+  "t": "Bài 19: Báo cáo chi tiêu theo cây danh mục trên MoMo",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6996
+ },
+ {
+  "n": 20,
+  "t": "Bài 20: Tối ưu báo cáo phương án trả góp \"Ví Trả Sau\" MoMo",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 7001
+ }
+]

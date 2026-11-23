@@ -1,0 +1,51 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người dùng xếp chi tiêu vào danh mục và danh mục con nhiều cấp; báo cáo phải cộng đúng từng cấp và thụt lề theo cấp." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-19/minh_hoa.png" /></p>
+<p><em>Người dùng xếp chi tiêu vào danh mục và danh mục con nhiều cấp; báo cáo phải cộng đúng từng cấp và thụt lề theo cấp.</em></p>
+<p>Màn hình <strong>"Quản lý chi tiêu"</strong> của ví MoMo cho người dùng xếp giao dịch vào <strong>danh mục</strong>, và danh mục có thể chứa <strong>danh mục con</strong> nhiều cấp. Một danh mục là một bộ <code>(tên, list phần tử)</code>; mỗi phần tử là <strong>một số tiền</strong> (số âm là hoàn tiền) hoặc <strong>một danh mục con</strong> cùng dạng:</p>
+<pre><code>(&quot;Tháng 6&quot;, [&#10;    (&quot;Ăn uống&quot;, [120000, (&quot;Cà phê&quot;, [45000, 30000, -30000]), 85000]),&#10;    (&quot;Di chuyển&quot;, [(&quot;Xe ôm&quot;, [25000, 40000]), (&quot;Xăng&quot;, [100000])]),&#10;    (&quot;Hóa đơn&quot;, [350000, 220000]),&#10;    (&quot;Giải trí&quot;, []),&#10;])&#10;</code></pre>
+<p>Nhóm cần ba tính năng: <strong>tổng tiền</strong> của một danh mục (cộng cả các danh mục con ở mọi cấp), <strong>báo cáo nhiều dòng</strong> thụt lề theo cấp, và <strong>ô tìm kiếm</strong> trả về đường dẫn tới danh mục, ví dụ <code>Tháng 6 &gt; Di chuyển &gt; Xe ôm</code>.</p>
+<p>Bài này tổng hợp kiến thức cả buổi: dữ liệu có cấu trúc lặp lại chính nó (danh mục chứa danh mục) là nơi đệ quy tự nhiên nhất; cần chọn đúng trường hợp cơ sở, ghép đúng kết quả của các danh mục con, và biết độ sâu tối đa. Ứng dụng giới hạn <strong>300 cấp</strong> danh mục. Hàm <code>money(amount)</code> và <code>normalize(name)</code> có sẵn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bạn viết bốn hàm trong <code>danh_muc.py</code>.</p>
+<p><strong>2.1. <code>category_total(category)</code></strong>: tổng tiền của danh mục, kể cả mọi danh mục con.</p>
+<p><strong>2.2. <code>report_lines(category, level=0)</code></strong>: list dòng, mỗi danh mục một dòng <code>&lt;thụt lề&gt;&lt;tên&gt;: &lt;tổng&gt;đ</code>, thụt 2 dấu cách cho mỗi cấp; danh mục cha đứng trước các danh mục con của nó, các danh mục con giữ đúng thứ tự trong list.</p>
+<p><strong>2.3. <code>find_path(category, name)</code></strong>: đường dẫn từ gốc tới danh mục <strong>đầu tiên</strong> (theo thứ tự của báo cáo) có tên trùng <code>name</code> sau khi chuẩn hóa bằng <code>normalize</code>; không có thì <code>None</code>.</p>
+<p><strong>2.4. <code>category_report(category)</code></strong>: toàn bộ báo cáo là một chuỗi, các dòng nối bằng ký tự xuống dòng.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Hoàn tiền.</strong> "Cà phê" có <code>[45000, 30000, -30000]</code>: tổng 45.000đ.</p>
+<p><strong>Bẫy 2 — Danh mục rỗng.</strong> "Giải trí" chưa có giao dịch: vẫn có dòng <code>Giải trí: 0đ</code>.</p>
+<p><strong>Bẫy 3 — Tên gõ lệch.</strong> Tìm <code>" xe  ÔM "</code> vẫn ra <code>Tháng 6 &gt; Di chuyển &gt; Xe ôm</code>; tìm chính tên gốc ra <code>Tháng 6</code>.</p>
+<p><strong>Bẫy 4 — Tên trùng ở hai nhánh.</strong> <code>("Gốc", [("A", [("Phí", [1000])]), ("Phí", [2000])])</code>: tìm "phí" ra <code>Gốc &gt; A &gt; Phí</code> (đứng trước trong báo cáo).</p>
+<p><strong>Bẫy 5 — Cây sâu 300 cấp.</strong> Cả ba hàm chạy được, không báo <code>RecursionError</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python danh_muc.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Tháng 6: 985.000đ&#10;  Ăn uống: 250.000đ&#10;    Cà phê: 45.000đ&#10;  Di chuyển: 165.000đ&#10;    Xe ôm: 65.000đ&#10;    Xăng: 100.000đ&#10;  Hóa đơn: 570.000đ&#10;  Giải trí: 0đ&#10;Tháng 6 &gt; Di chuyển &gt; Xe ôm&#10;Tháng 6 &gt; Ăn uống &gt; Cà phê&#10;None&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm đệ quy: ba câu hỏi kiểm tra (Lesson 01) và độ sâu call stack lớn nhất trong bối cảnh của bài. Với mỗi hàm bạn chọn viết bằng vòng lặp: vì sao không dùng đệ quy.</li>
+<li>Vẽ cây danh mục tháng 6 và đánh số thứ tự các lời gọi <code>report_lines</code>. Vì sao thứ tự đó chính là thứ tự dòng của báo cáo?</li>
+<li><code>find_path</code> phải trả về kết quả ngay khi tìm thấy ở một danh mục con. Mô tả cách giá trị <code>None</code> và giá trị tìm thấy được truyền lên các tầng trên.</li>
+<li>Độ phức tạp: ghi Big-O thời gian của bốn hàm theo N (tổng số phần tử) và D (số cấp). <code>report_lines</code> gọi <code>category_total</code> ở mỗi danh mục: tổng số lần cộng với cây sâu D cấp mỗi cấp một danh mục là bao nhiêu? Đề xuất cách giảm.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>danh_muc.py</code>; được thêm hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Ba hàm <code>category_total</code>, <code>report_lines</code>, <code>find_path</code> viết bằng đệ quy theo danh mục con. Không sửa dữ liệu đầu vào.</li>
+<li>Xử lý đủ 5 bẫy; <code>python danh_muc.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu định dạng JSON và module <code>json</code> của Python (<code>json.loads</code>, <code>json.dumps</code>): JSON biểu diễn dữ liệu lồng nhau thế nào, có kiểu tuple không.</li>
+<li>Tạo <code>nghien_cuu.py</code>: viết một chuỗi JSON mô tả cây danh mục tháng 7 (danh mục là object có <code>"name"</code> và <code>"items"</code>), đọc bằng <code>json.loads</code>, đổi sang dạng <code>(tên, list)</code> bằng một hàm đệ quy, rồi in báo cáo bằng <code>category_report</code>.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex19</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-19">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-19</a> rồi chép các tệp vào kho: <code>danh_muc.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>danh_muc.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

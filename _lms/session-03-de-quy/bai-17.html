@@ -1,0 +1,51 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Bộ phận khuyến mãi cần sinh hàng chục nghìn mã quà tặng dễ đọc, và cần biết trước một cấu hình sinh ra bao nhiêu mã." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-17/minh_hoa.png" /></p>
+<p><em>Bộ phận khuyến mãi cần sinh hàng chục nghìn mã quà tặng dễ đọc, và cần biết trước một cấu hình sinh ra bao nhiêu mã.</em></p>
+<p>Mỗi chiến dịch khuyến mãi của ví MoMo phát <strong>mã quà tặng</strong> để người dùng nhập khi thanh toán. Bộ phận khuyến mãi chọn một <strong>bộ ký tự</strong> (ví dụ <code>"AB12"</code>) và một <strong>độ dài</strong> (ví dụ 3); hệ thống sinh ra <strong>mọi mã</strong> dài đúng độ dài đó, lấy từ bộ ký tự. Để mã dễ đọc qua điện thoại, nhóm thêm quy tắc: <strong>hai ký tự đứng cạnh nhau không được giống nhau</strong> (<code>"A1A"</code> được, <code>"AA1"</code> không được).</p>
+<p>Bộ ký tự do nhân viên gõ nên có thể có khoảng trắng, chữ thường, ký tự lặp lại. Số mã tăng rất nhanh theo độ dài, nên trước khi sinh, hệ thống phải <strong>đếm</strong> số mã của cấu hình; nếu vượt <strong>100.000 mã</strong> thì từ chối, không sinh (sinh hàng tỷ mã sẽ làm đầy bộ nhớ máy chủ).</p>
+<p>Bài này tổng hợp kiến thức cả buổi: đệ quy trên số (độ dài), đệ quy sinh danh sách, chọn trường hợp cơ sở đúng, và tránh tính những thứ không cần.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bạn viết bốn hàm trong <code>sinh_ma.py</code>.</p>
+<p><strong>2.1. <code>clean_chars(chars)</code></strong>: list ký tự dùng để sinh mã: bỏ khoảng trắng, đổi sang chữ in hoa, mỗi ký tự một lần, xếp tăng dần.</p>
+<p><strong>2.2. <code>count_codes(chars, length)</code></strong>: số mã dài <code>length</code> theo quy tắc trên, <strong>tính mà không sinh mã</strong>, viết bằng đệ quy theo độ dài (số mã dài L tính từ số mã dài L - 1).</p>
+<p><strong>2.3. <code>generate_codes(chars, length)</code></strong>: list mọi mã, xếp tăng dần theo thứ tự từ điển, viết bằng đệ quy theo độ dài (mã dài L tạo từ các mã dài L - 1).</p>
+<p><strong>2.4. <code>codes_message(chars, length)</code></strong>: thông báo cho bộ phận khuyến mãi:</p>
+<pre><code>Đã sinh 36 mã, ví dụ: 121, 12A, 12B&#10;Có 313810596090 mã, vượt giới hạn 100000 mã mỗi lần sinh.&#10;Không sinh được mã nào với cấu hình này.&#10;Cấu hình mã không hợp lệ.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bộ ký tự bẩn.</strong> <code>" b a 1 a "</code> chỉ còn <code>["1", "A", "B"]</code>.</p>
+<p><strong>Bẫy 2 — Độ dài 0.</strong> Hai hàm <code>count_codes</code>, <code>generate_codes</code> coi độ dài 0 có đúng một mã là chuỗi rỗng (đây là trường hợp cơ sở tự nhiên); thông báo với độ dài từ 0 trở xuống hoặc bộ ký tự rỗng là "Cấu hình mã không hợp lệ."</p>
+<p><strong>Bẫy 3 — Một ký tự, độ dài từ 2.</strong> <code>"7"</code> độ dài 3: không có mã nào thỏa quy tắc.</p>
+<p><strong>Bẫy 4 — Cấu hình rất lớn.</strong> <code>"0123456789"</code> độ dài 12: thông báo vượt giới hạn trong 1 giây; không được sinh mã rồi mới đếm.</p>
+<p><strong>Bẫy 5 — Thứ tự và tính đúng.</strong> Với mọi độ dài từ 0 đến 4, số mã sinh ra phải đúng bằng số đếm được; mã xếp tăng dần.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python sinh_ma.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Đã sinh 36 mã, ví dụ: 121, 12A, 12B&#10;['12', '1A', '1B', '21', '2A', '2B', 'A1', 'A2', 'AB', 'B1', 'B2', 'BA']&#10;Đã sinh 6 mã, ví dụ: 1A, 1B, A1&#10;Không sinh được mã nào với cấu hình này.&#10;Có 313810596090 mã, vượt giới hạn 100000 mã mỗi lần sinh.&#10;Cấu hình mã không hợp lệ.&#10;Số mã dài 8 từ chữ A-Z và số 0-9: 2316214687500&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm đệ quy: ba câu hỏi kiểm tra (Lesson 01) và độ sâu call stack lớn nhất trong bối cảnh của bài. Với mỗi hàm bạn chọn viết bằng vòng lặp: vì sao không dùng đệ quy.</li>
+<li>Lập công thức đệ quy cho số mã: số mã dài L liên hệ thế nào với số mã dài L - 1? Kiểm tra công thức với <code>"AB12"</code> độ dài 1, 2, 3 bằng cách liệt kê tay độ dài 2.</li>
+<li>Vẽ quá trình <code>generate_codes("AB1", 2)</code>: các mã dài 1 nhận được từ lời gọi nhỏ hơn và cách nối thêm ký tự. Vì sao thứ tự kết quả tự động tăng dần nếu bộ ký tự đã xếp tăng dần?</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ của <code>count_codes</code> và <code>generate_codes</code> theo n (số ký tự) và L (độ dài). Vì sao <code>codes_message</code> phải gọi <code>count_codes</code> trước?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>sinh_ma.py</code>; được thêm hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li><code>count_codes</code> và <code>generate_codes</code> viết bằng đệ quy theo độ dài. Không dùng <code>itertools</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python sinh_ma.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu hàm <code>itertools.product</code> của thư viện chuẩn: nó sinh ra gì, theo thứ tự nào, và vì sao nó trả về từng bộ một thay vì cả list.</li>
+<li>Tạo <code>nghien_cuu.py</code>: sinh mã bằng <code>itertools.product</code> rồi lọc theo quy tắc hai ký tự cạnh nhau, so với <code>generate_codes</code> (kết quả có giống nhau không) và đo thời gian bằng <code>timeit</code> với bộ <code>"0123456789"</code> độ dài 3, 4, 5. Mỗi cách phải xét bao nhiêu bộ ký tự? Cách nào bạn dùng cho hệ thống, vì sao?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex17</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-17">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-17</a> rồi chép các tệp vào kho: <code>sinh_ma.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>sinh_ma.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

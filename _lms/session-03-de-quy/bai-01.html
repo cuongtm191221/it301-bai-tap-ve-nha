@@ -1,0 +1,55 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người dùng điểm danh 7 ngày liền chỉ được 27 điểm, chưa điểm danh ngày nào thì ứng dụng báo lỗi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-01/minh_hoa.png" /></p>
+<p><em>Người dùng điểm danh 7 ngày liền chỉ được 27 điểm, chưa điểm danh ngày nào thì ứng dụng báo lỗi.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm chương trình khách hàng thân thiết của ví điện tử MoMo.</p>
+<p>Người dùng <strong>điểm danh</strong> mỗi ngày trên ứng dụng để nhận điểm thưởng. Chuỗi càng dài thì điểm mỗi ngày càng cao: <strong>ngày thứ k của chuỗi được 100 × k điểm</strong>. Ví dụ chuỗi 3 ngày được 100 + 200 + 300 = 600 điểm. Người dùng chưa điểm danh ngày nào (chuỗi 0 ngày) được 0 điểm.</p>
+<p>Nhóm viết hàm <code>streak_points(n)</code> theo cách đệ quy: tổng điểm của chuỗi n ngày bằng tổng điểm của chuỗi n - 1 ngày cộng điểm của ngày thứ n.</p>
+<p>Cùng tệp có hàm <code>count_digits(n)</code> đếm số chữ số của một số tiền nguyên dương, dùng để căn lề cột số tiền trên sao kê: 7 có 1 chữ số, 45000 có 5 chữ số. Cách đệ quy: bỏ chữ số cuối (<code>n // 10</code>) thì được số ngắn hơn một chữ số.</p>
+<p>Điểm thưởng được cộng vào ví ngay khi người dùng điểm danh, nên sai một con số là sai tiền thật của hàng trăm nghìn người dùng mỗi ngày. Bộ phận chăm sóc khách hàng đã nhận nhiều phản ánh và cần bản sửa trước đợt khuyến mãi cuối tuần.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): đếm chữ số của ba số tiền, rồi tính điểm của chuỗi 1, 3, 7 và 0 ngày.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Số chữ số của 7: 1&#10;Số chữ số của 45000: 5&#10;Số chữ số của 1250000: 7&#10;Chuỗi 1 ngày: 100 điểm&#10;Chuỗi 3 ngày: 600 điểm&#10;Chuỗi 7 ngày: 2800 điểm&#10;Chuỗi 0 ngày: 0 điểm&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người dùng phản ánh:</p>
+<ul>
+<li>Điểm danh <strong>7 ngày</strong> liền chỉ được <strong>27 điểm</strong>, trong khi bảng quy định ghi 2.800 điểm.</li>
+<li>Người dùng mới, chưa điểm danh ngày nào, mở màn hình điểm thưởng thì ứng dụng báo lỗi.</li>
+<li>Cột số tiền trên sao kê bị lệch: số 7 được coi là có 0 chữ số.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 01, Lesson 03):</p>
+<ul>
+<li>Mỗi hàm đệ quy phải trả lời đúng <strong>ba câu hỏi</strong> (Lesson 01): (1) trường hợp cơ sở trả đúng chưa; (2) từ kết quả của bài toán nhỏ hơn, phần ghép ra kết quả lớn đúng chưa; (3) mỗi lần gọi có tiến về trường hợp cơ sở không.</li>
+<li>Trường hợp cơ sở phải bao phủ <strong>đầu vào hợp lệ nhỏ nhất</strong>. Nếu cơ sở bỏ sót một đầu vào hợp lệ, lời gọi với đầu vào đó không bao giờ gặp cơ sở, cứ gọi tiếp mãi cho tới khi Python báo <code>RecursionError</code>.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>diem_thuong.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def streak_points(n):&#10;    # Tổng điểm thưởng của chuỗi n ngày điểm danh liên tiếp: ngày thứ k được 100 x k điểm.&#10;    # n = 0 (chưa điểm danh) thì được 0 điểm.&#10;    if n == 1:&#10;        return 0&#10;    return streak_points(n - 1) + n&#10;&#10;&#10;def count_digits(n):&#10;    # Số chữ số của số nguyên dương n (dùng để căn lề cột số tiền trên sao kê).&#10;    if n &lt; 10:&#10;        return 0&#10;    return 1 + count_digits(n // 10)&#10;&#10;&#10;for amount in [7, 45000, 1250000]:&#10;    print(f&quot;Số chữ số của {amount}:&quot;, count_digits(amount))&#10;for n in [1, 3, 7, 0]:&#10;    print(f&quot;Chuỗi {n} ngày:&quot;, streak_points(n), &quot;điểm&quot;)&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Số chữ số của 7: 0&#10;Số chữ số của 45000: 4&#10;Số chữ số của 1250000: 6&#10;Chuỗi 1 ngày: 0 điểm&#10;Chuỗi 3 ngày: 5 điểm&#10;Chuỗi 7 ngày: 27 điểm&#10;Traceback (most recent call last):&#10;  ...&#10;    if n == 1:&#10;RecursionError: maximum recursion depth exceeded in comparison&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: số chữ số đều thiếu 1; chuỗi 1, 3, 7 ngày ra 0, 5, 27 điểm thay vì 100, 600, 2.800; chuỗi 0 ngày gây <code>RecursionError</code>.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Trả lời ba câu hỏi kiểm tra cho <code>streak_points</code> của mã hiện tại. Câu nào sai, sai ở dòng nào?</li>
+<li>Chạy tay <code>streak_points(3)</code> của mã hiện tại: ghi từng lời gọi và giá trị trả về khi quay lên. Vì sao ra 5?</li>
+<li>Với <code>streak_points(0)</code>, lời gọi tiếp theo là gì? Vì sao không bao giờ gặp trường hợp cơ sở? Sửa trường hợp cơ sở thế nào?</li>
+<li>Phần ghép <code>+ n</code> sai với quy định điểm ở chỗ nào? Viết lại phần ghép.</li>
+<li>Trả lời ba câu hỏi kiểm tra cho <code>count_digits</code>. Số có một chữ số phải trả về bao nhiêu?</li>
+<li>Với chuỗi n ngày, <code>streak_points(n)</code> gọi đệ quy bao nhiêu lần? Ghi Big-O thời gian.</li>
+<li>Ghi ba bộ dữ liệu thử (gồm đầu vào nhỏ nhất) bạn dùng để khẳng định mỗi hàm đã đúng, kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm trong <code>diem_thuong.py</code>, giữ cách viết đệ quy. Không đổi tên hàm, tham số; không dùng vòng lặp, <code>sum()</code> hay <code>len(str(n))</code>.</li>
+<li>Chạy <code>python diem_thuong.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 4 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex01</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-01</a> rồi chép các tệp vào kho: <code>diem_thuong.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>diem_thuong.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

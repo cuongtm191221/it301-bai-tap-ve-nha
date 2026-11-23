@@ -1,0 +1,58 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Mã giao dịch đọc xuôi đọc ngược như nhau thì trúng thưởng, nhưng mã có số ký tự chẵn làm trò chơi báo lỗi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-03/minh_hoa.png" /></p>
+<p><em>Mã giao dịch đọc xuôi đọc ngược như nhau thì trúng thưởng, nhưng mã có số ký tự chẵn làm trò chơi báo lỗi.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm trò chơi khuyến mãi của ví MoMo.</p>
+<p>Trò chơi <strong>"Mã may mắn"</strong>: mỗi giao dịch có một mã; nếu mã <strong>đối xứng</strong> (đọc xuôi và đọc ngược giống nhau, ví dụ <code>12321</code>, <code>7887</code>) thì người dùng nhận quà. Màn hình kết quả còn hiện <strong>mã viết ngược</strong> để người dùng tự so.</p>
+<p>Nhóm viết hai hàm bằng đệ quy trên chuỗi (Lesson 02):</p>
+<ul>
+<li><code>reverse_code(code)</code>: trả về mã viết ngược. Đảo <code>"ABC"</code> được <code>"CBA"</code>.</li>
+<li><code>is_symmetric(code)</code>: <code>True</code> nếu mã đối xứng. So ký tự đầu với ký tự cuối; nếu bằng nhau thì xét tiếp phần giữa <code>code[1:-1]</code>. Chuỗi một ký tự và chuỗi rỗng là đối xứng.</li>
+</ul>
+<p>Mỗi tuần có hàng chục nghìn lượt chơi. Mã trúng mà hệ thống báo lỗi thì người dùng mất quà và gọi tổng đài khiếu nại; mã không trúng mà hệ thống báo trúng thì công ty mất tiền. Vì vậy hai hàm phải đúng với mọi độ dài mã, kể cả mã rỗng do lỗi nhập liệu từ hệ thống cũ. Mã giao dịch dài từ 1 đến 20 ký tự, gồm chữ số và chữ cái in hoa; hai hàm không cần phân biệt chữ hoa, chữ thường.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): đảo ba mã, kiểm tra năm mã gồm cả mã có số ký tự lẻ và chẵn, rồi kiểm tra mã rỗng.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Đảo MOMO24: 42OMOM&#10;Đảo ABC: CBA&#10;Đảo X: X&#10;121 đối xứng? True&#10;7887 đối xứng? True&#10;12321 đối xứng? True&#10;MOMO đối xứng? False&#10;A đối xứng? True&#10;Mã rỗng đối xứng? True&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người dùng và bộ phận chăm sóc khách hàng phản ánh:</p>
+<ul>
+<li>Màn hình kết quả hiện mã "viết ngược" <strong>giống hệt</strong> mã gốc.</li>
+<li>Mã <code>7887</code> (4 ký tự) làm trò chơi <strong>báo lỗi</strong> thay vì trao quà; mã <code>121</code> thì vẫn chạy đúng.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li>Đảo chuỗi: đảo phần còn lại <code>code[1:]</code> rồi đặt ký tự đầu <code>code[0]</code> vào <strong>cuối</strong>. Đặt ký tự đầu sai chỗ là lỗi thường gặp: kết quả "không đổi".</li>
+<li>Mỗi lần xét <code>code[1:-1]</code>, chuỗi ngắn đi <strong>hai</strong> ký tự. Chuỗi độ dài lẻ rút dần về 1 ký tự; chuỗi độ dài chẵn rút dần về <strong>chuỗi rỗng</strong>. Cơ sở phải bao phủ cả hai.</li>
+<li>Mỗi hàm đệ quy phải trả lời đúng <strong>ba câu hỏi</strong> (Lesson 01): (1) trường hợp cơ sở trả đúng chưa; (2) từ kết quả của bài toán nhỏ hơn, phần ghép ra kết quả lớn đúng chưa; (3) mỗi lần gọi có tiến về trường hợp cơ sở không.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>ma_may_man.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def reverse_code(code):&#10;    # Trả về chuỗi code viết ngược.&#10;    if code == &quot;&quot;:&#10;        return &quot;&quot;&#10;    return code[0] + reverse_code(code[1:])&#10;&#10;&#10;def is_symmetric(code):&#10;    # True nếu code đọc xuôi và đọc ngược giống nhau. Chuỗi rỗng và chuỗi một ký tự là đối xứng.&#10;    if len(code) == 1:&#10;        return True&#10;    if code[0] != code[-1]:&#10;        return False&#10;    return is_symmetric(code[1:-1])&#10;&#10;&#10;for code in [&quot;MOMO24&quot;, &quot;ABC&quot;, &quot;X&quot;]:&#10;    print(f&quot;Đảo {code}:&quot;, reverse_code(code))&#10;for code in [&quot;121&quot;, &quot;7887&quot;, &quot;12321&quot;, &quot;MOMO&quot;, &quot;A&quot;]:&#10;    print(f&quot;{code} đối xứng?&quot;, is_symmetric(code))&#10;print(&quot;Mã rỗng đối xứng?&quot;, is_symmetric(&quot;&quot;))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Đảo MOMO24: MOMO24&#10;Đảo ABC: ABC&#10;Đảo X: X&#10;121 đối xứng? True&#10;Traceback (most recent call last):&#10;  ...&#10;    if code[0] != code[-1]:&#10;IndexError: string index out of range&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: ba mã đảo ngược đều giữ nguyên; <code>121</code> đúng nhưng <code>7887</code> gây lỗi <code>IndexError</code> nên các dòng sau không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay <code>reverse_code("ABC")</code> của mã hiện tại: ghi từng lời gọi và giá trị trả về khi quay lên. Vì sao kết quả không đổi? Sửa phần ghép thế nào?</li>
+<li>Chạy tay <code>is_symmetric("7887")</code>: ghi chuỗi ở mỗi lời gọi. Lời gọi nào gây <code>IndexError</code>, vì sao?</li>
+<li>Vì sao <code>is_symmetric("121")</code> vẫn đúng với mã hiện tại? Thử thêm một mã độ dài lẻ không đối xứng để chắc chắn.</li>
+<li>Sửa trường hợp cơ sở của <code>is_symmetric</code> để bao phủ cả chuỗi độ dài chẵn và chuỗi rỗng. Kiểm tra lại với <code>""</code>, <code>"11"</code>, <code>"12"</code>.</li>
+<li>Trả lời ba câu hỏi kiểm tra cho hai hàm sau khi sửa.</li>
+<li>Với mã dài k ký tự, mỗi hàm gọi đệ quy bao nhiêu lần? Mã dài 5.000 ký tự thì sao (Lesson 03)?</li>
+<li>Ghi bốn bộ dữ liệu thử cho <code>is_symmetric</code>: mã đối xứng độ dài lẻ, mã đối xứng độ dài chẵn, mã không đối xứng chỉ khác ở giữa, mã rỗng; kèm kết quả mong đợi và kết quả sau khi sửa.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm trong <code>ma_may_man.py</code>, giữ cách viết đệ quy. Không đổi tên hàm, tham số; không dùng vòng lặp, <code>[::-1]</code> hay <code>reversed()</code>.</li>
+<li>Chạy <code>python ma_may_man.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 4 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex03</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-03</a> rồi chép các tệp vào kho: <code>ma_may_man.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>ma_may_man.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

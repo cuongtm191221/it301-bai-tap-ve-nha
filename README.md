@@ -5,6 +5,7 @@ Kho này chứa tệp khởi đầu và test của bài tập về nhà. Mỗi b
 | Thư mục | Buổi học | Số bài |
 |---|---|---|
 | `session-01-tong-quan-do-phuc-tap/` | Session 01: Tổng quan CTDL & GT và độ phức tạp | 20 bài: `bai-01` … `bai-20` |
+| `session-03-de-quy/` | Session 03: Đệ quy | 20 bài: `bai-01` … `bai-20` |
 | `session-07-danh-sach-lien-ket/` | Session 07: Danh sách liên kết | 20 bài: `bai-01` … `bai-20` |
 
 ## Cách làm và nộp một bài

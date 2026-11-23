@@ -1,0 +1,53 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trợ lý AI viết xong ba hàm đệ quy thống kê chi tiêu trong vài giây, bốn mục kiểm tra đều đạt. Có nên dùng ngay?" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-15/minh_hoa.png" /></p>
+<p><em>Trợ lý AI viết xong ba hàm đệ quy thống kê chi tiêu trong vài giây, bốn mục kiểm tra đều đạt. Có nên dùng ngay?</em></p>
+<p>Màn hình <strong>"Quản lý chi tiêu"</strong> của ví MoMo cho người dùng tự xếp giao dịch vào <strong>nhóm</strong>, và nhóm có thể chứa <strong>nhóm con</strong> (ví dụ nhóm "Ăn uống" có nhóm con "Cà phê"). Dữ liệu một tháng là một list; mỗi phần tử là <strong>một số tiền</strong> (số nguyên, đồng) hoặc <strong>một nhóm con</strong> (list có cùng dạng):</p>
+<pre><code>[120000, [45000, -45000], [[250000], -50000]]&#10;</code></pre>
+<p>Số âm là <strong>hoàn tiền</strong> (đơn bị hủy, khuyến mãi trả lại) và phải được <strong>trừ</strong> vào tổng. Nhóm chỉ để sắp xếp, <strong>không phải</strong> giao dịch. Màn hình cần ba con số: tổng chi tiêu, số giao dịch, và số cấp sâu nhất (để thụt lề khi hiển thị; list không có nhóm con là 1 cấp).</p>
+<p>Một đồng nghiệp đã nhờ trợ lý AI viết ba hàm đệ quy. AI trả về mã kèm tệp <code>kiem_tra.py</code> có bốn mục kiểm tra, cả bốn đều đạt, và đồng nghiệp đề nghị đưa vào bản cập nhật tuần này. Bạn là người <strong>duyệt mã</strong>. Quy định của nhóm: mã do AI sinh chỉ được dùng khi người duyệt đã tự chạy thử với dữ liệu của mình và chịu trách nhiệm về nó.</p>
+<h2><strong>2. Mã do AI sinh</strong></h2>
+<p>Tệp <code>chi_tieu_nhom.py</code> trong thư mục khởi đầu có ba hàm do AI viết:</p>
+<pre><code>def total_spending(items):&#10;    # Tổng tiền của mọi giao dịch trong items, kể cả giao dịch nằm trong các nhóm con.&#10;    # Mỗi phần tử là một số tiền (số nguyên) hoặc một nhóm con (list).&#10;    total = 0&#10;    for item in items:&#10;        if type(item) == list:&#10;            total += total_spending(item)&#10;        elif item &gt; 0:&#10;            total += item&#10;    return total&#10;&#10;&#10;def count_transactions(items):&#10;    # Số giao dịch (số tiền) trong items, kể cả trong các nhóm con.&#10;    count = 0&#10;    for item in items:&#10;        if type(item) == list:&#10;            count += 1 + count_transactions(item)&#10;        else:&#10;            count += 1&#10;    return count&#10;&#10;&#10;def deepest_level(items):&#10;    # Số cấp sâu nhất: list không có nhóm con là 1 cấp.&#10;    deepest = 1&#10;    for item in items:&#10;        if type(item) == list:&#10;            deepest = deepest_level(item) + 1&#10;    return deepest&#10;</code></pre>
+<p>Lời giải thích AI gửi kèm: "Ba hàm đều đệ quy: gặp nhóm con thì gọi lại chính hàm đó. Đệ quy xử lý được mọi độ sâu lồng nhau. Đã kiểm tra với bốn trường hợp."</p>
+<p>Bốn mục trong <code>kiem_tra.py</code>: tổng có một nhóm con, đếm giao dịch trên list không có nhóm, số cấp với nhóm lồng ở cuối list, tháng chưa có giao dịch. Chạy đoạn cuối tệp:</p>
+<pre><code>Tổng chi tiêu: 210000&#10;Số giao dịch: 3&#10;Số cấp sâu nhất: 3&#10;Tháng chưa có giao dịch: 0&#10;</code></pre>
+<p>Kết quả trông đúng. Nhiệm vụ của bạn là tìm ra những dữ liệu mà đoạn mã này <strong>không</strong> xử lý đúng.</p>
+<h2><strong>3. Các hướng cần kiểm chứng</strong></h2>
+<p>Bốn mục kiểm tra của AI đều dùng dữ liệu "đẹp". Đề không cho biết tình huống nào làm lộ lỗi; bạn phải tự chạy tay hoặc chạy thử để biết.</p>
+<p><strong>Hướng 1 — Hoàn tiền:</strong> tháng có giao dịch số âm, ở cấp ngoài cùng và trong nhóm con.</p>
+<p><strong>Hướng 2 — Nhóm và giao dịch:</strong> đếm giao dịch khi có nhóm con, nhóm rỗng, nhóm lồng trong nhóm.</p>
+<p><strong>Hướng 3 — Vị trí của nhóm sâu nhất:</strong> nhóm lồng sâu nhất đứng đầu list, theo sau là nhóm nông hơn.</p>
+<p><strong>Hướng 4 — Dữ liệu lồng rất sâu:</strong> dữ liệu nhập từ ứng dụng cũ bị lỗi, lồng 5.000 cấp. Lời giải thích "xử lý được mọi độ sâu" có đúng không (Lesson 03)?</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò người duyệt mã, bạn phải thực hiện đầy đủ bốn phần sau:</p>
+<p><strong>(1) Tìm dữ liệu làm lộ lỗi</strong></p>
+<ul>
+<li>Theo các hướng ở mục 3, tự nghĩ ra <strong>ít nhất 6 bộ dữ liệu thử</strong>. Với mỗi bộ: dự đoán kết quả đúng trước, rồi sửa đoạn chạy thử ở cuối <code>chi_tieu_nhom.py</code> để chạy hàm của AI và in kết quả.</li>
+<li>Ghi vào bảng trong <code>PHAN_TICH.md</code>. Các bộ dữ liệu phải làm lộ <strong>ít nhất 3 lỗi khác nhau</strong>.</li>
+</ul>
+<p><strong>(2) Phân tích (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Với mỗi lỗi: dòng lệnh gây lỗi, nguyên nhân, và bảng chạy tay trên bộ dữ liệu nhỏ nhất làm lộ lỗi đó. Trả lời ba câu hỏi kiểm tra (Lesson 01) cho hàm chứa lỗi.</li>
+<li>Với dữ liệu lồng d cấp, call stack sâu bao nhiêu tầng? Từ khoảng bao nhiêu cấp thì hàm báo <code>RecursionError</code>?</li>
+<li>Điền bảng <strong>"Nhật ký giữ – sửa – loại bỏ"</strong>: phần nào trong mã của AI bạn giữ, phần nào sửa, phần nào bỏ, kèm lý do.</li>
+<li>Đề xuất <strong>giải pháp thứ hai</strong> cho phép tính tổng, <strong>không dùng đệ quy</strong>, chạy được dữ liệu 5.000 cấp. So sánh hai giải pháp theo 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ (Big-O), độ sâu dữ liệu chịu được, độ dễ đọc, mức phù hợp với dữ liệu thường (2–3 cấp) và dữ liệu lỗi (5.000 cấp). Nêu rõ bạn chọn giải pháp nào cho màn hình.</li>
+</ul>
+<p><strong>(3) Sửa mã và cài giải pháp thứ hai (trong <code>chi_tieu_nhom.py</code>)</strong></p>
+<ul>
+<li>Sửa ba hàm của AI (giữ cách viết đệ quy) để hết mọi lỗi bạn tìm được.</li>
+<li>Viết thêm hàm <code>total_spending_loop(items)</code>: cùng kết quả với <code>total_spending</code>, không gọi đệ quy, chạy được dữ liệu lồng 5.000 cấp.</li>
+<li>Các hàm không được sửa list đầu vào.</li>
+</ul>
+<p><strong>(4) Kiểm chứng sau khi sửa</strong></p>
+<ul>
+<li>Chạy lại toàn bộ các bộ dữ liệu thử ở phần (1) trên các hàm đã sửa, ghi vào cột "Sau khi sửa". Mọi dòng phải đúng.</li>
+<li><code>python kiem_tra.py</code> vẫn đạt cả 4 mục của AI.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex15</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-15">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-15</a> rồi chép các tệp vào kho: <code>chi_tieu_nhom.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền <code>PHAN_TICH.md</code>, sửa và viết mã trong <code>chi_tieu_nhom.py</code>.</li>
+<li>Mức AI của bài: AI-2 cho phần phản biện (đề đã cung cấp mã do AI sinh; bạn được hỏi AI để hiểu đoạn mã, nhưng dữ liệu thử, phân tích và mã sửa phải do bạn tự làm và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

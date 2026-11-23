@@ -1,0 +1,56 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người dùng muốn góp ít lúc đầu rồi tăng dần mỗi tháng; ứng dụng phải lập lịch từng tháng và biết dừng khi kế hoạch không khả thi." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-18/minh_hoa.png" /></p>
+<p><em>Người dùng muốn góp ít lúc đầu rồi tăng dần mỗi tháng; ứng dụng phải lập lịch từng tháng và biết dừng khi kế hoạch không khả thi.</em></p>
+<p>Tính năng <strong>"Heo đất"</strong> của ví MoMo nâng cấp: người dùng không phải góp đều nữa mà chọn <strong>mức góp tháng đầu</strong> và <strong>mức tăng mỗi tháng</strong>. Ví dụ góp 500.000đ tháng đầu, mỗi tháng tăng 100.000đ: tháng 2 góp 600.000đ, tháng 3 góp 700.000đ... Ứng dụng hiện <strong>lịch số dư từng tháng</strong> và câu tóm tắt "Cần N tháng".</p>
+<p>Quy tắc của nhóm sản phẩm:</p>
+<ul>
+<li>Mức góp tháng thứ k = mức góp tháng đầu + (k - 1) × mức tăng. Mức tăng có thể là 0 (góp đều).</li>
+<li>Tháng nào mức góp <strong>không dương</strong> (người dùng chọn mức đầu âm để "nghỉ góp" vài tháng) thì tháng đó không góp, số dư giữ nguyên, nhưng vẫn tính là một tháng.</li>
+<li>Dừng ở tháng đầu tiên số dư <strong>bằng hoặc vượt</strong> mục tiêu.</li>
+<li>Kế hoạch không đạt trong <strong>600 tháng</strong> (50 năm) được coi là không khả thi.</li>
+</ul>
+<p>Bài này tổng hợp kiến thức cả buổi: chọn trường hợp cơ sở, bảo đảm mỗi lời gọi tiến về cơ sở, tránh lỗi quên <code>return</code>, và chọn đệ quy hay vòng lặp dựa trên độ sâu tối đa. Hàm <code>money(amount)</code> (có sẵn) in số tiền có dấu chấm.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bạn viết ba hàm trong <code>ke_hoach.py</code>.</p>
+<p><strong>2.1. <code>savings_schedule(balance, goal, monthly, step)</code></strong>: list các bộ <code>(tháng, số dư cuối tháng)</code> từ tháng 1 tới tháng đạt mục tiêu; đã đủ từ đầu thì <code>[]</code>; không đạt trong 600 tháng thì <code>None</code>.</p>
+<p><strong>2.2. <code>months_needed(balance, goal, monthly, step)</code></strong>: số tháng cần góp; đã đủ thì 0; không khả thi thì <code>None</code>.</p>
+<p><strong>2.3. <code>plan_message(balance, goal, monthly, step)</code></strong>: một trong bốn thông báo:</p>
+<pre><code>Cần 5 tháng, tháng cuối góp 800.000đ, số dư 5.000.000đ.&#10;Đã đủ mục tiêu.&#10;Không đạt mục tiêu trong 600 tháng, hãy tăng mức góp.&#10;Dữ liệu không hợp lệ.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Đã đủ từ đầu.</strong> Số dư bằng hoặc vượt mục tiêu: lịch rỗng, 0 tháng, "Đã đủ mục tiêu."</p>
+<p><strong>Bẫy 2 — Tháng nghỉ góp.</strong> Số dư 0, mục tiêu 3.000.000đ, góp -200.000đ tăng 100.000đ: ba tháng đầu không góp, cần 11 tháng.</p>
+<p><strong>Bẫy 3 — Không bao giờ đạt.</strong> Góp 0đ, tăng 0đ: không được chạy mãi, kết quả là không khả thi.</p>
+<p><strong>Bẫy 4 — Đúng 600 tháng và trên 600 tháng.</strong> Góp đều 100.000đ, mục tiêu 60 triệu: đúng 600 tháng, vẫn đạt; mục tiêu 500 triệu: không khả thi. Mục tiêu 1.000 tỷ góp 1.000đ cũng phải trả lời trong 2 giây.</p>
+<p><strong>Bẫy 5 — Dữ liệu sai.</strong> Mục tiêu từ 0 trở xuống hoặc số dư âm: "Dữ liệu không hợp lệ."</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python ke_hoach.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Cần 5 tháng, tháng cuối góp 800.000đ, số dư 5.000.000đ.&#10;Cần 11 tháng, tháng cuối góp 1.500.000đ, số dư 11.000.000đ.&#10;[(1, 500000), (2, 1100000), (3, 1800000), (4, 2600000)]&#10;Đã đủ mục tiêu.&#10;Cần 11 tháng, tháng cuối góp 800.000đ, số dư 3.600.000đ.&#10;Không đạt mục tiêu trong 600 tháng, hãy tăng mức góp.&#10;Không đạt mục tiêu trong 600 tháng, hãy tăng mức góp.&#10;Dữ liệu không hợp lệ.&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm đệ quy: ba câu hỏi kiểm tra (Lesson 01) và độ sâu call stack lớn nhất trong bối cảnh của bài. Với mỗi hàm bạn chọn viết bằng vòng lặp: vì sao không dùng đệ quy.</li>
+<li>Nếu viết <code>savings_schedule</code> bằng đệ quy theo tháng: liệt kê các trường hợp cơ sở, chỉ ra tham số nào tiến về cơ sở ở mỗi lời gọi, và độ sâu call stack lớn nhất. Giới hạn 600 tháng ảnh hưởng thế nào tới lựa chọn đệ quy hay vòng lặp?</li>
+<li>Chạy tay bẫy 2 bốn tháng đầu: mức góp, có góp hay không, số dư.</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ (kể cả call stack nếu dùng đệ quy) của ba hàm theo m (số tháng, tối đa 600).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>ke_hoach.py</code>; được thêm hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li>Được chọn đệ quy hoặc vòng lặp cho từng hàm, nhưng phải giải thích lựa chọn ở phần (1). Dùng lại <code>savings_schedule</code> trong hai hàm sau, không viết lặp lại phần tính lịch.</li>
+<li>Xử lý đủ 5 bẫy; <code>python ke_hoach.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 5 mục.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu <code>sys.getrecursionlimit()</code> và <code>sys.setrecursionlimit()</code>: giới hạn này bảo vệ chương trình khỏi điều gì; tăng giới hạn quá cao có thể gây hậu quả gì mà <code>RecursionError</code> không báo trước.</li>
+<li>Tạo <code>nghien_cuu.py</code>: tìm độ sâu đệ quy lớn nhất chạy được với giới hạn mặc định, rồi với giới hạn 5.000; ghi phiên bản Python. Nếu sau này nhóm nâng giới hạn kế hoạch lên 5.000 tháng, bạn đề xuất sửa <code>savings_schedule</code> thế nào?</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex18</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-18">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-18</a> rồi chép các tệp vào kho: <code>ke_hoach.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>ke_hoach.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,50 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Báo cáo phương án trả góp chạy hàng giờ mỗi đêm vì một hàm đệ quy cũ; nhóm cần bản nhanh, đúng và có số đo để chứng minh." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-20/minh_hoa.png" /></p>
+<p><em>Báo cáo phương án trả góp chạy hàng giờ mỗi đêm vì một hàm đệ quy cũ; nhóm cần bản nhanh, đúng và có số đo để chứng minh.</em></p>
+<p>Tính năng <strong>"Ví Trả Sau"</strong> của MoMo cho khách chia một khoản chi tiêu (tính theo triệu đồng) thành nhiều <strong>kỳ trả</strong>, mỗi kỳ trả <strong>1, 2 hoặc 3 triệu</strong>. Hai phương án khác nhau nếu dãy số tiền các kỳ khác nhau, kể cả chỉ khác thứ tự (1 + 2 khác 2 + 1). Mỗi đêm, hệ thống in <strong>báo cáo phương án</strong> cho danh sách khoản vay để bộ phận rủi ro theo dõi: tổng số phương án, và số phương án hoàn tất trong <strong>không quá <code>max_terms</code> kỳ</strong>.</p>
+<p>Hàm cũ <code>count_plans_slow(amount)</code> (có sẵn trong tệp, không được sửa) viết bằng đệ quy ba nhánh, đúng nhưng rất chậm: khoản 22 triệu đã cần hơn một triệu lời gọi, khoản 30 triệu chạy rất lâu, khoản lớn hơn thì không bao giờ xong. Bộ phận rủi ro muốn báo cáo được các khoản tới <strong>3.000 triệu</strong>.</p>
+<p>Bài này tổng hợp kiến thức cả buổi: viết đệ quy đúng, nhận ra bài toán con lặp lại, ghi nhớ kết quả, chuyển sang vòng lặp khi độ sâu vượt giới hạn, và dùng số đo để chứng minh.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bạn viết ba hàm trong <code>tra_gop.py</code>.</p>
+<p><strong>2.1. <code>count_plans(amount)</code></strong>: cùng kết quả với <code>count_plans_slow</code>, khoản tới 3.000 triệu trong 2 giây, không gọi lại <code>count_plans_slow</code>.</p>
+<p><strong>2.2. <code>count_plans_limited(amount, max_terms)</code></strong>: số phương án trả hết <code>amount</code> triệu trong không quá <code>max_terms</code> kỳ. Khoản 200 triệu, tối đa 120 kỳ phải có kết quả trong 2 giây.</p>
+<p><strong>2.3. <code>plan_report(amounts, max_terms)</code></strong>: list dòng báo cáo, mỗi khoản một dòng:</p>
+<pre><code>Khoản 5 triệu: 13 cách trả, 8 cách trong tối đa 3 kỳ.&#10;Khoản 0 triệu: số tiền không hợp lệ.&#10;Khoản 4 triệu: số kỳ tối đa không hợp lệ.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Với mọi khoản từ 0 đến 15 triệu, <code>count_plans</code> cho đúng kết quả của <code>count_plans_slow</code>; khoản âm là 0 phương án.</p>
+<p><strong>Bẫy 2 — Khoản rất lớn.</strong> 3.000 triệu cho một số có 794 chữ số; không được báo <code>RecursionError</code>.</p>
+<p><strong>Bẫy 3 — Không đủ kỳ.</strong> 10 triệu trong tối đa 3 kỳ: 0 phương án (3 kỳ chỉ trả được tối đa 9 triệu). Khoản 0 với 0 kỳ: 1 phương án.</p>
+<p><strong>Bẫy 4 — Dữ liệu sai trong báo cáo.</strong> Khoản từ 0 trở xuống: "số tiền không hợp lệ."; <code>max_terms</code> từ 0 trở xuống: "số kỳ tối đa không hợp lệ."</p>
+<p><strong>Bẫy 5 — Giới hạn kỳ bằng số tiền.</strong> <code>count_plans_limited(5, 5)</code> phải bằng <code>count_plans(5)</code>, vì không phương án nào cần quá 5 kỳ.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python tra_gop.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Khoản 1 triệu: 1 cách trả, 1 cách trong tối đa 3 kỳ.&#10;Khoản 3 triệu: 4 cách trả, 4 cách trong tối đa 3 kỳ.&#10;Khoản 5 triệu: 13 cách trả, 8 cách trong tối đa 3 kỳ.&#10;Khoản 10 triệu: 274 cách trả, 0 cách trong tối đa 3 kỳ.&#10;Khoản 0 triệu: số tiền không hợp lệ.&#10;Khoản -2 triệu: số tiền không hợp lệ.&#10;Khoản 4 triệu: số kỳ tối đa không hợp lệ.&#10;Khoản 30 triệu: 53798080 cách&#10;Khoản 3.000 triệu có 794 chữ số&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng hàm, trong trường hợp thường và trong từng bẫy.</li>
+<li>Với mỗi hàm đệ quy: ba câu hỏi kiểm tra (Lesson 01) và độ sâu call stack lớn nhất trong bối cảnh của bài. Với mỗi hàm bạn chọn viết bằng vòng lặp: vì sao không dùng đệ quy.</li>
+<li>Vẽ cây lời gọi của <code>count_plans_slow(5)</code> tới hết, đánh dấu các bài toán con bị tính lặp lại. Có bao nhiêu lời gọi?</li>
+<li><code>count_plans_limited</code> cần nhớ những gì về bài toán con (bao nhiêu tham số)? Có tối đa bao nhiêu bài toán con khác nhau với khoản 200 triệu, 120 kỳ? Độ sâu call stack lớn nhất là bao nhiêu?</li>
+<li>Độ phức tạp: ghi Big-O thời gian và bộ nhớ của <code>count_plans_slow</code>, <code>count_plans</code>, <code>count_plans_limited</code> theo n (số triệu) và t (số kỳ tối đa).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>tra_gop.py</code>; được thêm hàm phụ; không đổi tên và tham số đã có trong khung; hàm ghi "Có sẵn" giữ nguyên.</li>
+<li><code>count_plans</code> không được gọi <code>count_plans_slow</code>. Không dùng <code>set</code>, <code>dict</code> (sẽ học ở buổi bảng băm); được dùng <code>functools.lru_cache</code>.</li>
+<li>Xử lý đủ 5 bẫy; <code>python tra_gop.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 5 mục.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu module <code>cProfile</code> (và <code>pstats</code>) để đo số lần gọi từng hàm, và phương thức <code>cache_info()</code> của hàm có <code>lru_cache</code> (ý nghĩa <code>hits</code>, <code>misses</code>, <code>currsize</code>).</li>
+<li>Tạo <code>nghien_cuu.py</code>: chạy <code>cProfile</code> trên <code>count_plans_slow(22)</code> và ghi số lần gọi; viết một bản đệ quy có <code>lru_cache</code> của cùng bài toán, gọi với 22 rồi in <code>cache_info()</code>. Giải thích vì sao <code>misses</code> bằng đúng số bài toán con khác nhau và dùng các số đo này để chứng minh với bộ phận rủi ro rằng bản mới nhanh hơn.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex20</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-20">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-20</a> rồi chép các tệp vào kho: <code>tra_gop.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>tra_gop.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần nghiên cứu.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

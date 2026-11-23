@@ -1,0 +1,60 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Màn hình thống kê báo tổng chi tiêu thấp hơn thực tế, bỏ sót giao dịch lớn, và báo lỗi với người dùng mới." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-02/minh_hoa.png" /></p>
+<p><em>Màn hình thống kê báo tổng chi tiêu thấp hơn thực tế, bỏ sót giao dịch lớn, và báo lỗi với người dùng mới.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm tính năng "Quản lý chi tiêu" của ví MoMo.</p>
+<p>Cuối tháng, ứng dụng hiện <strong>tổng số tiền đã chi</strong> và <strong>số giao dịch lớn</strong> (từ 1.000.000đ trở lên) để nhắc người dùng kiểm soát chi tiêu. Giao dịch trong tháng là một list số tiền (đồng):</p>
+<pre><code>[150000, 2500000, 49000, 1000000, 320000]&#10;</code></pre>
+<p>Nhóm viết hai hàm bằng đệ quy trên danh sách, theo khuôn của Lesson 02: tách <strong>phần tử đầu</strong> <code>transactions[0]</code> và <strong>phần còn lại</strong> <code>transactions[1:]</code>, giải bài toán trên phần còn lại rồi ghép với phần tử đầu.</p>
+<ul>
+<li><code>total_amount(transactions)</code>: tổng số tiền. Tháng chưa có giao dịch thì tổng là 0.</li>
+<li><code>count_large(transactions, limit)</code>: số giao dịch có số tiền <strong>từ <code>limit</code> trở lên</strong>.</li>
+</ul>
+<p>Con số này được dùng để gửi thông báo nhắc chi tiêu và để gợi ý hạn mức. Tổng sai làm người dùng mất niềm tin vào ứng dụng; báo lỗi với người dùng mới thì họ gỡ ứng dụng ngay trong tuần đầu. Nhóm sản phẩm yêu cầu sửa cả hai hàm và giữ cách viết đệ quy để thống nhất với các hàm thống kê khác của nhóm.</p>
+<p>Kịch bản kiểm tra (đoạn cuối tệp): tháng có 5 giao dịch, tháng có một giao dịch, tháng chưa có giao dịch nào.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Tổng chi tiêu tháng: 4019000&#10;Số giao dịch từ 1.000.000đ: 2&#10;Một giao dịch: 75000 0&#10;Tháng chưa có giao dịch: 0 0&#10;</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người dùng phản ánh:</p>
+<ul>
+<li>Tổng chi tiêu tháng hiện <strong>519.000đ</strong>, trong khi chỉ riêng một giao dịch đã là 2.500.000đ.</li>
+<li>Giao dịch đúng <strong>1.000.000đ</strong> không được tính là giao dịch lớn.</li>
+<li>Người dùng mới mở tài khoản, chưa có giao dịch nào, mở màn hình thống kê thì ứng dụng báo lỗi.</li>
+</ul>
+<p>Nhắc lại kiến thức (Lesson 02):</p>
+<ul>
+<li>Khuôn chung cho danh sách: cơ sở là <strong>danh sách rỗng</strong>; bước đệ quy xử lý <code>transactions[0]</code> rồi gọi lại trên <code>transactions[1:]</code>, ngắn hơn đúng một phần tử.</li>
+<li>Chọn cơ sở là danh sách <strong>một phần tử</strong> là lỗi thường gặp: danh sách rỗng không bao giờ gặp cơ sở đó.</li>
+<li>Mỗi hàm đệ quy phải trả lời đúng <strong>ba câu hỏi</strong> (Lesson 01): (1) trường hợp cơ sở trả đúng chưa; (2) từ kết quả của bài toán nhỏ hơn, phần ghép ra kết quả lớn đúng chưa; (3) mỗi lần gọi có tiến về trường hợp cơ sở không.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Toàn bộ tệp <code>chi_tieu.py</code> trong thư mục khởi đầu (đoạn cuối tệp là kịch bản chạy thử):</p>
+<pre><code>def total_amount(transactions):&#10;    # Tổng số tiền các giao dịch (đơn vị: đồng).&#10;    if len(transactions) == 1:&#10;        return transactions[0]&#10;    return transactions[0] + total_amount(transactions[2:])&#10;&#10;&#10;def count_large(transactions, limit):&#10;    # Số giao dịch có số tiền từ limit trở lên (để gửi cảnh báo chi tiêu lớn).&#10;    if len(transactions) == 0:&#10;        return 0&#10;    if transactions[0] &gt; limit:&#10;        return 1 + count_large(transactions[1:], limit)&#10;    return count_large(transactions[1:], limit)&#10;&#10;&#10;month = [150000, 2500000, 49000, 1000000, 320000]&#10;print(&quot;Tổng chi tiêu tháng:&quot;, total_amount(month))&#10;print(&quot;Số giao dịch từ 1.000.000đ:&quot;, count_large(month, 1000000))&#10;print(&quot;Một giao dịch:&quot;, total_amount([75000]), count_large([75000], 1000000))&#10;print(&quot;Tháng chưa có giao dịch:&quot;, total_amount([]), count_large([], 1000000))&#10;</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Tổng chi tiêu tháng: 519000&#10;Số giao dịch từ 1.000.000đ: 1&#10;Một giao dịch: 75000 0&#10;Traceback (most recent call last):&#10;  ...&#10;    return transactions[0] + total_amount(transactions[2:])&#10;IndexError: list index out of range&#10;</code></pre>
+<p>Đối chiếu với kết quả đúng: tổng 5 giao dịch ra 519.000đ thay vì 4.019.000đ; số giao dịch lớn là 1 thay vì 2; tháng chưa có giao dịch gây lỗi <code>IndexError</code> nên dòng cuối không được in.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay <code>total_amount</code> trên 5 giao dịch mẫu của mã hiện tại: ghi danh sách được truyền vào ở mỗi lời gọi. Những giao dịch nào bị bỏ qua? Vì sao?</li>
+<li>Với 4 giao dịch, <code>total_amount</code> của mã hiện tại có gặp được cơ sở <code>len == 1</code> không? Chuyện gì xảy ra?</li>
+<li>Vì sao <code>total_amount([])</code> báo <code>IndexError</code>? Viết lại trường hợp cơ sở theo khuôn của Lesson 02 và kiểm tra lại với danh sách 1 phần tử.</li>
+<li>Điều kiện nào trong <code>count_large</code> sai với quy định "từ 1.000.000đ trở lên"?</li>
+<li>Trả lời ba câu hỏi kiểm tra cho hai hàm sau khi sửa.</li>
+<li>Mỗi lời gọi tạo một lát cắt <code>transactions[1:]</code>. Với n giao dịch, có bao nhiêu lời gọi? Vì sao không dùng cách này cho danh sách hàng nghìn giao dịch (Lesson 03)?</li>
+<li>Ghi ba bộ dữ liệu thử cho <code>count_large</code>: một giao dịch đúng bằng hạn mức, một giao dịch nhỏ hơn hạn mức một đồng, danh sách rỗng; kèm kết quả mong đợi.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai hàm trong <code>chi_tieu.py</code>, giữ cách viết đệ quy. Không đổi tên hàm, tham số; không dùng vòng lặp hay <code>sum()</code>; không sửa list đầu vào.</li>
+<li>Chạy <code>python chi_tieu.py</code> phải in đúng phần "Kết quả đúng cần hiển thị" ở mục 1.</li>
+<li>Chạy <code>python kiem_tra.py</code> phải đạt cả 4 mục.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex02</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-02</a> rồi chép các tệp vào kho: <code>chi_tieu.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>chi_tieu.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

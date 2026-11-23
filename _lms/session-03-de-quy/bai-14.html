@@ -1,0 +1,56 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Thiết bị tại cửa hàng phải tính mã xác thực cho lần thanh toán thứ một tỷ trong chớp mắt, trên bộ xử lý rất yếu." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-03-de-quy/bai-14/minh_hoa.png" /></p>
+<p><em>Thiết bị tại cửa hàng phải tính mã xác thực cho lần thanh toán thứ một tỷ trong chớp mắt, trên bộ xử lý rất yếu.</em></p>
+<p>Thiết bị thanh toán MoMo đặt tại cửa hàng tạo <strong>mã xác thực 6 chữ số</strong> cho mỗi lần thanh toán. Đề dùng một <strong>mô hình đơn giản hóa</strong> của cách sinh mã theo bộ đếm: mỗi thiết bị có một số bí mật <code>seed</code> và một số <code>mod</code> (không quá 1.000.000); lần thanh toán thứ <code>counter</code> có mã là:</p>
+<pre><code>seed mũ counter, lấy phần dư khi chia cho mod, in đủ 6 chữ số (thêm số 0 ở đầu)&#10;</code></pre>
+<p>Ví dụ <code>seed = 7</code>, <code>counter = 3</code>, <code>mod = 1000000</code>: 7 × 7 × 7 = 343, mã là <code>000343</code>. Máy chủ phải tính lại đúng mã đó để đối chiếu.</p>
+<p>Hai ràng buộc từ phía phần cứng:</p>
+<ul>
+<li>Thiết bị chạy bản Python rút gọn <strong>không có</strong> <code>pow()</code> và toán tử <code>**</code>.</li>
+<li>Bộ đếm tăng liên tục, thiết bị chạy nhiều năm nên <code>counter</code> có thể lên tới <strong>1 tỷ</strong>; mã phải có ngay khi khách quét (dưới 2 giây cho cả hai lần tính trong kiểm tra).</li>
+</ul>
+<p>Lưu ý: chỉ cần giữ phần dư ở mỗi bước nhân, vì phần dư của một tích bằng phần dư của tích các phần dư; nhờ vậy các số trung gian không bao giờ vượt quá mod × mod. Một bạn trong nhóm viết bằng đệ quy "giảm bộ đếm đi 1": đúng với bộ đếm nhỏ, nhưng thiết bị báo lỗi từ lần thanh toán thứ khoảng 1.000. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, đo, so sánh rồi mới chọn.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bạn viết ba hàm trong <code>ma_xac_thuc.py</code>.</p>
+<p><strong>2.1. Hai hàm tính: <code>otp_value_v1(seed, counter, mod)</code> và <code>otp_value_v2(seed, counter, mod)</code></strong></p>
+<p>Mỗi hàm cài một giải pháp, trả về <code>seed</code> mũ <code>counter</code> chia lấy dư cho <code>mod</code> (với <code>counter &gt;= 0</code>, <code>mod &gt;= 1</code>). Hai hàm cho cùng kết quả nhưng <strong>khác nhau về cách làm</strong>.</p>
+<p><strong>2.2. <code>otp_message(seed, counter, mod)</code></strong></p>
+<p>Dùng giải pháp bạn chọn, trả về một trong ba thông báo:</p>
+<pre><code>Mã xác thực lần 3: 000343&#10;Bộ đếm không hợp lệ.&#10;Cấu hình thiết bị không hợp lệ.&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bộ đếm 0.</strong> Mũ 0 là 1, nên mã là <code>000001</code> (với mod lớn hơn 1).</p>
+<p><strong>Bẫy 2 — mod bằng 1.</strong> Mọi số chia cho 1 đều dư 0, kể cả khi bộ đếm là 0: hai hàm tính trả về 0.</p>
+<p><strong>Bẫy 3 — seed lớn hơn mod.</strong> <code>seed = 1999998</code>, <code>mod = 999983</code> vẫn phải đúng.</p>
+<p><strong>Bẫy 4 — Dữ liệu sai.</strong> Bộ đếm âm: "Bộ đếm không hợp lệ."; mod nhỏ hơn 1 hoặc lớn hơn 1.000.000: "Cấu hình thiết bị không hợp lệ."</p>
+<p><strong>Bẫy 5 — Bộ đếm lớn.</strong> Bộ đếm 5.000 và 1.000.000.000 phải có mã trong 2 giây, không báo <code>RecursionError</code>.</p>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python ma_xac_thuc.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Mã xác thực lần 3: 000343&#10;Mã xác thực lần 10: 091131&#10;Mã xác thực lần 0: 000001&#10;Mã xác thực lần 4: 000000&#10;Bộ đếm không hợp lệ.&#10;Mã xác thực lần 5000: 492548&#10;Mã xác thực lần 1000000000: 450434&#10;</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của các hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc tính seed mũ counter chia lấy dư. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, minh họa trên ví dụ ở mục 1, viết mã giả. Nếu giải pháp là đệ quy, trả lời ba câu hỏi kiểm tra (Lesson 01) và ghi độ sâu call stack lớn nhất.</li>
+<li>Đo thời gian hai giải pháp bằng <code>timeit</code> với bộ đếm 100, 200, 400, 800 (giải pháp chậm) và thêm 10⁶, 10⁹ cho giải pháp nhanh; ghi bảng số đo, phiên bản Python và máy đo. Với giải pháp đệ quy, đếm thêm số lời gọi bằng một biến đếm (hoặc <code>cache_info()</code> nếu dùng <code>lru_cache</code>).</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ phụ kể cả call stack (Big-O), kết quả đo, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>otp_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, chạy tay <code>seed = 3</code>, <code>counter = 13</code>, <code>mod = 1000</code>: ghi bộ đếm ở mỗi lời gọi (hoặc mỗi vòng), giá trị trả về khi quay lên, và tổng số phép nhân.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>ma_xac_thuc.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Không dùng <code>pow()</code> hay toán tử <code>**</code> trong hai hàm tính.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python ma_xac_thuc.py</code> in đúng kịch bản chạy thử; <code>python kiem_tra.py</code> đạt cả 6 mục (các mục về giải pháp chạy trên cả hai hàm <code>_v1</code>, <code>_v2</code>).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng và độ phức tạp ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session03_Ex14</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-14">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-03-de-quy/bai-14</a> rồi chép các tệp vào kho: <code>ma_xac_thuc.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>ma_xac_thuc.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
