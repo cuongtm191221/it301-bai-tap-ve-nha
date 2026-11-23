@@ -1,0 +1,47 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Quản lý cửa hàng The Coffee House chờ báo cáo cuối ca" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-09/minh_hoa.png" /></p>
+<p><em>Quản lý cửa hàng The Coffee House chờ báo cáo cuối ca</em></p>
+<p>Cửa hàng <strong>The Coffee House</strong> Hồ Con Rùa ghi mỗi đơn thành <code>[mã đơn, tên món, số ly]</code>, xếp theo thời gian. Cuối ca, quản lý xem <strong>báo cáo</strong>: tổng số ly, số món khác nhau, món bán nhiều ly nhất và 3 đơn gần nhất.</p>
+<p>Hàm <code>report_slow</code> (có sẵn, <strong>không được sửa</strong>) là bản đang chạy: kết quả đúng, nhưng các cửa hàng lớn với hàng chục nghìn đơn mỗi ngày phải chờ báo cáo rất lâu. Đọc kỹ bản cũ, bạn sẽ thấy nó dùng nhiều thao tác list tốn kém đã học ở Session 01.</p>
+<p>Bạn viết <code>report_fast</code> cho <strong>kết quả giống hệt</strong> bản cũ, đưa vào ứng dụng sổ đơn, và chứng minh bằng số đo; sau đó tìm hiểu cách đo thời gian cho đáng tin.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_orders()</code> trả về bản sao 6 đơn; thực đơn <code>DRINKS</code> có 5 món (xem <code>bao_cao_ca.py</code>).</p>
+<p><strong>Chức năng 1 — Ghi đơn mới.</strong> In thực đơn đánh số 1-5, hỏi số thứ tự món và số ly (1-20); mã tự sinh tiếp theo (<code>TCH0007</code>).</p>
+<p><strong>Chức năng 2 — Báo cáo cuối ca</strong> dùng <code>report_fast</code> với top = 3: <code>Tổng: &lt;a&gt; ly, &lt;b&gt; món.</code>, <code>Bán chạy nhất: &lt;món&gt; (&lt;k&gt; ly).</code>, <code>3 đơn gần nhất: &lt;mã&gt;, ...</code>.</p>
+<p><strong>Chức năng 3 — Tra cứu đơn</strong> theo mã.</p>
+<p><strong>Chức năng 4 — Đo so sánh bản cũ và bản mới</strong> với n = 5.000, 10.000, 20.000 (sổ giả lập <code>make_big_orders</code>, có sẵn).</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đã chốt ca. Hẹn gặp lại!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== THE COFFEE HOUSE HỒ CON RÙA - SỔ ĐƠN =====&#10;1. Ghi đơn mới&#10;2. Báo cáo cuối ca&#10;3. Tra cứu đơn&#10;4. Đo so sánh bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 2&#10;Tổng: 11 ly, 4 món.&#10;Bán chạy nhất: Trà đào cam sả (4 ly).&#10;3 đơn gần nhất: TCH0006, TCH0005, TCH0004&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Cà phê sữa đá&#10;2. Trà đào cam sả&#10;3. Bạc xỉu&#10;4. Trà sữa oolong&#10;5. Cold brew&#10;Chọn món: 2&#10;Số ly: 2&#10;Đã ghi TCH0007: 2 ly Trà đào cam sả.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Cà phê sữa đá&#10;2. Trà đào cam sả&#10;3. Bạc xỉu&#10;4. Trà sữa oolong&#10;5. Cold brew&#10;Chọn món: 6&#10;Số ly: 1&#10;Lỗi: Món phải là số từ 1 đến 5&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in bảng dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;5000 | 8.1 | 1.8&#10;10000 | 23.2 (x2.9) | 3.7 (x2.0)&#10;20000 | 84.6 (x3.6) | 7.6 (x2.1)&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Kiểm tra so sánh hai bản trên 200 sổ ngẫu nhiên; món bằng số ly lấy món xuất hiện trước.</p>
+<p><strong>Bẫy 2 — top ở biên.</strong> <code>top = 0</code>, top lớn hơn số đơn, sổ rỗng (<code>(0, 0, None, 0, [])</code>; chức năng 2 in <code>Ca này chưa có đơn nào.</code>).</p>
+<p><strong>Bẫy 3 — Ràng buộc.</strong> <code>report_fast</code> không gọi <code>report_slow</code>, không dùng <code>insert(0, ...)</code>, <code>pop(0)</code>, nối list bằng <code>+</code> trong vòng lặp, <code>dict</code>, <code>set</code>; không làm đổi sổ.</p>
+<p><strong>Bẫy 4 — 200.000 đơn trong 2 giây.</strong> Đừng thử bản cũ với 200.000 đơn: nó chạy rất lâu.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Món ngoài 1-5, số ly ngoài 1-20: đúng thông báo trong docstring của <code>add_order</code>; menu chính sai: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Bảng các đoạn của <code>report_slow</code>: việc làm, thao tác list, số bước theo n (số đơn) và d (số món), Big-O. Đoạn nào làm bản cũ chậm nhất khi n lớn?</li>
+<li>Thiết kế <code>report_fast</code>: mỗi đoạn thay bằng gì; Big-O hai bản; bảng số đo chức năng 4 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu cách đo thời gian đáng tin trong Python: <code>time.perf_counter</code>, <code>timeit.repeat</code>, vì sao lấy giá trị nhỏ nhất hoặc trung vị thay vì một lần đo.</li>
+<li>Tạo <code>nghien_cuu.py</code>: đo <code>report_fast</code> trên 50.000 đơn bằng 20 lần <code>perf_counter</code> riêng lẻ (in nhỏ nhất, lớn nhất, trung vị) và bằng <code>timeit.repeat(repeat=5, number=10)</code>; giải thích vì sao các lần đo chênh nhau.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>bao_cao_ca.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH09</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-09</a> rồi chép các tệp vào kho: <code>bao_cao_ca.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

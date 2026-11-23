@@ -1,0 +1,42 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên đối soát VNPAY so khớp hai sổ giao dịch" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-07/minh_hoa.png" /></p>
+<p><em>Nhân viên đối soát VNPAY so khớp hai sổ giao dịch</em></p>
+<p>Cuối mỗi ngày, cổng thanh toán <strong>VNPAY</strong> phải <strong>đối soát</strong> sổ giao dịch của hệ thống với sao kê ngân hàng gửi về. Mỗi giao dịch là <code>[mã giao dịch, số tiền]</code>; trong mỗi sổ mã không trùng nhau, nhưng hai sổ ghi theo thứ tự khác nhau. Cần tìm ba loại sai lệch: giao dịch <strong>chỉ có ở hệ thống</strong>, <strong>chỉ có ở ngân hàng</strong>, và giao dịch có ở cả hai nhưng <strong>lệch số tiền</strong>.</p>
+<p>Bản đang chạy so từng giao dịch với cả sổ bên kia: đủ nhanh với vài nghìn giao dịch, nhưng ngày sale có hơn 100.000 giao dịch và quy trình đối soát kéo dài quá giờ chốt sổ. Trưởng nhóm yêu cầu một giải pháp khác, chứng minh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"VNPAY Reconciliation CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_books()</code> trả về bản sao hai sổ, mỗi sổ 5 giao dịch (xem <code>doi_soat.py</code>).</p>
+<p><strong>Chức năng 1 — Xem tóm tắt hai sổ.</strong> Mỗi sổ một dòng: số giao dịch và tổng tiền.</p>
+<p><strong>Chức năng 2 — Thêm giao dịch</strong> (menu phụ chọn sổ): nhập mã (<code>VP</code> + từ 4 chữ số) và số tiền.</p>
+<p><strong>Chức năng 3 — Đối soát</strong> (menu phụ chọn giải pháp). In ba dòng nhóm, mã xếp tăng dần; nhóm rỗng in <code>(không có)</code>. Hai hàm <code>reconcile_v1</code>, <code>reconcile_v2</code> trả về <strong>cùng kết quả</strong> nhưng <strong>khác nhau về cách làm</strong>; giải pháp 2 phải xử lý 100.000 giao dịch trong 2 giây. Không làm đổi hai sổ.</p>
+<p><strong>Chức năng 4 — Đo so sánh hai giải pháp.</strong> <code>benchmark</code> đo bằng <code>timeit</code> trên hai sổ giả lập (<code>make_big_books</code>, có sẵn) với n = 1.000, 2.000, 4.000; in bảng thời gian và tỉ lệ so với n trước đó.</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đã lưu biên bản đối soát. Tạm biệt!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VNPAY - ĐỐI SOÁT CUỐI NGÀY =====&#10;1. Xem tóm tắt hai sổ&#10;2. Thêm giao dịch&#10;3. Đối soát&#10;4. Đo so sánh hai giải pháp&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Hệ thống: 5 giao dịch, tổng 4.299.000đ&#10;Ngân hàng: 5 giao dịch, tổng 3.793.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 1&#10;Chỉ có ở hệ thống: VP1005&#10;Chỉ có ở ngân hàng: VP1004&#10;Lệch số tiền: VP1003 hệ thống 89.000đ, ngân hàng 98.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 2&#10;Chỉ có ở hệ thống: VP1005&#10;Chỉ có ở ngân hàng: VP1004&#10;Lệch số tiền: VP1003 hệ thống 89.000đ, ngân hàng 98.000đ&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in bảng dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;1000 | 19.6 | 0.5&#10;2000 | 78.3 (x4.0) | 1.2 (x2.2)&#10;4000 | 313.8 (x4.0) | 2.4 (x2.0)&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Hai sổ khác thứ tự.</strong> Cùng một giao dịch có thể nằm ở vị trí bất kỳ trong sổ kia.</p>
+<p><strong>Bẫy 2 — Sổ rỗng.</strong> Một hoặc cả hai sổ rỗng: mọi giao dịch của sổ còn lại thuộc nhóm "chỉ có ở".</p>
+<p><strong>Bẫy 3 — Thêm giao dịch sai.</strong> Mã sai dạng, mã đã có trong sổ đó, số tiền không phải số nguyên dương: đúng thông báo trong docstring của <code>add_tx</code>.</p>
+<p><strong>Bẫy 4 — Không làm đổi sổ.</strong> Đối soát xong, thứ tự hai sổ giữ nguyên (sổ dùng cho kiểm toán).</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> Menu phụ: <code>Lựa chọn không hợp lệ.</code>; menu chính: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp đối soát khác nhau: ý tưởng, hình minh họa trên dữ liệu mẫu, mã giả.</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm Big-O và số đo của chức năng 4 trên máy bạn; chọn giải pháp cho ngày sale và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>doi_soat.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH07</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-07</a> rồi chép các tệp vào kho: <code>doi_soat.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

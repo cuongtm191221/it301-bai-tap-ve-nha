@@ -1,0 +1,43 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Bộ phận an ninh Viettel Tower xem nhật ký quẹt thẻ" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-05/minh_hoa.png" /></p>
+<p><em>Bộ phận an ninh Viettel Tower xem nhật ký quẹt thẻ</em></p>
+<p>Mỗi lần nhân viên quẹt thẻ qua cổng <strong>Viettel Tower</strong>, hệ thống ghi một lượt vào nhật ký, xếp theo thời gian:</p>
+<pre><code>[mã thẻ, giờ quẹt tính bằng phút từ 00:00]     ví dụ [&quot;VT1024&quot;, 485] là 08:05&#10;</code></pre>
+<p>Bộ phận an ninh cần xem nhanh các lượt gần nhất, ghi lượt thủ công khi đầu đọc hỏng, đếm số lượt của một thẻ và tìm giờ đông nhất để bố trí bảo vệ. Tòa nhà có hơn 5.000 nhân viên, mỗi ngày hàng chục nghìn lượt; trưởng bộ phận muốn <strong>thấy bằng số đo</strong> thời gian tra cứu tăng thế nào khi nhật ký dài gấp đôi, trước khi quyết định có nâng cấp máy chủ.</p>
+<p>Bạn xây dựng module <strong>"Viettel Tower Access Log CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_logs()</code> trả về bản sao 8 lượt quẹt từ 07:50 đến 13:30 (xem <code>quet_the.py</code>).</p>
+<p><strong>Chức năng 1 — Xem các lượt gần nhất.</strong> Nhập k, in k lượt <strong>mới nhất trước</strong> dạng <code>&lt;i&gt;. &lt;HH:MM&gt; | &lt;mã thẻ&gt;</code>.</p>
+<p><strong>Chức năng 2 — Ghi lượt quẹt mới.</strong> Nhập mã thẻ và giờ <code>HH:MM</code>; ghi vào cuối nhật ký.</p>
+<p><strong>Chức năng 3 — Tra cứu</strong> (menu phụ): <code>1</code> số lượt của một thẻ; <code>2</code> giờ đông nhất (<code>08:00-08:59</code>), bằng nhau lấy giờ sớm hơn, <strong>bộ nhớ phụ không tăng theo số lượt</strong>.</p>
+<p><strong>Chức năng 4 — Đo hiệu năng.</strong> Hàm <code>benchmark</code> dùng <code>timeit</code> đo thời gian một lần gọi của hai thao tác tra cứu trên nhật ký giả lập (<code>make_big_logs</code>, có sẵn) với n = 20.000, 40.000, 80.000; in bảng thời gian (ms) và tỉ lệ so với n trước đó.</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đã lưu nhật ký. Tạm biệt!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VIETTEL TOWER - NHẬT KÝ QUẸT THẺ =====&#10;1. Xem các lượt quẹt gần nhất&#10;2. Ghi lượt quẹt mới&#10;3. Tra cứu&#10;4. Đo hiệu năng&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Số lượt cần xem: 3&#10;1. 13:30 | VT4096&#10;2. 12:05 | VT3001&#10;3. 12:00 | VT1024&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Số lượt của một thẻ  2. Giờ đông nhất&#10;Chọn tra cứu: 2&#10;Giờ đông nhất: 08:00-08:59 với 3 lượt.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Số lượt của một thẻ  2. Giờ đông nhất&#10;Chọn tra cứu: 1&#10;Mã thẻ: vt1024&#10;Thẻ VT1024 quẹt 3 lượt.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in bảng dạng sau (số đo trên máy soạn đề, Python 3.10; máy của bạn sẽ khác):</p>
+<pre><code>n | đếm lượt một thẻ (ms) | giờ đông nhất (ms)&#10;20000 | 0.39 | 0.76&#10;40000 | 0.79 (x2.0) | 1.51 (x2.0)&#10;80000 | 1.58 (x2.0) | 3.05 (x2.0)&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Giờ sai.</strong> <code>7:05</code>, <code>24:00</code>, <code>08:60</code>, <code>08-30</code>: <code>Lỗi: Giờ quẹt phải có dạng HH:MM từ 00:00 đến 23:59</code>.</p>
+<p><strong>Bẫy 2 — Giờ lùi.</strong> Nhật ký luôn xếp theo thời gian: giờ sớm hơn lượt cuối báo <code>Lỗi: Giờ quẹt không được sớm hơn lượt trước (&lt;HH:MM&gt;)</code>; bằng giờ lượt cuối vẫn hợp lệ.</p>
+<p><strong>Bẫy 3 — Mã thẻ, số lượt sai.</strong> Mã không đúng dạng <code>VT</code> + 4 chữ số: <code>Lỗi: Mã thẻ phải gồm VT và 4 chữ số</code>; k không phải số nguyên dương: <code>Lỗi: Số lượt phải là số nguyên dương</code>; k lớn hơn số lượt thì in tất cả.</p>
+<p><strong>Bẫy 4 — Dữ liệu lớn.</strong> 200.000 lượt: đếm và tìm giờ đông nhất xong trong 3 giây.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> Menu phụ: <code>Lựa chọn không hợp lệ.</code>; menu chính: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Big-O thời gian và bộ nhớ phụ của bốn thao tác (xem k lượt, ghi lượt, đếm theo thẻ, giờ đông nhất) theo n và k.</li>
+<li>Bảng số đo của chức năng 4 trên máy bạn (ghi phiên bản Python); n gấp đôi thì thời gian tăng khoảng bao nhiêu lần, có khớp Big-O không? Vì sao không kết luận từ một lần chạy?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>quet_the.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH05</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-05</a> rồi chép các tệp vào kho: <code>quet_the.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên quầy check-in Vietjet tra cứu mã đặt chỗ" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-03/minh_hoa.png" /></p>
+<p><em>Nhân viên quầy check-in Vietjet tra cứu mã đặt chỗ</em></p>
+<p>Tại quầy check-in chuyến <strong>VJ123</strong> của <strong>Vietjet Air</strong>, danh sách hành khách đã check-in được giữ <strong>xếp tăng dần theo mã đặt chỗ</strong>; mỗi hành khách là một list con:</p>
+<pre><code>[mã đặt chỗ, họ tên, hành lý ký gửi (kg)]&#10;</code></pre>
+<p>Nhân viên cần xem nhanh vài hành khách đầu hoặc cuối danh sách, check-in thêm khách, tra cứu mã khi khách hỏi lại và thống kê hành lý để báo cho bộ phận xếp hàng hóa. Vì danh sách đã xếp, trưởng ca đề xuất cách <strong>tìm có dừng sớm</strong>: đi từ đầu, gặp mã lớn hơn mã cần tìm thì dừng vì phía sau không thể có. Bạn cần cho thấy bằng số bước cách này tiết kiệm được bao nhiêu.</p>
+<p>Bạn xây dựng module <strong>"Vietjet Check-in CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_passengers()</code> trả về bản sao của 6 hành khách <code>AB123</code>, <code>BK207</code>, <code>CK310</code>, <code>DN452</code>, <code>HV518</code>, <code>QT609</code> (xem <code>check_in.py</code>).</p>
+<p><strong>Chức năng 1 — Xem danh sách</strong> (menu phụ): <code>1</code> toàn bộ kèm dòng <code>Tổng: &lt;n&gt; hành khách</code>; <code>2</code> k người đầu; <code>3</code> k người cuối (hỏi k; k lớn hơn số người thì in tất cả).</p>
+<p><strong>Chức năng 2 — Check-in hành khách.</strong> Nhập mã, họ tên, hành lý; chèn vào <strong>đúng vị trí</strong> để danh sách vẫn tăng dần; in <code>Đã check-in &lt;mã&gt; ở vị trí &lt;i&gt;/&lt;n&gt;.</code></p>
+<p><strong>Chức năng 3 — Tra cứu mã đặt chỗ</strong> (menu phụ): <code>1</code> tìm tuần tự, <code>2</code> tìm có dừng sớm. In kết quả hoặc <code>không có &lt;mã&gt;</code>, kèm số lần so sánh mã.</p>
+<p><strong>Chức năng 4 — Thống kê hành lý.</strong> In tổng kg và số hành khách vượt 20 kg, <strong>không tạo list phụ</strong> (bộ nhớ phụ O(1)).</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đóng quầy check-in. Chúc chuyến bay tốt đẹp!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VIETJET VJ123 - QUẦY CHECK-IN =====&#10;1. Xem danh sách hành khách&#10;2. Check-in hành khách&#10;3. Tra cứu mã đặt chỗ&#10;4. Thống kê hành lý&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. Toàn bộ  2. k người đầu  3. k người cuối&#10;Chọn cách xem: 2&#10;Số hành khách: 3&#10;1. AB123 | Nguyễn Minh An | 15 kg&#10;2. BK207 | Trần Thu Bình | 23 kg&#10;3. CK310 | Lê Hoàng Cường | 7 kg&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Tìm tuần tự  2. Tìm có dừng sớm&#10;Chọn cách tìm: 1&#10;Mã đặt chỗ: DN452&#10;Tìm tuần tự: DN452 | Phạm Ngọc Dung | 20 kg (so sánh 4 mã).&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Tìm tuần tự  2. Tìm có dừng sớm&#10;Chọn cách tìm: 2&#10;Mã đặt chỗ: DN452&#10;Tìm có dừng sớm: DN452 | Phạm Ngọc Dung | 20 kg (so sánh 4 mã).&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Tìm tuần tự  2. Tìm có dừng sớm&#10;Chọn cách tìm: 2&#10;Mã đặt chỗ: CA000&#10;Tìm có dừng sớm: không có CA000 (so sánh 3 mã).&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mã đặt chỗ sai định dạng.</strong> Mã hợp lệ gồm đúng 2 chữ cái rồi 3 chữ số (gõ thường vẫn được): <code>A1234</code>, <code>AB12</code> in <code>Lỗi: Mã đặt chỗ phải gồm 2 chữ cái và 3 chữ số</code>.</p>
+<p><strong>Bẫy 2 — Check-in sai.</strong> Mã đã check-in, họ tên trống, hành lý không phải số nguyên từ 0 đến 40: đúng thông báo trong docstring của <code>check_in</code>, danh sách giữ nguyên.</p>
+<p><strong>Bẫy 3 — Chèn ở hai đầu.</strong> Mã nhỏ hơn mọi mã vào vị trí 1; lớn hơn mọi mã vào cuối.</p>
+<p><strong>Bẫy 4 — Nhập sai ở menu.</strong> k không phải số nguyên dương: <code>Lỗi: Số hành khách phải là số nguyên dương</code>. Menu phụ sai: <code>Lựa chọn không hợp lệ.</code>; menu chính sai: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Bảng số lần so sánh của hai cách tìm với 6 hành khách mẫu: mã <code>DN452</code>, <code>CA000</code>, <code>AA000</code>, <code>ZZ999</code>. Khi nào dừng sớm có lợi, khi nào không? Big-O xấu nhất của mỗi cách.</li>
+<li>Check-in giữ thứ tự tốn bao nhiêu bước theo n (tìm vị trí và chèn)? Vì sao chức năng 4 chỉ cần bộ nhớ phụ O(1)?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>check_in.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH03</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-03</a> rồi chép các tệp vào kho: <code>check_in.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

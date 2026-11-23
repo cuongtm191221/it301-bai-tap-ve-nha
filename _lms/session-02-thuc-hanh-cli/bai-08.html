@@ -1,0 +1,42 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhóm vận hành Lazada kiểm tra lô voucher 11.11" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-08/minh_hoa.png" /></p>
+<p><em>Nhóm vận hành Lazada kiểm tra lô voucher 11.11</em></p>
+<p>Đợt <strong>11.11</strong>, <strong>Lazada</strong> phát voucher từ nhiều máy chủ cùng lúc. Mỗi voucher là <code>[mã voucher, giá trị (nghìn đồng)]</code>. Do lỗi đồng bộ, <strong>một mã có thể bị phát nhiều lần</strong>; nếu không phát hiện trước giờ mở bán, một mã có thể bị dùng lặp và công ty mất tiền.</p>
+<p>Nhóm vận hành cần xem lô voucher, phát thêm mã, và <strong>liệt kê mọi mã bị phát trùng kèm số lần</strong>. Công cụ hiện tại đếm mỗi mã bằng cách dò cả lô; lô thử 1.000 mã chạy tức thì, nhưng lô thật hơn 200.000 mã thì chạy không xong trước giờ mở bán. Trưởng nhóm yêu cầu một giải pháp khác, chứng minh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Lazada Voucher Check CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_vouchers()</code> trả về bản sao 7 voucher, trong đó <code>LZ8K2Q1A</code> xuất hiện 3 lần và <code>LZ3M9P0B</code> 2 lần (xem <code>voucher.py</code>).</p>
+<p><strong>Chức năng 1 — Xem lô voucher</strong> (menu phụ): <code>1</code> toàn bộ kèm dòng <code>Tổng: &lt;n&gt; voucher, giá trị &lt;tổng&gt;k</code>; <code>2</code> k voucher phát gần nhất, mới nhất trước.</p>
+<p><strong>Chức năng 2 — Phát thêm voucher.</strong> Nhập mã và giá trị; mã trùng <strong>vẫn được phát</strong> (đúng như hệ thống thật).</p>
+<p><strong>Chức năng 3 — Kiểm tra mã trùng</strong> (menu phụ chọn giải pháp). In <code>Mã trùng: &lt;mã&gt; (&lt;k&gt; lần), ...</code> theo mã tăng dần, hoặc <code>Không có mã trùng.</code> Hai hàm <code>find_duplicates_v1</code>, <code>find_duplicates_v2</code> trả về <strong>cùng kết quả</strong>, <strong>khác nhau về cách làm</strong>; giải pháp 2 xử lý 200.000 voucher trong 2 giây; không làm đổi lô.</p>
+<p><strong>Chức năng 4 — Đo so sánh hai giải pháp.</strong> <code>benchmark</code> đo bằng <code>timeit</code> trên lô giả lập (<code>make_big_vouchers</code>, có sẵn) với n = 1.000, 2.000, 4.000.</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đã khóa lô voucher. Tạm biệt!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== LAZADA - KIỂM TRA VOUCHER ĐỢT 11.11 =====&#10;1. Xem lô voucher&#10;2. Phát thêm voucher&#10;3. Kiểm tra mã trùng&#10;4. Đo so sánh hai giải pháp&#10;5. Thoát&#10;Chọn chức năng (1-5): 3&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 1&#10;Mã trùng: LZ3M9P0B (2 lần), LZ8K2Q1A (3 lần)&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Toàn bộ  2. k voucher gần nhất&#10;Chọn cách xem: 1&#10;1. LZ8K2Q1A | 50k&#10;2. LZ3M9P0B | 20k&#10;3. LZ8K2Q1A | 50k&#10;4. LZ7T4R2C | 100k&#10;5. LZ3M9P0B | 20k&#10;6. LZ1X5W6D | 10k&#10;7. LZ8K2Q1A | 50k&#10;Tổng: 7 voucher, giá trị 300k&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã voucher: lz1x5w6d&#10;Giá trị (nghìn đồng): 10&#10;Đã phát LZ1X5W6D trị giá 10k. Lô có 8 voucher.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in bảng dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;1000 | 20.0 | 0.2&#10;2000 | 78.7 (x3.9) | 0.4 (x2.0)&#10;4000 | 313.4 (x4.0) | 0.7 (x2.0)&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Một mã phát nhiều lần.</strong> Mỗi mã trùng chỉ in một lần, kèm đúng số lần xuất hiện.</p>
+<p><strong>Bẫy 2 — Lô rỗng, một voucher, không có trùng.</strong> In <code>Không có mã trùng.</code>; xem lô rỗng in <code>Lô voucher đang trống.</code></p>
+<p><strong>Bẫy 3 — Dữ liệu phát sai.</strong> Mã không đủ 8 ký tự chữ hoặc số, không bắt đầu bằng <code>LZ</code>; giá trị khác 10, 20, 50, 100: đúng thông báo trong docstring của <code>issue</code>.</p>
+<p><strong>Bẫy 4 — Không làm đổi lô.</strong> Kiểm tra xong, thứ tự lô giữ nguyên.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> k không phải số nguyên dương: <code>Lỗi: Số voucher phải là số nguyên dương</code>; menu phụ: <code>Lựa chọn không hợp lệ.</code>; menu chính: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp tìm mã trùng khác nhau: ý tưởng, hình minh họa trên lô mẫu, mã giả.</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm Big-O và số đo của chức năng 4 trên máy bạn; chọn giải pháp cho lô 200.000 mã và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>voucher.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH08</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-08</a> rồi chép các tệp vào kho: <code>voucher.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

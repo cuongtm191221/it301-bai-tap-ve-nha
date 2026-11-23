@@ -1,0 +1,46 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Ban tổ chức Garena cập nhật bảng xếp hạng sau mỗi trận" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-10/minh_hoa.png" /></p>
+<p><em>Ban tổ chức Garena cập nhật bảng xếp hạng sau mỗi trận</em></p>
+<p>Giải đấu cộng đồng <strong>Liên Quân Mobile</strong> do <strong>Garena</strong> tổ chức lưu danh sách đăng ký, mỗi người chơi là <code>[tên trong game, điểm xếp hạng]</code>. Bảng xếp hạng: <strong>điểm cao trước; bằng điểm thì ai đăng ký trước xếp trước</strong>. Sau mỗi trận, điểm được cộng hoặc trừ và người chơi mở ứng dụng xem hạng của mình.</p>
+<p>Hai hàm <code>top_slow</code> và <code>rank_slow</code> (có sẵn, <strong>không được sửa</strong>) là bản đang chạy: đúng, nhưng mùa giải có hàng trăm nghìn người chơi; mỗi lần tra hạng, <code>rank_slow</code> dựng lại cả bảng xếp hạng và máy chủ quá tải giờ cao điểm. Bạn viết <code>top_fast</code>, <code>rank_fast</code> cho <strong>kết quả giống hệt</strong>, đưa vào ứng dụng, chứng minh bằng số đo, rồi tìm hiểu cách Python sắp xếp.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_players()</code> trả về bản sao 6 người chơi (xem <code>xep_hang.py</code>).</p>
+<p><strong>Chức năng 1 — Xem top k.</strong> In <code>&lt;hạng&gt;. &lt;tên&gt; - &lt;điểm&gt; điểm</code>.</p>
+<p><strong>Chức năng 2 — Cập nhật điểm sau trận.</strong> Nhập tên (không phân biệt hoa thường) và điểm trận từ -100 đến 100 (<code>+25</code>, <code>-40</code>); điểm không xuống dưới 0; in điểm mới và hạng mới.</p>
+<p><strong>Chức năng 3 — Tra cứu hạng.</strong> In <code>Hạng của &lt;tên&gt;: &lt;h&gt;/&lt;n&gt; (&lt;điểm&gt; điểm).</code></p>
+<p><strong>Chức năng 4 — Đo so sánh</strong> thời gian tra hạng của bản cũ và bản mới với n = 500, 1.000, 2.000 (danh sách giả lập <code>make_big_players</code>, có sẵn).</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đã khóa bảng xếp hạng. GG!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== GARENA LIÊN QUÂN - BẢNG XẾP HẠNG MÙA 30 =====&#10;1. Xem top k&#10;2. Cập nhật điểm sau trận&#10;3. Tra cứu hạng&#10;4. Đo so sánh bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Số người: 6&#10;1. ShadowFox - 2350 điểm&#10;2. KiraVN - 2350 điểm&#10;3. Tí Nị - 2100 điểm&#10;4. Bông - 1980 điểm&#10;5. Zed99 - 1980 điểm&#10;6. MèoMun - 1520 điểm&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Tên người chơi: kiravn&#10;Hạng của KiraVN: 2/6 (2350 điểm).&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Tên người chơi: zed99&#10;Điểm trận (+/-): +25&#10;Zed99 có 2005 điểm, hạng 4/6.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in bảng dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;500 | 4.9 | 0.04&#10;1000 | 19.6 (x4.0) | 0.08 (x2.0)&#10;2000 | 78.8 (x4.0) | 0.17 (x2.1)&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bằng điểm.</strong> <code>ShadowFox</code> và <code>KiraVN</code> cùng 2350 điểm: ShadowFox hạng 1 vì đăng ký trước.</p>
+<p><strong>Bẫy 2 — Khớp bản cũ.</strong> Kiểm tra so sánh hai bản trên 200 danh sách ngẫu nhiên có rất nhiều người bằng điểm; top k với k lớn hơn số người, danh sách rỗng.</p>
+<p><strong>Bẫy 3 — Ràng buộc.</strong> Bản mới không gọi bản cũ; <code>rank_fast</code> không sắp xếp; không làm đổi danh sách đăng ký; 200.000 người chơi trong 2 giây.</p>
+<p><strong>Bẫy 4 — Điểm không âm.</strong> Trừ quá số điểm hiện có thì điểm về 0.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Tên không có, điểm trận ngoài -100..100 hoặc không phải số nguyên, k không phải số nguyên dương, menu sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Phân tích <code>top_slow</code>, <code>rank_slow</code>: số bước theo n, Big-O; vì sao tra hạng một người lại tốn như dựng cả bảng.</li>
+<li>Thiết kế <code>top_fast</code>, <code>rank_fast</code> (giải thích vì sao bằng điểm vẫn đúng thứ tự); Big-O hai bản; bảng số đo chức năng 4 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu thuật toán sắp xếp của Python (Timsort): <strong>tính ổn định</strong> là gì, vì sao <code>top_fast</code> cần nó; vì sao Timsort chạy rất nhanh trên dữ liệu gần như đã xếp.</li>
+<li>Tạo <code>nghien_cuu.py</code>: đo <code>sorted</code> trên 200.000 số ngẫu nhiên, đã xếp, xếp ngược, đã xếp nhưng đảo 1% vị trí; minh họa tính ổn định bằng một ví dụ bằng điểm.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>xep_hang.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH10</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-10</a> rồi chép các tệp vào kho: <code>xep_hang.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

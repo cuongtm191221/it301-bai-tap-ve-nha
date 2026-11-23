@@ -1,0 +1,72 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Hệ thống quản lý đơn giao trong ngày của bưu cục GHTK",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 6072
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Hệ thống quản lý kho sách của nhà sách Fahasa",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 5551
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Hệ thống check-in hành khách của Vietjet Air",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 6055
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Hệ thống bảng doanh số nhân viên của Thế Giới Di Động",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5448
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Hệ thống nhật ký quẹt thẻ ra vào tòa nhà Viettel Tower",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5867
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Hệ thống sổ quỹ tiền mặt trong ca của Circle K",
+  "l": "Khá",
+  "h2": 5,
+  "len": 6257
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Hệ thống đối soát giao dịch cuối ngày của VNPAY",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5837
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Hệ thống kiểm tra voucher phát trùng của Lazada",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 6117
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Tối ưu báo cáo cuối ca của The Coffee House",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6431
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Tối ưu bảng xếp hạng giải Liên Quân Mobile của Garena",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6188
+ }
+]

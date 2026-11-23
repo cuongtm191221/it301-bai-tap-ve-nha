@@ -1,0 +1,43 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trưởng ca Circle K đối chiếu sổ quỹ" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-06/minh_hoa.png" /></p>
+<p><em>Trưởng ca Circle K đối chiếu sổ quỹ</em></p>
+<p>Cửa hàng <strong>Circle K</strong> Lê Lợi mở 24 giờ. Mỗi ca nhận quỹ đầu ca 2.000.000đ và ghi mọi khoản tiền mặt vào sổ quỹ, xếp theo thời gian:</p>
+<pre><code>[mã giao dịch, loại &quot;THU&quot; hoặc &quot;CHI&quot;, số tiền (đồng)]&#10;</code></pre>
+<p>Trưởng ca cần xem sổ kèm <strong>số dư sau từng giao dịch</strong>, ghi thêm khoản thu chi, xem tổng thu chi và các khoản chi lớn nhất. Khoản chi lớn hơn số dư phải bị từ chối. Bản thử đầu tiên tính số dư từng dòng bằng cách cộng lại từ đầu sổ cho mỗi dòng; cửa hàng đông khách có hàng chục nghìn giao dịch mỗi ca và màn hình đứng hình. Quản lý vùng muốn có <strong>số đo</strong> thời gian và bộ nhớ khi sổ dài gấp đôi.</p>
+<p>Bạn xây dựng module <strong>"Circle K Cash Book CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_book()</code> trả về bản sao 6 giao dịch <code>GD001</code> đến <code>GD006</code>; hằng <code>OPENING = 2000000</code> (xem <code>so_quy.py</code>).</p>
+<p><strong>Chức năng 1 — Xem sổ quỹ</strong> (menu phụ): <code>1</code> toàn bộ, mỗi dòng kèm <code>số dư &lt;tiền&gt;</code> sau giao dịch đó, <strong>tính trong một lượt duyệt</strong>; <code>2</code> k giao dịch gần nhất, mới nhất trước.</p>
+<p><strong>Chức năng 2 — Ghi giao dịch.</strong> Nhập loại (THU/CHI, gõ thường được) và số tiền; mã tự sinh tiếp theo (<code>GD007</code>); in <code>Đã ghi &lt;mã&gt;. Số dư: &lt;tiền&gt;</code>.</p>
+<p><strong>Chức năng 3 — Báo cáo</strong> (menu phụ): <code>1</code> tổng thu, tổng chi, số dư; <code>2</code> top 3 khoản chi lớn nhất, bằng nhau giữ thứ tự trong sổ, không làm đổi sổ.</p>
+<p><strong>Chức năng 4 — Đo hiệu năng.</strong> Hàm <code>benchmark</code> đo bằng <code>timeit</code> thời gian một lần tính số dư cuối và lấy <code>sys.getsizeof</code> của list sổ, với sổ giả lập (<code>make_big_book</code>, có sẵn) n = 20.000, 40.000, 80.000.</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Chốt ca với số dư &lt;tiền&gt;. Tạm biệt!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== CIRCLE K LÊ LỢI - SỔ QUỸ TRONG CA =====&#10;1. Xem sổ quỹ&#10;2. Ghi giao dịch&#10;3. Báo cáo&#10;4. Đo hiệu năng&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. Toàn bộ kèm số dư  2. k giao dịch gần nhất&#10;Chọn cách xem: 1&#10;GD001 | THU | 450.000đ | số dư 2.450.000đ&#10;GD002 | CHI | 120.000đ | số dư 2.330.000đ&#10;GD003 | THU | 980.000đ | số dư 3.310.000đ&#10;GD004 | CHI | 300.000đ | số dư 3.010.000đ&#10;GD005 | THU | 215.000đ | số dư 3.225.000đ&#10;GD006 | CHI | 75.000đ | số dư 3.150.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Loại (THU/CHI): chi&#10;Số tiền (đồng): 500000&#10;Đã ghi GD007. Số dư: 2.650.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Toàn bộ kèm số dư  2. k giao dịch gần nhất&#10;Chọn cách xem: 2&#10;Số giao dịch: 2&#10;GD007 | CHI | 500.000đ&#10;GD006 | CHI | 75.000đ&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in bảng dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | tính số dư (ms) | getsizeof list sổ (byte)&#10;20000 | 0.74 | 173016&#10;40000 | 1.47 (x2.0) | 351064&#10;80000 | 3.19 (x2.2) | 711960&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chi vượt quỹ.</strong> <code>Lỗi: Không đủ tiền trong quỹ: số dư &lt;tiền&gt;</code>, sổ giữ nguyên; chi đúng bằng số dư thì được (số dư về 0).</p>
+<p><strong>Bẫy 2 — Dữ liệu sai.</strong> Loại khác THU/CHI; số tiền <code>0</code>, <code>-5</code>, <code>1.5</code>, chữ: đúng thông báo trong docstring của <code>add_tx</code>; k không phải số nguyên dương: <code>Lỗi: Số giao dịch phải là số nguyên dương</code>.</p>
+<p><strong>Bẫy 3 — Số dư từng dòng với sổ dài.</strong> 40.000 giao dịch phải xong trong 1 giây.</p>
+<p><strong>Bẫy 4 — Khoản chi bằng nhau, chưa có khoản chi.</strong> Giữ thứ tự trong sổ; không có khoản chi nào thì in <code>Chưa có khoản chi nào.</code></p>
+<p><strong>Bẫy 5 — Menu sai.</strong> Menu phụ: <code>Lựa chọn không hợp lệ.</code>; menu chính: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>So sánh hai cách tính số dư từng dòng: cộng lại từ đầu cho mỗi dòng và một lượt duyệt: số phép cộng theo n, Big-O, thời gian ước tính với 40.000 giao dịch.</li>
+<li>Bảng số đo của chức năng 4 trên máy bạn; thời gian và <code>getsizeof</code> tăng bao nhiêu lần khi n gấp đôi? <code>getsizeof</code> của list sổ có tính các list con không?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>so_quy.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH06</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-06</a> rồi chép các tệp vào kho: <code>so_quy.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

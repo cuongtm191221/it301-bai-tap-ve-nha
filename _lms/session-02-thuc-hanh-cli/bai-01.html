@@ -1,0 +1,41 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên bưu cục GHTK tra cứu đơn trên màn hình dòng lệnh" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-01/minh_hoa.png" /></p>
+<p><em>Nhân viên bưu cục GHTK tra cứu đơn trên màn hình dòng lệnh</em></p>
+<p>Mỗi sáng, bưu cục <strong>Giao Hàng Tiết Kiệm (GHTK)</strong> ở Cầu Giấy nhận danh sách đơn giao trong ngày; mỗi đơn là một list con theo thứ tự cố định:</p>
+<pre><code>[mã đơn, người nhận, quận, tiền thu hộ (đồng)]&#10;</code></pre>
+<p>Trong ca, nhân viên xem danh sách, nhận thêm đơn tại quầy, tra cứu đơn khi khách gọi hỏi và đếm đơn từng quận để chia tuyến. Tổng tiền thu hộ sai thì cuối ca đối soát lệch tiền; thêm trùng mã thì một đơn có thể bị giao hai lần. Trưởng bưu cục còn muốn biết <strong>mỗi lần tra cứu tốn bao nhiêu lần so sánh mã</strong>, để ước lượng cho mùa sale khi danh sách lên hàng chục nghìn đơn.</p>
+<p>Bạn xây dựng module <strong>"GHTK Daily Orders CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu ban đầu (hàm <code>make_orders()</code> có sẵn trả về bản sao):</p>
+<pre><code>SAMPLE_ORDERS = [&#10;    [&quot;GH1001&quot;, &quot;Nguyễn Văn An&quot;, &quot;Cầu Giấy&quot;, 350000],&#10;    [&quot;GH1002&quot;, &quot;Trần Thị Bình&quot;, &quot;Đống Đa&quot;, 0],&#10;    [&quot;GH1003&quot;, &quot;Lê Minh Châu&quot;, &quot;Hà Đông&quot;, 1250000],&#10;    [&quot;GH1004&quot;, &quot;Phạm Thu Dung&quot;, &quot;Cầu Giấy&quot;, 89000],&#10;    [&quot;GH1005&quot;, &quot;Hoàng Văn Em&quot;, &quot;Thanh Xuân&quot;, 460000],&#10;]&#10;</code></pre>
+<p>Menu lặp lại liên tục gồm:</p>
+<p><strong>Chức năng 1 — Xem danh sách đơn và tổng tiền thu hộ.</strong> Mỗi đơn một dòng kèm số thứ tự, rồi dòng <code>Tổng: &lt;số đơn&gt; đơn, thu hộ &lt;tổng tiền&gt;</code>.</p>
+<p><strong>Chức năng 2 — Thêm đơn mới.</strong> Nhập mã, người nhận, quận, tiền thu hộ (mã đổi sang chữ in hoa, bỏ khoảng trắng hai đầu). Thêm vào cuối danh sách và in <code>Đã thêm đơn &lt;mã&gt;. Hiện có &lt;n&gt; đơn.</code></p>
+<p><strong>Chức năng 3 — Tra cứu đơn theo mã.</strong> Tìm từ đầu danh sách, dừng ngay khi thấy; in đơn tìm thấy hoặc <code>Không tìm thấy đơn &lt;mã&gt;</code>, kèm số lần so sánh mã.</p>
+<p><strong>Chức năng 4 — Đếm đơn theo quận.</strong> Nhập tên quận (không phân biệt hoa thường), in <code>Quận &lt;tên&gt; có &lt;k&gt; đơn.</code></p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đã lưu ca làm việc. Tạm biệt!</code> và dừng.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== BƯU CỤC GHTK - ĐƠN GIAO TRONG NGÀY =====&#10;1. Xem danh sách đơn và tổng tiền thu hộ&#10;2. Thêm đơn mới&#10;3. Tra cứu đơn theo mã&#10;4. Đếm đơn theo quận&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. GH1001 | Nguyễn Văn An | Cầu Giấy | 350.000đ&#10;2. GH1002 | Trần Thị Bình | Đống Đa | 0đ&#10;3. GH1003 | Lê Minh Châu | Hà Đông | 1.250.000đ&#10;4. GH1004 | Phạm Thu Dung | Cầu Giấy | 89.000đ&#10;5. GH1005 | Hoàng Văn Em | Thanh Xuân | 460.000đ&#10;Tổng: 5 đơn, thu hộ 2.149.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Nhập mã đơn:   gh1003 &#10;Tìm thấy: GH1003 | Lê Minh Châu | Hà Đông | 1.250.000đ (đã so sánh 3 mã).&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Nhập mã đơn: GH9999&#10;Không tìm thấy đơn GH9999 (đã so sánh 5 mã).&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Dữ liệu thêm đơn sai.</strong> <code>add_order</code> báo <code>ValueError</code> với đúng thông báo trong docstring (mã trống, mã đã tồn tại, người nhận trống, quận trống, tiền thu hộ không phải số nguyên không âm); <code>main.py</code> in <code>Lỗi: &lt;thông báo&gt;</code>, danh sách giữ nguyên. Mã trùng được nhận ra cả khi gõ chữ thường (<code>gh1001</code>); tiền <code>-5000</code>, <code>12.5</code>, <code>abc</code> đều sai.</p>
+<p><strong>Bẫy 2 — Mã tra cứu gõ không chuẩn hoặc không có.</strong> <code>gh1003</code> vẫn tìm thấy <code>GH1003</code>; mã không có thì số lần so sánh bằng số đơn.</p>
+<p><strong>Bẫy 3 — Lựa chọn menu không hợp lệ.</strong> <code>abc</code>, <code>7</code>, <code>2.5</code>, bấm Enter không nhập gì: in <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code> và hỏi lại, chương trình không dừng.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Bảng số lần so sánh của chức năng 3 với 5 đơn mẫu khi mã ở đầu, ở cuối, không có; với n đơn thì tốt nhất, xấu nhất là bao nhiêu bước.</li>
+<li>Big-O thời gian của bốn chức năng theo n (số đơn).</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>don_hang.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH01</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-01</a> rồi chép các tệp vào kho: <code>don_hang.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

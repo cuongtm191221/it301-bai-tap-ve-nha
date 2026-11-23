@@ -1,0 +1,41 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên Fahasa nhập và bán sách trên màn hình dòng lệnh" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-02-thuc-hanh-cli/bai-02/minh_hoa.png" /></p>
+<p><em>Nhân viên Fahasa nhập và bán sách trên màn hình dòng lệnh</em></p>
+<p>Nhà sách <strong>Fahasa</strong> chi nhánh Nguyễn Huệ quản lý kho bằng một danh sách; mỗi đầu sách là một list con theo thứ tự cố định:</p>
+<pre><code>[mã sách, tên sách, số cuốn tồn, giá bán (đồng)]&#10;</code></pre>
+<p>Hằng ngày nhân viên nhập sách từ nhà phát hành (đầu sách đã có thì <strong>cộng dồn</strong>, không tạo dòng mới), bán sách tại quầy và xem các đầu sách tồn nhiều nhất để đưa ra kệ khuyến mãi. Cuối tháng, kế toán đối chiếu tổng giá trị tồn kho; tính sai hoặc bán quá số tồn đều làm lệch sổ.</p>
+<p>Bạn xây dựng module <strong>"Fahasa Stock CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu ban đầu (hàm <code>make_books()</code> có sẵn trả về bản sao):</p>
+<pre><code>SAMPLE_BOOKS = [&#10;    [&quot;FB001&quot;, &quot;Đắc Nhân Tâm&quot;, 12, 86000],&#10;    [&quot;FB002&quot;, &quot;Nhà Giả Kim&quot;, 25, 79000],&#10;    [&quot;FB003&quot;, &quot;Tuổi Trẻ Đáng Giá Bao Nhiêu&quot;, 8, 90000],&#10;    [&quot;FB004&quot;, &quot;Cây Cam Ngọt Của Tôi&quot;, 25, 108000],&#10;    [&quot;FB005&quot;, &quot;Mắt Biếc&quot;, 4, 110000],&#10;]&#10;</code></pre>
+<p><strong>Chức năng 1 — Xem kho sách.</strong> Mỗi đầu sách một dòng có số thứ tự, rồi dòng <code>Tổng: &lt;a&gt; đầu sách, &lt;b&gt; cuốn, trị giá &lt;c&gt;</code>.</p>
+<p><strong>Chức năng 2 — Nhập sách.</strong> Nhập mã. Mã đã có: in tên và số tồn, hỏi số lượng nhập thêm, cộng dồn. Mã mới: hỏi tên, giá bán, số lượng rồi thêm vào cuối kho.</p>
+<p><strong>Chức năng 3 — Bán sách.</strong> Nhập mã và số lượng bán; trừ tồn và in số cuốn còn lại.</p>
+<p><strong>Chức năng 4 — Top 3 sách tồn nhiều nhất.</strong> Nhiều trước; tồn bằng nhau thì giữ thứ tự trong kho. <strong>Thứ tự của kho không được thay đổi</strong> sau khi xem top.</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Đã đóng sổ kho. Hẹn gặp lại!</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== FAHASA NGUYỄN HUỆ - QUẢN LÝ KHO SÁCH =====&#10;1. Xem kho sách&#10;2. Nhập sách&#10;3. Bán sách&#10;4. Top 3 sách tồn nhiều nhất&#10;5. Thoát&#10;Chọn chức năng (1-5): 4&#10;Top 3 sách tồn nhiều nhất:&#10;1. FB002 | Nhà Giả Kim | tồn 25 | 79.000đ&#10;2. FB004 | Cây Cam Ngọt Của Tôi | tồn 25 | 108.000đ&#10;3. FB001 | Đắc Nhân Tâm | tồn 12 | 86.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã sách: fb005&#10;Mã đã có: Mắt Biếc (tồn 4).&#10;Số lượng nhập thêm: 6&#10;Đã cộng thêm sách. Tồn mới: 10.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã sách: FB006&#10;Tên sách: Hai Số Phận&#10;Giá bán (đồng): 135000&#10;Số lượng nhập: 20&#10;Đã thêm sách mới FB006. Kho có 6 đầu sách.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Số lượng, giá bán sai.</strong> <code>0</code>, <code>-2</code>, <code>2.5</code>, <code>abc</code>, bỏ trống: in <code>Lỗi: Số lượng phải là số nguyên dương</code> (hoặc <code>Giá bán phải là số nguyên dương</code>), kho giữ nguyên.</p>
+<p><strong>Bẫy 2 — Bán sai.</strong> Mã không có: <code>Lỗi: Mã sách &lt;MÃ&gt; không có trong kho</code>. Bán quá tồn: <code>Lỗi: Không đủ sách: còn &lt;n&gt; cuốn</code>, tồn giữ nguyên. Bán đúng bằng số tồn thì còn 0 cuốn.</p>
+<p><strong>Bẫy 3 — Thêm sách mới thiếu thông tin.</strong> Mã trống, mã đã có, tên trống: đúng thông báo trong docstring của <code>add_book</code>.</p>
+<p><strong>Bẫy 4 — Lựa chọn menu không hợp lệ.</strong> In <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code> và hỏi lại.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Giải thích vì sao top 3 không được sắp xếp thẳng trên danh sách kho; cách của bạn tốn thêm bao nhiêu bộ nhớ phụ theo n (số đầu sách).</li>
+<li>Big-O thời gian của bốn chức năng theo n.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>kho_sach.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session02_TH02</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-02-thuc-hanh-cli/bai-02</a> rồi chép các tệp vào kho: <code>kho_sach.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
