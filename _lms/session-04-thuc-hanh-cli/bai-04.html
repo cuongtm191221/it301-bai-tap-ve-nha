@@ -1,0 +1,39 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên ghi điện EVN tính tiền điện cho tổ dân phố" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-04/minh_hoa.png" /></p>
+<p><em>Nhân viên ghi điện EVN tính tiền điện cho tổ dân phố</em></p>
+<p>Cuối tháng, nhân viên ghi điện của <strong>EVN Hà Nội</strong> ghi chỉ số công tơ của từng hộ trong tổ dân phố 12. Mỗi hộ là <code>[mã khách hàng, tên chủ hộ, chỉ số cũ, chỉ số mới]</code>; điện tiêu thụ là chỉ số mới trừ chỉ số cũ. Tiền điện tính <strong>bậc thang</strong>: 50 kWh đầu giá bậc 1, 50 kWh tiếp giá bậc 2..., phần vượt 400 kWh tính giá bậc 6. Bảng giá (minh họa, chưa gồm VAT) có sẵn trong mã:</p>
+<pre><code>TIERS = [(50, 1893), (50, 1956), (100, 2271), (100, 2860), (100, 3197), (None, 3302)]&#10;</code></pre>
+<p>Cách tính có cấu trúc lặp lại: tính bậc đầu, phần còn lại tính tiếp với các bậc còn lại; nên nhóm phát triển yêu cầu viết bằng <strong>đệ quy</strong>, không vòng lặp. Ví dụ 230 kWh: 50 × 1.893 + 50 × 1.956 + 100 × 2.271 + 30 × 2.860 = 505.350đ.</p>
+<p>Bạn xây dựng module <strong>"EVN Neighborhood Billing CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_customers()</code> trả về 4 hộ <code>PE001</code> đến <code>PE004</code> (xem <code>tien_dien.py</code>).</p>
+<p><strong>Chức năng 1 — Xem tiền điện</strong> (menu phụ): <code>1</code> mọi hộ kèm kWh và tiền; <code>2</code> chi tiết từng bậc của một hộ (<code>Bậc &lt;i&gt;: &lt;kWh&gt; kWh = &lt;tiền&gt;</code>; không dùng điện in <code>Tháng này không dùng điện.</code>).</p>
+<p><strong>Chức năng 2 — Ghi chỉ số mới.</strong> Nhập mã khách hàng và chỉ số mới; in <code>Đã ghi &lt;mã&gt;: &lt;kWh&gt; kWh, &lt;tiền&gt;.</code></p>
+<p><strong>Chức năng 3 — Tổng tiền cả tổ. Chức năng 4 — Hộ dùng nhiều điện nhất</strong> (bằng nhau lấy hộ đứng trước, không dùng <code>max()</code>). <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Các hàm <code>bill</code>, <code>breakdown</code>, <code>total_bill</code>, <code>top_user</code> viết bằng đệ quy, không vòng lặp, không làm đổi dữ liệu.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== EVN HÀ NỘI - TIỀN ĐIỆN TỔ DÂN PHỐ 12 =====&#10;1. Xem tiền điện&#10;2. Ghi chỉ số mới&#10;3. Tổng tiền cả tổ&#10;4. Hộ dùng nhiều điện nhất&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. Tất cả các hộ  2. Chi tiết bậc của một hộ&#10;Chọn cách xem: 1&#10;PE001 | Nguyễn Văn Hòa | 230 kWh | 505.350đ&#10;PE002 | Trần Thị Lan | 40 kWh | 75.720đ&#10;PE003 | Lê Minh Tâm | 400 kWh | 1.025.250đ&#10;PE004 | Đỗ Khánh Vy | 0 kWh | 0đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Tất cả các hộ  2. Chi tiết bậc của một hộ&#10;Chọn cách xem: 2&#10;Mã khách hàng: pe004&#10;Tháng này không dùng điện.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Tất cả các hộ  2. Chi tiết bậc của một hộ&#10;Chọn cách xem: 2&#10;Mã khách hàng: pe001&#10;Bậc 1: 50 kWh = 94.650đ&#10;Bậc 2: 50 kWh = 97.800đ&#10;Bậc 3: 100 kWh = 227.100đ&#10;Bậc 4: 30 kWh = 85.800đ&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Ranh giới bậc.</strong> 50 kWh chỉ tính bậc 1; 51 kWh có 1 kWh bậc 2; trên 400 kWh dùng bậc cuối không giới hạn.</p>
+<p><strong>Bẫy 2 — Không dùng điện.</strong> 0 kWh: tiền 0đ, không có bậc nào.</p>
+<p><strong>Bẫy 3 — Chỉ số sai.</strong> Mã không có, chỉ số không phải số nguyên không âm, chỉ số mới nhỏ hơn chỉ số cũ: đúng thông báo trong docstring của <code>update_reading</code>, dữ liệu giữ nguyên.</p>
+<p><strong>Bẫy 4 — Menu sai.</strong> Menu phụ: <code>Lựa chọn không hợp lệ.</code>; menu chính: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Với <code>bill</code>, <code>breakdown</code>, <code>total_bill</code>, <code>top_user</code>: trường hợp cơ sở, bước đệ quy, vì sao dừng; chạy tay <code>bill(230, TIERS)</code> từng tầng.</li>
+<li>Độ sâu đệ quy của <code>bill</code> phụ thuộc vào gì (số kWh hay số bậc)? Của <code>total_bill</code>? Tổ có 2.000 hộ thì sao?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>tien_dien.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH04</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-04">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-04</a> rồi chép các tệp vào kho: <code>tien_dien.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

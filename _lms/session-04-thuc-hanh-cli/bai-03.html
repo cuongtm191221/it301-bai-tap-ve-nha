@@ -1,0 +1,41 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên J&amp;T Express nhập mã vận đơn tại bưu cục" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-03/minh_hoa.png" /></p>
+<p><em>Nhân viên J&amp;T Express nhập mã vận đơn tại bưu cục</em></p>
+<p>Ở bưu cục <strong>J&amp;T Express</strong> Thủ Đức, nhân viên gõ tay mã vận đơn khi máy quét hỏng, nên hay gõ thừa dấu cách, gạch ngang, chữ thường, hoặc gõ nhầm một chữ số. Mã vận đơn gồm <code>JT</code> và 10 chữ số; <strong>chữ số cuối là chữ số kiểm tra</strong> theo thuật toán Luhn (thuật toán cũng dùng cho số thẻ ngân hàng):</p>
+<pre><code>Đi từ chữ số cuối sang trái, gấp đôi các chữ số ở vị trí thứ 2, 4, 6...&#10;(gấp đôi được số lớn hơn 9 thì trừ 9), cộng tất cả lại.&#10;Mã đúng khi tổng chia hết cho 10.          Ví dụ JT8402193752: tổng 40, mã đúng.&#10;</code></pre>
+<p>Bưu cục cần kiểm tra một mã, tính chữ số kiểm tra khi in mã mới, nhận đơn, và lọc mã sai trong lô mã đối tác gửi sang. Mọi xử lý chuỗi và lô mã viết bằng <strong>đệ quy</strong>, không vòng lặp.</p>
+<p>Bạn xây dựng module <strong>"J&amp;T Waybill Check CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_parcels()</code> trả về 3 đơn đã nhận (xem <code>van_don.py</code>).</p>
+<p><strong>Chức năng 1 — Kiểm tra mã vận đơn</strong> (menu phụ): <code>1</code> kiểm tra một mã (<code>Mã &lt;mã&gt; hợp lệ.</code> hoặc <code>Mã &lt;mã&gt; sai chữ số kiểm tra.</code>); <code>2</code> nhập 9 chữ số đầu, in <code>Mã đầy đủ: JT&lt;10 chữ số&gt;</code>.</p>
+<p><strong>Chức năng 2 — Nhận đơn.</strong> Nhập mã và người nhận; mã phải đúng dạng, đúng chữ số kiểm tra, chưa nhận.</p>
+<p><strong>Chức năng 3 — Kiểm tra lô mã của đối tác.</strong> Nhập các mã cách nhau bởi dấu phẩy; in <code>Hợp lệ &lt;a&gt;/&lt;n&gt; mã.</code> và <code>Mã sai: ...</code> (giữ thứ tự).</p>
+<p><strong>Chức năng 4 — Xem đơn đã nhận. Chức năng 5 — Thoát.</strong></p>
+<p>Các hàm <code>clean</code> (không dùng <code>replace</code>), <code>luhn_sum</code>, <code>invalid_codes</code> viết bằng đệ quy, không vòng lặp.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== J&amp;T EXPRESS - BƯU CỤC THỦ ĐỨC =====&#10;1. Kiểm tra mã vận đơn&#10;2. Nhận đơn&#10;3. Kiểm tra lô mã của đối tác&#10;4. Xem đơn đã nhận&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. Kiểm tra một mã  2. Tính chữ số kiểm tra&#10;Chọn: 1&#10;Mã vận đơn: jt 8402-1937-52&#10;Mã JT8402193752 hợp lệ.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Kiểm tra một mã  2. Tính chữ số kiểm tra&#10;Chọn: 1&#10;Mã vận đơn: JT8402193753&#10;Mã JT8402193753 sai chữ số kiểm tra.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Kiểm tra một mã  2. Tính chữ số kiểm tra&#10;Chọn: 2&#10;9 chữ số đầu: 260455901&#10;Mã đầy đủ: JT2604559019&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mã gõ không chuẩn.</strong> <code>jt 8402-1937-52</code> là <code>JT8402193752</code>.</p>
+<p><strong>Bẫy 2 — Sai dạng, sai chữ số kiểm tra.</strong> Thiếu, thừa chữ số, không bắt đầu bằng <code>JT</code>, có chữ cái trong phần số: <code>Lỗi: Mã vận đơn phải gồm JT và 10 chữ số</code>; đúng dạng nhưng sai chữ số cuối: <code>Mã vận đơn sai chữ số kiểm tra</code>.</p>
+<p><strong>Bẫy 3 — Chuỗi rỗng, lô rỗng.</strong> <code>clean("")</code> là <code>""</code>; lô không có mã sai thì không in dòng <code>Mã sai</code>.</p>
+<p><strong>Bẫy 4 — Nhận trùng, thiếu người nhận.</strong> Đúng thông báo trong docstring của <code>receive</code>.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> Menu phụ: <code>Lựa chọn không hợp lệ.</code>; menu chính: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Với <code>clean</code>, <code>luhn_sum</code>, <code>invalid_codes</code>: trường hợp cơ sở, bước đệ quy, vì sao dừng; chạy tay <code>luhn_sum("8402193752", False)</code> từng tầng (chữ số, có gấp đôi không, giá trị cộng).</li>
+<li>Mỗi lời gọi <code>text[1:]</code> tạo chuỗi mới: tổng số ký tự phải chép khi <code>clean</code> một chuỗi n ký tự là bao nhiêu, Big-O?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>van_don.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH03</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-03</a> rồi chép các tệp vào kho: <code>van_don.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

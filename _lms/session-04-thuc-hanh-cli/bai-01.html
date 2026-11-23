@@ -1,0 +1,41 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Thu ngân Highlands Coffee tra điểm thẻ thành viên" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-01/minh_hoa.png" /></p>
+<p><em>Thu ngân Highlands Coffee tra điểm thẻ thành viên</em></p>
+<p><strong>Highlands Coffee</strong> lưu lịch sử hóa đơn của mỗi hội viên thành một list số tiền (đồng), cũ trước mới sau, ví dụ:</p>
+<pre><code>SAMPLE_BILLS = [45000, 120000, 59000, 35000, 210000, 65000]&#10;</code></pre>
+<p>Mỗi hóa đơn được <code>số tiền // 10000</code> điểm; tổng điểm quyết định hạng thẻ (hàm <code>tier</code> có sẵn: Thành viên, Bạc từ 50, Vàng từ 100, Kim cương từ 200). Thu ngân cần xem lịch sử kèm điểm và hạng, thêm hóa đơn mới, đếm hóa đơn từ một ngưỡng (để tặng voucher) và xem hóa đơn lớn nhất.</p>
+<p>Nhóm phát triển muốn bạn luyện <strong>tư duy đệ quy</strong> trên list: ba hàm tính toán phải viết <strong>bằng đệ quy, không dùng vòng lặp</strong> (tách phần tử đầu và phần còn lại), có trường hợp cơ sở đúng.</p>
+<p>Bạn xây dựng module <strong>"Highlands Membership CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>Chức năng 1 — Xem lịch sử và điểm.</strong> Mỗi hóa đơn một dòng có số thứ tự, rồi <code>Điểm: &lt;p&gt; - Hạng: &lt;hạng&gt;</code>.</p>
+<p><strong>Chức năng 2 — Thêm hóa đơn.</strong> Nhập số tiền; thêm vào cuối; in <code>Đã thêm hóa đơn &lt;tiền&gt;. Điểm mới: &lt;p&gt;.</code></p>
+<p><strong>Chức năng 3 — Đếm hóa đơn lớn.</strong> Nhập ngưỡng; in <code>Có &lt;k&gt; hóa đơn từ &lt;ngưỡng&gt; trở lên.</code> (bằng ngưỡng cũng tính).</p>
+<p><strong>Chức năng 4 — Hóa đơn lớn nhất.</strong> In <code>Hóa đơn lớn nhất: &lt;tiền&gt;</code>, không dùng <code>max()</code>.</p>
+<p><strong>Chức năng 5 — Thoát.</strong> In <code>Cảm ơn quý khách. Hẹn gặp lại!</code>.</p>
+<p>Ba hàm <code>total_points</code>, <code>count_big</code>, <code>largest</code> viết bằng đệ quy, không vòng lặp, không làm đổi lịch sử.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== HIGHLANDS COFFEE - THẺ THÀNH VIÊN =====&#10;1. Xem lịch sử và điểm&#10;2. Thêm hóa đơn&#10;3. Đếm hóa đơn lớn&#10;4. Hóa đơn lớn nhất&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. 45.000đ&#10;2. 120.000đ&#10;3. 59.000đ&#10;4. 35.000đ&#10;5. 210.000đ&#10;6. 65.000đ&#10;Điểm: 51 - Hạng: Bạc&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Số tiền hóa đơn (đồng): 95000&#10;Đã thêm hóa đơn 95.000đ. Điểm mới: 60.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Ngưỡng (đồng): 60000&#10;Có 4 hóa đơn từ 60.000đ trở lên.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Lịch sử rỗng, một hóa đơn.</strong> Tổng điểm 0; đếm ra 0; lớn nhất trả <code>None</code> (chức năng 1, 4 in <code>Chưa có hóa đơn nào.</code>). Đây chính là trường hợp cơ sở của đệ quy.</p>
+<p><strong>Bẫy 2 — Hóa đơn dưới 10.000đ.</strong> Được 0 điểm; đúng 10.000đ được 1 điểm.</p>
+<p><strong>Bẫy 3 — Số tiền, ngưỡng sai.</strong> Số tiền ngoài 1.000–5.000.000 hoặc không phải số nguyên: <code>Lỗi: Số tiền phải là số nguyên từ 1.000 đến 5.000.000</code>; ngưỡng không phải số nguyên dương: <code>Lỗi: Ngưỡng phải là số nguyên dương</code>.</p>
+<p><strong>Bẫy 4 — Menu sai.</strong> In <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code> và hỏi lại.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Với mỗi hàm đệ quy: trường hợp cơ sở, bước đệ quy, vì sao chắc chắn dừng; vẽ chuỗi lời gọi của <code>total_points([45000, 120000, 59000])</code>.</li>
+<li>Một hội viên có 5.000 hóa đơn thì chuyện gì xảy ra với các hàm đệ quy này? Vì sao?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>tich_diem.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH01</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-01</a> rồi chép các tệp vào kho: <code>tich_diem.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

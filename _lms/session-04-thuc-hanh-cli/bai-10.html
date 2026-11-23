@@ -1,0 +1,43 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Kỹ sư tìm kiếm Điện Máy Xanh xem chuỗi khách gõ liền" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-10/minh_hoa.png" /></p>
+<p><em>Kỹ sư tìm kiếm Điện Máy Xanh xem chuỗi khách gõ liền</em></p>
+<p>Trên website <strong>Điện Máy Xanh</strong>, khách hay gõ liền không dấu: <code>tainghebluetooth</code>, <code>sacduphongkhongday</code>. Hệ thống tách chuỗi thành <strong>dãy từ khóa</strong> có trong từ điển để tìm sản phẩm. Một chuỗi có thể có nhiều cách tách (<code>tai nghe bluetooth</code>, <code>tainghe blue tooth</code>...); hệ thống cần <strong>đếm số cách tách</strong> (để đánh giá độ mơ hồ của từ điển) và <strong>gợi ý cách tách ít từ nhất</strong>.</p>
+<p>Hàm <code>count_slow</code> (có sẵn, <strong>không được sửa</strong>) đệ quy thử từng từ khóa ở đầu chuỗi: chuỗi ngắn chạy tức thì, nhưng khách dán một chuỗi dài lặp lại (<code>sacduphongsacduphong...</code>) làm máy chủ treo. Bạn viết <code>count_fast</code>, <code>best_split</code> cho kết quả đúng và nhanh, đưa vào ứng dụng, chứng minh bằng số đo, rồi tìm hiểu kỹ <code>functools.lru_cache</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_keywords()</code> trả về 18 từ khóa (xem <code>tach_tu_khoa.py</code>); <code>normalize</code> có sẵn bỏ khoảng trắng, đổi chữ thường.</p>
+<p><strong>Chức năng 1 — Tách chuỗi tìm kiếm.</strong> In <code>Có &lt;k&gt; cách tách. Gợi ý: &lt;từ&gt; &lt;từ&gt; ...</code> hoặc <code>Không tách được: có đoạn chưa có trong từ điển.</code> Gợi ý là cách ít từ nhất; cùng số từ thì lấy cách nhỏ nhất khi so hai list theo thứ tự chữ cái.</p>
+<p><strong>Chức năng 2 — Thêm từ khóa</strong> (2–20 chữ cái a-z, chưa có). <strong>Chức năng 3 — Xem từ điển</strong> (xếp theo chữ cái). <strong>Chức năng 4 — Đo</strong> bản cũ và bản mới với chuỗi <code>sacduphong</code> lặp 6, 8, 10 lần. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== ĐIỆN MÁY XANH - TÁCH CHUỖI TÌM KIẾM =====&#10;1. Tách chuỗi tìm kiếm&#10;2. Thêm từ khóa&#10;3. Xem từ điển&#10;4. Đo bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Chuỗi tìm kiếm: tai nghe Bluetooth&#10;Có 4 cách tách. Gợi ý: tainghe bluetooth&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Chuỗi tìm kiếm: sacduphongkhongday&#10;Có 6 cách tách. Gợi ý: sacduphong khongday&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Chuỗi tìm kiếm: maytinhbang&#10;Không tách được: có đoạn chưa có trong từ điển.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>số lần lặp | bản cũ (ms) | bản mới (ms)&#10;6 | 1.0 | 0.03&#10;8 | 8.7 | 0.04&#10;10 | 78.2 | 0.06&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Kiểm tra trên 100 chuỗi ngẫu nhiên với từ điển có nhiều từ chồng lấn (<code>a</code>, <code>ab</code>, <code>ba</code>, <code>aba</code>...).</p>
+<p><strong>Bẫy 2 — Không tách được.</strong> Số cách 0; gợi ý <code>None</code>.</p>
+<p><strong>Bẫy 3 — Chuỗi dài.</strong> <code>sacduphong</code> lặp 30 lần (300 ký tự) có 3^30 cách: đếm và gợi ý trong 1 giây, không <code>RecursionError</code>, không đổi giới hạn đệ quy, không gọi bản cũ.</p>
+<p><strong>Bẫy 4 — Cùng số từ.</strong> <code>abab</code> với từ điển <code>ab, a, b, ba, aba, bab</code>: gợi ý <code>a bab</code> (vì <code>["a", "bab"]</code> nhỏ hơn <code>["ab", "ab"]</code> và <code>["aba", "b"]</code>).</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Chuỗi có ký tự ngoài a-z, từ khóa sai hoặc trùng, menu sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Vẽ cây lời gọi của <code>count_slow("sacduphong", ...)</code>; với chuỗi lặp k lần, bản cũ gọi bao nhiêu lần (theo k), Big-O? Những lời gọi nào lặp lại?</li>
+<li>Thiết kế <code>count_fast</code>, <code>best_split</code>: mỗi vị trí trong chuỗi được tính mấy lần; Big-O theo độ dài chuỗi n và số từ khóa m; bảng số đo chức năng 4 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu <code>functools.lru_cache</code>: <code>cache_info()</code> (hits, misses), <code>maxsize</code>, vì sao tham số phải "băm được" (hashable), bộ nhớ của cache.</li>
+<li>Tạo <code>nghien_cuu.py</code>: cho thấy lỗi khi đặt <code>@lru_cache</code> lên hàm nhận list từ khóa và cách sửa bằng tuple; in <code>cache_info()</code> khi đếm <code>sacduphong</code> lặp 10 lần; so thời gian với <code>maxsize=None</code> và <code>maxsize=2</code>.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>tach_tu_khoa.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH10</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-10</a> rồi chép các tệp vào kho: <code>tach_tu_khoa.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

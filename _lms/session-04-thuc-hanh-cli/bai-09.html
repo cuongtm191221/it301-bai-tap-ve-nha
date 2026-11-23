@@ -1,0 +1,46 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Khách thân thiết Bách Hóa Xanh xem điểm thưởng chuỗi ngày mua" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-09/minh_hoa.png" /></p>
+<p><em>Khách thân thiết Bách Hóa Xanh xem điểm thưởng chuỗi ngày mua</em></p>
+<p><strong>Bách Hóa Xanh</strong> thưởng khách đi chợ đều đặn: lịch sử là list các ngày mua (số thứ tự ngày, tăng dần, không trùng). Các ngày liên tiếp tạo thành <strong>chuỗi</strong>; mỗi ngày mua được điểm bằng độ dài chuỗi tính đến ngày đó, <strong>tối đa 7 điểm</strong>. Ví dụ mua ngày 1, 2, 3, 5: điểm 1 + 2 + 3 + 1.</p>
+<p>Hàm <code>report_slow</code> (có sẵn, <strong>không được sửa</strong>) viết bằng đệ quy, cắt list ở mỗi tầng: đúng với khách mới, nhưng khách thân thiết 5 năm (hơn 1.800 ngày mua) làm ứng dụng báo <code>RecursionError</code>, và lịch sử vài trăm ngày đã chậm thấy rõ.</p>
+<p>Bạn viết <code>report_fast</code> cho <strong>kết quả giống hệt</strong> bản cũ, đưa vào ứng dụng, chứng minh bằng số đo, rồi tìm hiểu vì sao Python không tự xử lý được đệ quy sâu.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_days()</code> trả về 9 ngày mua trong tháng 11/2026 (xem <code>chuoi_ngay.py</code>).</p>
+<p><strong>Chức năng 1 — Xem k ngày mua gần nhất</strong> (mới nhất trước, dạng <code>YYYY-MM-DD</code>).</p>
+<p><strong>Chức năng 2 — Ghi ngày mua</strong> (<code>YYYY-MM-DD</code>, phải sau ngày mua gần nhất); in chuỗi hiện tại.</p>
+<p><strong>Chức năng 3 — Báo cáo</strong> bằng <code>report_fast</code>: <code>Chuỗi dài nhất: &lt;a&gt; ngày | Chuỗi hiện tại: &lt;b&gt; ngày | Điểm thưởng: &lt;c&gt;</code>.</p>
+<p><strong>Chức năng 4 — Đo</strong> bản cũ và bản mới với n = 200, 400, 800, và cho biết bản cũ với 3.000 ngày có gặp <code>RecursionError</code> không. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== BÁCH HÓA XANH - THƯỞNG CHUỖI NGÀY MUA =====&#10;1. Xem các ngày mua gần nhất&#10;2. Ghi ngày mua&#10;3. Báo cáo chuỗi và điểm thưởng&#10;4. Đo bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 3&#10;Chuỗi dài nhất: 4 ngày | Chuỗi hiện tại: 4 ngày | Điểm thưởng: 19&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Số ngày cần xem: 3&#10;2026-11-13, 2026-11-12, 2026-11-11&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Ngày mua (YYYY-MM-DD): 2026-11-14&#10;Đã ghi 2026-11-14. Chuỗi hiện tại: 5 ngày.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;200 | 0.27 | 0.031&#10;400 | 0.85 | 0.062&#10;800 | 3.01 | 0.124&#10;Bản cũ với 3000 ngày: gặp RecursionError&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Kiểm tra trên 200 lịch sử ngẫu nhiên; lịch sử rỗng <code>(0, 0, 0)</code>; một ngày <code>(1, 1, 1)</code>.</p>
+<p><strong>Bẫy 2 — Trần 7 điểm.</strong> Chuỗi 10 ngày: điểm 1 + 2 + ... + 7 + 7 + 7 + 7.</p>
+<p><strong>Bẫy 3 — Ràng buộc.</strong> <code>report_fast</code> không gọi bản cũ, không đổi giới hạn đệ quy, không làm đổi lịch sử; 100.000 ngày trong 1 giây.</p>
+<p><strong>Bẫy 4 — Ngày sai.</strong> Sai dạng hoặc ngày không có thật (<code>2026-11-31</code>): <code>Lỗi: Ngày phải có dạng YYYY-MM-DD</code>; không sau ngày gần nhất: <code>Lỗi: Ngày mua phải sau ngày mua gần nhất (&lt;ngày&gt;)</code>.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Phân tích <code>report_slow</code>: độ sâu đệ quy, số phần tử bị chép khi cắt list, Big-O thời gian và bộ nhớ theo n; vì sao gặp <code>RecursionError</code>.</li>
+<li>Thiết kế <code>report_fast</code>; Big-O; bảng số đo chức năng 4 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu "đệ quy đuôi" (tail recursion) và vì sao CPython không tối ưu nó; vì sao tăng <code>sys.setrecursionlimit</code> không phải cách sửa an toàn.</li>
+<li>Tạo <code>nghien_cuu.py</code>: viết bản đệ quy đuôi của chuỗi hiện tại (tham số tích lũy), cho thấy nó vẫn gặp <code>RecursionError</code> với 5.000 ngày; in <code>sys.getrecursionlimit()</code>; đối chiếu với <code>report_fast</code>.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>chuoi_ngay.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 8 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH09</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-09</a> rồi chép các tệp vào kho: <code>chuoi_ngay.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

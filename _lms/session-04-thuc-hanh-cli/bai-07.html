@@ -1,0 +1,39 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Giao dịch viên Vietcombank đổi tiền mới dịp Tết" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-07/minh_hoa.png" /></p>
+<p><em>Giao dịch viên Vietcombank đổi tiền mới dịp Tết</em></p>
+<p>Dịp Tết, quầy <strong>Vietcombank</strong> Hoàn Kiếm đổi tiền mới mệnh giá 500.000đ, 200.000đ, 100.000đ, 50.000đ, 20.000đ, 10.000đ cho khách mừng tuổi. Khách đổi một số tiền là bội của 10.000đ, tối đa 3.000.000đ. Quầy cần hai thông tin: <strong>phương án ít tờ nhất</strong> (để chuẩn bị tiền nhanh) và <strong>có bao nhiêu cách đổi</strong> (bộ phận ngân quỹ dùng để ước lượng nhu cầu từng mệnh giá; hai cách có cùng số tờ mỗi mệnh giá là một cách).</p>
+<p>Bản đếm số cách hiện tại viết bằng đệ quy: với mệnh giá đang xét, hoặc dùng thêm một tờ, hoặc bỏ hẳn mệnh giá đó. Đổi 500.000đ có kết quả ngay, đổi 3.000.000đ thì chờ rất lâu. Trưởng quầy yêu cầu một giải pháp khác, chứng minh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Vietcombank Tet Exchange CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>Chức năng 1 — Phương án ít tờ nhất.</strong> <code>fewest_notes</code> (đệ quy trên các mệnh giá, không vòng lặp): lấy nhiều nhất có thể tờ lớn rồi đổi phần còn lại; in <code>Đổi: &lt;k&gt; tờ &lt;mệnh giá&gt;, ...</code> (bỏ mệnh giá 0 tờ); ghi vào lịch sử phiên.</p>
+<p><strong>Chức năng 2 — Số cách đổi</strong> (menu phụ chọn giải pháp). <code>count_ways_v1</code> (đệ quy) và <code>count_ways_v2</code> cho <strong>cùng kết quả</strong>, <strong>khác nhau về cách làm</strong>; giải pháp 2 tính 3.000.000đ trong 1 giây. In <code>Có &lt;k&gt; cách đổi &lt;tiền&gt;.</code></p>
+<p><strong>Chức năng 3 — Lịch sử đổi trong phiên. Chức năng 4 — Đo</strong> hai giải pháp với 500.000đ, 1.000.000đ, 1.500.000đ. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VIETCOMBANK HOÀN KIẾM - ĐỔI TIỀN MỚI =====&#10;1. Phương án ít tờ nhất&#10;2. Số cách đổi&#10;3. Lịch sử đổi trong phiên&#10;4. Đo so sánh hai giải pháp&#10;5. Thoát&#10;Chọn chức năng (1-5): 3&#10;Chưa có lượt đổi nào.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Số tiền đổi (đồng): 1780000&#10;Đổi: 3 tờ 500.000đ, 1 tờ 200.000đ, 1 tờ 50.000đ, 1 tờ 20.000đ, 1 tờ 10.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 1&#10;Số tiền đổi (đồng): 500000&#10;Có 451 cách đổi 500.000đ.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>số tiền | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;500.000đ | 1.0 | 0.03&#10;1.000.000đ | 16.2 | 0.06&#10;1.500.000đ | 108.2 | 0.09&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Trường hợp cơ sở.</strong> 10.000đ có 1 cách; 20.000đ có 2 cách (một tờ 20.000đ, hai tờ 10.000đ).</p>
+<p><strong>Bẫy 2 — Thứ tự đưa tờ không tạo cách mới.</strong> 30.000đ = 20.000 + 10.000 = 10.000 + 20.000 chỉ là một cách.</p>
+<p><strong>Bẫy 3 — Số tiền sai.</strong> Không phải bội của 10.000, ngoài 10.000–3.000.000, không phải số nguyên: <code>Lỗi: Số tiền phải là bội của 10.000đ, từ 10.000đ đến 3.000.000đ</code>.</p>
+<p><strong>Bẫy 4 — Số lớn.</strong> 3.000.000đ có 393.119 cách; giải pháp 2 trong 1 giây, không <code>RecursionError</code>, không tăng giới hạn đệ quy.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> Menu phụ: <code>Lựa chọn không hợp lệ.</code>; menu chính: <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp đếm số cách đổi khác nhau (ý tưởng, cây lời gọi với 50.000đ, mã giả); giải thích vì sao giải pháp 1 chậm (lời gọi nào lặp lại).</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ sâu đệ quy, độ dễ đọc, phù hợp bối cảnh) kèm số đo chức năng 4 trên máy bạn; chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>doi_tien.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH07</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-07</a> rồi chép các tệp vào kho: <code>doi_tien.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

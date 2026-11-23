@@ -1,0 +1,41 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Chủ quán cơm tấm xem gợi ý combo trên GrabFood" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-08/minh_hoa.png" /></p>
+<p><em>Chủ quán cơm tấm xem gợi ý combo trên GrabFood</em></p>
+<p>Quán <strong>Cơm Tấm Phúc Lộc Thọ</strong> bán trên <strong>GrabFood</strong> muốn có tính năng "nhập ngân sách, gợi ý combo". Thực đơn là list món <code>[mã, tên, giá]</code>; một <strong>combo</strong> là tập các món khác nhau (mỗi món nhiều nhất một phần), không rỗng, tổng giá không vượt ngân sách. Quán cần hai thông tin: <strong>combo sát ngân sách nhất</strong> để gợi ý cho khách, và <strong>có bao nhiêu combo</strong> trong một mức ngân sách để chọn các mức khuyến mãi (49k, 99k...).</p>
+<p>Bản đếm hiện tại liệt kê tổng giá của mọi tập món bằng đệ quy rồi đếm: thực đơn 7 món chạy tức thì, nhưng chuỗi cửa hàng có thực đơn 40 món thì không bao giờ chạy xong. Trưởng nhóm yêu cầu một giải pháp khác (vẫn đệ quy), chứng minh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"GrabFood Combo Advisor CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_menu()</code> trả về 7 món (xem <code>combo.py</code>).</p>
+<p><strong>Chức năng 1 — Xem thực đơn.</strong></p>
+<p><strong>Chức năng 2 — Gợi ý combo sát ngân sách.</strong> <code>best_combo</code>: tổng giá lớn nhất không vượt ngân sách; cùng tổng thì ít món hơn, vẫn bằng thì món đứng trước trong thực đơn; in <code>Combo &lt;tổng&gt; (&lt;k&gt; món): &lt;tên món&gt;, ...</code> hoặc <code>Không có món nào vừa ngân sách.</code></p>
+<p><strong>Chức năng 3 — Đếm số combo trong ngân sách</strong> (menu phụ chọn giải pháp). <code>count_combos_v1</code>, <code>count_combos_v2</code> cho <strong>cùng kết quả</strong>, <strong>khác nhau về cách làm</strong>; giải pháp 2 tính 40 món, ngân sách 200.000đ trong 1 giây; không làm đổi list giá.</p>
+<p><strong>Chức năng 4 — Đo</strong> hai giải pháp với thực đơn giả lập 16, 18, 20 món, ngân sách 150.000đ. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== GRABFOOD - CƠM TẤM PHÚC LỘC THỌ =====&#10;1. Xem thực đơn&#10;2. Gợi ý combo sát ngân sách&#10;3. Đếm số combo trong ngân sách&#10;4. Đo so sánh hai giải pháp&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;CT01 | Cơm tấm sườn | 55.000đ&#10;CT02 | Cơm tấm sườn bì chả | 69.000đ&#10;CT03 | Canh khổ qua | 25.000đ&#10;CT04 | Trà đá | 5.000đ&#10;CT05 | Chả trứng thêm | 15.000đ&#10;CT06 | Nước sâm | 18.000đ&#10;CT07 | Sườn thêm | 30.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Ngân sách (đồng): 100000&#10;Combo 100.000đ (3 món): Cơm tấm sườn, Chả trứng thêm, Sườn thêm&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 1&#10;Ngân sách (đồng): 100000&#10;Có 56 combo trong 100.000đ.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>số món | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;16 | 2.9 | 0.04&#10;18 | 11.8 | 0.05&#10;20 | 48.6 | 0.07&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Không có combo.</strong> Ngân sách nhỏ hơn món rẻ nhất: đếm ra 0; gợi ý in <code>Không có món nào vừa ngân sách.</code></p>
+<p><strong>Bẫy 2 — Combo rỗng không tính.</strong> Ngân sách 5.000đ có đúng 1 combo (Trà đá).</p>
+<p><strong>Bẫy 3 — Nhiều combo cùng tổng.</strong> Theo quy tắc ít món hơn, rồi món đứng trước.</p>
+<p><strong>Bẫy 4 — Thực đơn lớn.</strong> 40 món: giải pháp 2 trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Ngân sách ngoài 10.000–2.000.000 hoặc không phải số nguyên, menu phụ, menu chính sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp đếm combo khác nhau (ý tưởng, cây lời gọi với 3 món, mã giả); giải pháp 1 xét bao nhiêu tập món với n món? Giải pháp của bạn bỏ qua được những nhánh nào, vì sao vẫn đúng?</li>
+<li>Bảng so sánh 5 tiêu chí kèm số đo chức năng 4 trên máy bạn; chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>combo.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH08</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-08</a> rồi chép các tệp vào kho: <code>combo.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

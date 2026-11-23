@@ -1,0 +1,42 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Kỹ sư ZaloPay xem lỗi khi lịch sử ví quá dài" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-04-thuc-hanh-cli/bai-05/minh_hoa.png" /></p>
+<p><em>Kỹ sư ZaloPay xem lỗi khi lịch sử ví quá dài</em></p>
+<p>Ví <strong>ZaloPay</strong> lưu lịch sử giao dịch của mỗi người dùng; mỗi giao dịch là <code>[mã, loại "NAP" hoặc "CHI", số tiền]</code>. Số dư bằng tổng NAP trừ tổng CHI. Nhóm phát triển viết hàm tính số dư bằng <strong>đệ quy theo chỉ số</strong> (không cắt list). Mọi thứ ổn với người dùng mới, nhưng tài khoản của một cửa hàng có 20.000 giao dịch làm ứng dụng báo lỗi <code>RecursionError: maximum recursion depth exceeded</code>.</p>
+<p>Trưởng nhóm yêu cầu: giữ bản đệ quy cho lịch sử ngắn, thêm bản <strong>vòng lặp</strong> cho lịch sử dài, chọn tự động theo độ dài, và dùng <strong>số đo</strong> cho thấy hai bản khác nhau thế nào. Không được sửa bằng cách tăng giới hạn đệ quy.</p>
+<p>Bạn xây dựng module <strong>"ZaloPay Wallet History CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_txs()</code> trả về 6 giao dịch (số dư 411.000đ); <code>make_big_txs(n)</code> tạo lịch sử giả lập (xem <code>vi_dien_tu.py</code>).</p>
+<p><strong>Chức năng 1 — Xem số dư và khoản chi lớn nhất.</strong> <code>balance</code> dùng <code>net_rec</code> khi lịch sử không quá <code>RECURSION_SAFE = 500</code> giao dịch, ngược lại dùng <code>net_loop</code>; in <code>Số dư: &lt;tiền&gt; (tính bằng &lt;đệ quy hoặc vòng lặp&gt;, &lt;n&gt; giao dịch)</code>. Lịch sử không quá 500 giao dịch thì in thêm khoản chi lớn nhất (<code>largest_spend</code>, đệ quy).</p>
+<p><strong>Chức năng 2 — Nạp hoặc chi.</strong> Mã tự sinh tiếp theo; không chi quá số dư.</p>
+<p><strong>Chức năng 3 — Nạp lịch sử dài</strong> (thêm 20.000 giao dịch giả lập).</p>
+<p><strong>Chức năng 4 — Đo đệ quy và vòng lặp.</strong> <code>benchmark</code> đo bằng <code>timeit</code> với n = 200, 400, 800; <code>recursion_fails(5000)</code> cho biết bản đệ quy có gặp <code>RecursionError</code> với 5.000 giao dịch không.</p>
+<p><strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== ZALOPAY - LỊCH SỬ VÍ =====&#10;1. Xem số dư và khoản chi lớn nhất&#10;2. Nạp hoặc chi&#10;3. Nạp lịch sử dài (giả lập)&#10;4. Đo đệ quy và vòng lặp&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Số dư: 411.000đ (tính bằng đệ quy, 6 giao dịch)&#10;Khoản chi lớn nhất: ZP003 120.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Loại (NAP/CHI): chi&#10;Số tiền (đồng): 150000&#10;Đã ghi ZP007. Số dư: 261.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Loại (NAP/CHI): CHI&#10;Số tiền (đồng): 999999&#10;Lỗi: Số dư không đủ: còn 261.000đ&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | đệ quy (ms) | vòng lặp (ms)&#10;200 | 0.026 | 0.008&#10;400 | 0.053 | 0.016&#10;800 | 0.109 | 0.032&#10;Đệ quy với 5000 giao dịch: gặp RecursionError&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Lịch sử dài.</strong> 100.000 giao dịch: <code>balance</code> dùng vòng lặp, xong trong 2 giây, không <code>RecursionError</code>.</p>
+<p><strong>Bẫy 2 — Đệ quy theo chỉ số.</strong> <code>net_rec</code>, <code>largest_spend</code> không cắt list (<code>[i + 1:]</code>), không vòng lặp; <code>net_loop</code> không đệ quy.</p>
+<p><strong>Bẫy 3 — Không có khoản chi.</strong> <code>largest_spend</code> trả <code>None</code>; bằng nhau lấy khoản đứng trước.</p>
+<p><strong>Bẫy 4 — Chi vượt số dư, dữ liệu sai.</strong> Đúng thông báo trong docstring của <code>add_tx</code>; chi đúng bằng số dư thì được.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Vẽ call stack của <code>net_rec</code> với 3 giao dịch; với n giao dịch có bao nhiêu khung trên stack cùng lúc, bộ nhớ phụ Big-O? Vì sao 5.000 giao dịch gây <code>RecursionError</code> (ghi giá trị <code>sys.getrecursionlimit()</code> trên máy bạn)?</li>
+<li>Bảng số đo chức năng 4 trên máy bạn; so sánh đệ quy và vòng lặp về thời gian, bộ nhớ, độ an toàn. Vì sao không sửa bằng cách tăng giới hạn đệ quy?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>vi_dien_tu.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session04_TH05</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-04-thuc-hanh-cli/bai-05</a> rồi chép các tệp vào kho: <code>vi_dien_tu.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

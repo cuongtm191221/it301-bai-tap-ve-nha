@@ -1,0 +1,72 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Hệ thống tích điểm thẻ thành viên của Highlands Coffee",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 5175
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Hệ thống tính tiết kiệm tích lũy của Techcombank",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 5152
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Hệ thống kiểm tra mã vận đơn của J&T Express",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5696
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Hệ thống tính tiền điện bậc thang cho tổ dân phố của EVN Hà Nội",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5635
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Hệ thống lịch sử giao dịch ví ZaloPay",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5848
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Hệ thống tính phương án xếp pallet cho kho Vinamilk",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5595
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Hệ thống quầy đổi tiền mới dịp Tết của Vietcombank",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5491
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Hệ thống gợi ý combo trong ngân sách cho quán cơm tấm trên GrabFood",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5647
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Tối ưu thưởng chuỗi ngày mua hàng của Bách Hóa Xanh",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6008
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Tối ưu tách chuỗi tìm kiếm cho Điện Máy Xanh",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6291
+ }
+]
