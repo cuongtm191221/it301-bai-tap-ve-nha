@@ -1,0 +1,123 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trong phòng nghe chung, yêu cầu của tài khoản VIP được chen lên trước, nhưng không được chen ngang nhau." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-19/minh_hoa.png" /></p>
+<p><em>Trong phòng nghe chung, yêu cầu của tài khoản VIP được chen lên trước, nhưng không được chen ngang nhau.</em></p>
+<p>Zing MP3 thử nghiệm tính năng <strong>"Phòng nghe chung"</strong>: nhiều người cùng vào một phòng, cùng nghe một luồng nhạc, và ai cũng có thể <strong>yêu cầu bài</strong>. Các yêu cầu xếp thành một hàng chờ; phòng phát lần lượt từ đầu hàng chờ.</p>
+<p>Quy tắc ưu tiên:</p>
+<ul>
+<li>Yêu cầu của <strong>tài khoản thường</strong> xếp vào <strong>cuối</strong> hàng chờ.</li>
+<li>Yêu cầu của <strong>tài khoản VIP</strong> được đứng <strong>trước mọi yêu cầu thường</strong>, nhưng <strong>sau các yêu cầu VIP đã có</strong> (VIP không chen ngang VIP; ai yêu cầu trước được phát trước).</li>
+</ul>
+<p>Ví dụ: hai tài khoản thường yêu cầu <code>ZM001</code>, <code>ZM002</code>; sau đó hai tài khoản VIP lần lượt yêu cầu <code>ZM003</code>, <code>ZM004</code>. Hàng chờ là:</p>
+<pre><code>head                                                     tail
+[VIP] ZM003  -&gt;  [VIP] ZM004  -&gt;  ZM001  -&gt;  ZM002  -&gt;  None
+</code></pre>
+<p>Hàng chờ luôn gồm hai đoạn: <strong>đoạn VIP ở trước, đoạn thường ở sau</strong>. Một yêu cầu VIP mới phải được chèn đúng vào <strong>ranh giới</strong> giữa hai đoạn.</p>
+<p>Hàng chờ được lưu bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>. Mỗi node có <code>value</code> (chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code>), <code>vip</code> (<code>True</code> hoặc <code>False</code>) và <code>next</code>. Bạn được giao viết trọn lớp <code>RoomQueue</code> và tự quyết định cách xác định ranh giới.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Lớp <code>RoomQueue</code> (khung có sẵn trong <code>phong_nghe.py</code>) cần bốn chức năng. Mỗi chức năng <strong>trả về</strong> thông báo đúng từng chữ. Mọi mã bài nhận vào được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.</p>
+<p><strong>2.1. Nhận yêu cầu: <code>add_request(code, title, vip=False)</code></strong></p>
+<p>Xếp yêu cầu vào đúng chỗ theo quy tắc ưu tiên và trả về thông báo có <strong>vị trí</strong> của bài trong hàng chờ (tính từ 1) ngay sau khi xếp:</p>
+<pre><code>Đã xếp hàng: ZM002 - Mưa đêm (vị trí 2)
+Đã xếp ưu tiên: ZM003 - Đường về nhà (vị trí 1)
+</code></pre>
+<p><strong>2.2. Phát bài tiếp theo: <code>play_next()</code></strong></p>
+<p>Lấy bài ở đầu hàng chờ ra trong O(1), trả về:</p>
+<pre><code>Đang phát: ZM003 - Đường về nhà
+</code></pre>
+<p><strong>2.3. Hủy yêu cầu: <code>cancel(code)</code></strong></p>
+<p>Gỡ node của bài có mã <code>code</code> (bất kể VIP hay thường), trả về:</p>
+<pre><code>Đã hủy yêu cầu: ZM004 - Phố cũ
+</code></pre>
+<p><strong>2.4. Hiển thị hàng chờ: <code>to_lines()</code></strong></p>
+<p>Trả về list các dòng đánh số từ 1; yêu cầu VIP có nhãn <code>[VIP]</code>:</p>
+<pre><code>1. [VIP] ZM003 - Đường về nhà
+2. [VIP] ZM004 - Phố cũ
+3. ZM001 - Bình minh trên phố
+4. ZM002 - Mưa đêm
+</code></pre>
+<p>Hàng chờ không có bài: <code>to_lines()</code> trả về list chỉ có một dòng, và <code>play_next()</code> trả về đúng dòng đó:</p>
+<pre><code>Hàng chờ của phòng đang trống.
+</code></pre>
+<p>Sau mọi chức năng: <code>size</code> và <code>tail</code> đúng, mọi node VIP đứng trước mọi node thường.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bài đã có trong hàng chờ</strong></p>
+<ul>
+<li>Mỗi bài chỉ được chờ một lần. Hàng chờ đã có <code>ZM001</code>; một tài khoản VIP yêu cầu <code>zm001</code>: không xếp thêm, không đổi vị trí bài cũ, trả về:</li>
+</ul>
+<pre><code>Bài ZM001 đã có trong hàng chờ của phòng.
+</code></pre>
+<p><strong>Bẫy 2 — Yêu cầu VIP khi hàng chờ trống, hoặc chỉ toàn VIP</strong></p>
+<ul>
+<li>Hàng chờ trống: node VIP là <code>head</code> và cũng là <code>tail</code>.</li>
+<li>Hàng chờ chỉ toàn VIP: yêu cầu VIP mới đứng cuối, nên <code>tail</code> phải dời sang node mới.</li>
+</ul>
+<p><strong>Bẫy 3 — Hủy yêu cầu VIP cuối cùng, rồi có yêu cầu VIP mới</strong></p>
+<ul>
+<li>Hàng chờ <code>[VIP] ZM003</code>, <code>[VIP] ZM004</code>, <code>ZM001</code>, <code>ZM002</code>. Hủy <code>ZM004</code>, rồi một tài khoản VIP yêu cầu <code>ZM005</code>: bài mới phải ở vị trí 2, ngay sau <code>ZM003</code>. Hủy tiếp cả <code>ZM003</code> và <code>ZM005</code>, rồi VIP yêu cầu <code>ZM006</code>: bài mới phải ở vị trí 1.</li>
+</ul>
+<p><strong>Bẫy 4 — Phát hết các bài VIP, rồi có yêu cầu VIP mới</strong></p>
+<ul>
+<li>Sau khi phát hết hai bài VIP của hàng chờ ở bẫy 3, yêu cầu VIP mới phải đứng ở vị trí 1, trước <code>ZM001</code>.</li>
+</ul>
+<p><strong>Bẫy 5 — Hủy bài cuối rồi thêm; hủy bài không có</strong></p>
+<ul>
+<li>Hủy <code>ZM002</code> (đang là <code>tail</code>) rồi nhận một yêu cầu thường: bài mới phải nằm ngay sau <code>ZM001</code>.</li>
+<li>Hủy một bài không có, kể cả khi hàng chờ trống:</li>
+</ul>
+<pre><code>Không tìm thấy bài ZM999 trong hàng chờ của phòng.
+</code></pre>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python phong_nghe.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Đã xếp hàng: ZM001 - Bình minh trên phố (vị trí 1)
+Đã xếp hàng: ZM002 - Mưa đêm (vị trí 2)
+Đã xếp ưu tiên: ZM003 - Đường về nhà (vị trí 1)
+Đã xếp ưu tiên: ZM004 - Phố cũ (vị trí 2)
+Bài ZM001 đã có trong hàng chờ của phòng.
+Đã xếp hàng: ZM005 - Gió qua thềm (vị trí 5)
+1. [VIP] ZM003 - Đường về nhà
+2. [VIP] ZM004 - Phố cũ
+3. ZM001 - Bình minh trên phố
+4. ZM002 - Mưa đêm
+5. ZM005 - Gió qua thềm
+Không tìm thấy bài ZM999 trong hàng chờ của phòng.
+Đã hủy yêu cầu: ZM004 - Phố cũ
+Đã xếp ưu tiên: ZM006 - Ngày nắng (vị trí 2)
+1. [VIP] ZM003 - Đường về nhà
+2. [VIP] ZM006 - Ngày nắng
+3. ZM001 - Bình minh trên phố
+4. ZM002 - Mưa đêm
+5. ZM005 - Gió qua thềm
+Số bài đang chờ: 5 | bài cuối: ZM005 - Gió qua thềm
+Đang phát: ZM003 - Đường về nhà
+Đang phát: ZM006 - Ngày nắng
+Đã xếp ưu tiên: ZM008 - Sau cơn mưa (vị trí 1)
+Bài đầu: ZM008 - Sau cơn mưa
+</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy.</li>
+<li>So sánh <strong>hai thiết kế</strong> xác định ranh giới VIP / thường: (a) duyệt từ <code>head</code> mỗi lần; (b) giữ thêm con trỏ tới node VIP cuối cùng. Xét thời gian, những chức năng phải cập nhật thêm, nguy cơ sai, cách tính vị trí cho thông báo; chọn một và nêu lý do.</li>
+<li>Vẽ hình bốn trường hợp chèn yêu cầu VIP: hàng chờ trống; chưa có VIP; có cả VIP và bài thường; chỉ toàn VIP.</li>
+<li>Chi phí: Big-O thời gian của bốn chức năng theo n (số bài đang chờ) và v (số bài VIP), cho thiết kế bạn chọn.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>phong_nghe.py</code>; được thêm phương thức, hàm, lớp phụ; không đổi tên và tham số đã có trong khung.</li>
+<li>Không dùng list, dict, set, deque của Python để lưu các bài (list chỉ dùng cho giá trị trả về khi hiển thị).</li>
+<li>Xử lý đủ 5 bẫy; chương trình in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 9 test có sẵn. Mã sạch, có chú thích ở những chỗ sửa liên kết.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu <strong>hàng đợi ưu tiên</strong> (priority queue), heap và mô-đun <code>heapq</code> của Python: các hàm chính, chi phí thêm và lấy phần tử nhỏ nhất.</li>
+<li>Tạo <code>nghien_cuu.py</code>: dùng <code>heapq</code> cài lại <code>add_request</code> và <code>play_next</code>, vẫn giữ quy tắc "VIP không chen ngang VIP". So sánh với danh sách liên kết của bạn về chi phí thêm, lấy bài tiếp theo, hủy một yêu cầu, và khả năng mở rộng lên năm mức ưu tiên.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex19</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-19">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-19</a> rồi chép các tệp vào kho: <code>phong_nghe.py</code>, <code>test_phong_nghe.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>phong_nghe.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần thử <code>heapq</code>.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

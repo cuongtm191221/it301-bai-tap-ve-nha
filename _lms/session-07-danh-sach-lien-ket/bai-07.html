@@ -1,0 +1,115 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người nghe thêm danh sách phát của bạn bè vào danh sách của mình, bị trùng bài và danh sách tự đổi theo bạn." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-07/minh_hoa.png" /></p>
+<p><em>Người nghe thêm danh sách phát của bạn bè vào danh sách của mình, bị trùng bài và danh sách tự đổi theo bạn.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng chia sẻ danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
+<p>Khi một người bạn chia sẻ danh sách phát, người nghe có nút <strong>"Thêm tất cả vào danh sách phát của tôi"</strong>. Mỗi danh sách phát là một <strong>danh sách liên kết đơn</strong> có <code>head</code>, <code>tail</code>, <code>size</code>; mỗi node giữ mã một bài.</p>
+<p>Ví dụ:</p>
+<pre><code>Danh sách của tôi (mine):     ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None
+Danh sách của bạn (shared):   ZM003  -&gt;  ZM004  -&gt;  ZM005  -&gt;  None
+</code></pre>
+<p>Hàm <code>append_all(target, source)</code> chép các bài của <code>source</code> vào cuối <code>target</code> theo ba quy tắc nghiệp vụ:</p>
+<ul>
+<li><strong>Không thêm bài đã có</strong>: <code>ZM003</code> đã có trong danh sách của tôi nên bị bỏ qua. Hàm trả về <strong>số bài thật sự được thêm</strong>.</li>
+<li><strong>Hai danh sách độc lập sau khi gộp</strong>: bạn bè thêm hay bớt bài trong danh sách của họ thì danh sách của tôi không được đổi theo, và ngược lại. Muốn vậy, mỗi bài được thêm phải nằm trong một <strong>node mới</strong> của <code>target</code>.</li>
+<li><strong>Danh sách nguồn giữ nguyên</strong>: <code>source</code> không bị thay đổi.</li>
+</ul>
+<p>Sau khi gộp, <code>head</code>, <code>tail</code>, <code>size</code> của <code>target</code> phải đúng; <code>target</code> đang rỗng cũng phải gộp được.</p>
+<p>Kịch bản kiểm tra của nhóm: gộp <code>shared</code> vào <code>mine</code> như ví dụ; in danh sách của tôi, số bài, bài cuối; bạn bè thêm <code>ZM006</code> vào danh sách của họ; in lại cả hai danh sách; cuối cùng gộp danh sách của bạn vào một danh sách mới tạo.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Số bài đã thêm: 2
+Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
+Số bài: 5 | bài cuối: ZM005
+Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
+Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
+Số bài đã thêm vào danh sách mới: 4
+Danh sách mới: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
+</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người nghe phản ánh: sau khi bấm "Thêm tất cả", danh sách của họ có <strong>bài bị trùng</strong>; vài hôm sau danh sách đó <strong>tự mọc thêm bài</strong> mà họ không hề thêm; và nếu danh sách của họ đang trống thì ứng dụng <strong>bị treo</strong>.</p>
+<p>Lập trình viên trước đã chọn cách nhanh nhất: nối thẳng <code>tail</code> của danh sách đích vào <code>head</code> của danh sách nguồn. Cách này chỉ tốn O(1), nhưng sai với nghiệp vụ:</p>
+<ul>
+<li>Hai danh sách <strong>dùng chung các node</strong>. Từ lúc đó, mọi thay đổi ở phần đuôi của danh sách này đều hiện ra ở danh sách kia.</li>
+<li><code>tail</code> của danh sách đích không được cập nhật, nên vẫn chỉ vào node cuối cũ.</li>
+<li>Không có bước nào kiểm tra bài đã có hay chưa.</li>
+<li>Danh sách đích rỗng thì <code>tail</code> là <code>None</code>, gọi <code>.next</code> sẽ báo lỗi.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Tệp <code>gop_danh_sach.py</code> trong thư mục khởi đầu có sẵn lớp <code>Node</code>, lớp <code>Playlist</code> (các phương thức <code>add_first</code>, <code>add_last</code>, <code>find</code>, <code>to_text</code> đã đúng, không cần sửa). Phần cần xem xét là hàm <code>append_all</code> và đoạn chạy thử:</p>
+<pre><code>def append_all(target, source):
+    # Chép các bài của source vào cuối target, bỏ qua bài target đã có. Trả về số bài đã thêm.
+    target.tail.next = source.head
+    target.size += source.size
+    return source.size
+
+
+mine = Playlist()
+for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;]:
+    mine.add_last(code)
+shared = Playlist()
+for code in [&quot;ZM003&quot;, &quot;ZM004&quot;, &quot;ZM005&quot;]:
+    shared.add_last(code)
+
+print(&quot;Số bài đã thêm:&quot;, append_all(mine, shared))
+print(&quot;Danh sách của tôi:&quot;, mine.to_text())
+print(&quot;Số bài:&quot;, mine.size, &quot;| bài cuối:&quot;, mine.tail.value)
+
+# Bạn bè thêm một bài vào danh sách của họ: danh sách của tôi không được đổi theo
+shared.add_last(&quot;ZM006&quot;)
+print(&quot;Danh sách của bạn:&quot;, shared.to_text())
+print(&quot;Danh sách của tôi:&quot;, mine.to_text())
+
+# Danh sách mới tạo nhận bài từ danh sách của bạn
+new_list = Playlist()
+print(&quot;Số bài đã thêm vào danh sách mới:&quot;, append_all(new_list, shared))
+print(&quot;Danh sách mới:&quot;, new_list.to_text())
+
+</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Số bài đã thêm: 3
+Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
+Số bài: 6 | bài cuối: ZM003
+Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
+Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
+Traceback (most recent call last):
+  ...
+    target.tail.next = source.head
+AttributeError: 'NoneType' object has no attribute 'next'
+</code></pre>
+<p>Chương trình dừng ở lần gộp vào danh sách mới. Trước đó, đối chiếu với kết quả đúng: số bài đã thêm là 3 thay vì 2; danh sách của tôi có hai bài <code>ZM003</code>; số bài là 6 và bài cuối là <code>ZM003</code> thay vì 5 và <code>ZM005</code>; sau khi bạn bè thêm <code>ZM006</code>, danh sách của tôi cũng có <code>ZM006</code>.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Vẽ hai danh sách sau lệnh <code>target.tail.next = source.head</code>: node <code>ZM003</code> thứ hai, <code>ZM004</code>, <code>ZM005</code> thuộc về danh sách nào?</li>
+<li>Vì sao sau khi bạn bè gọi <code>shared.add_last("ZM006")</code>, bài <code>ZM006</code> xuất hiện trong danh sách của tôi?</li>
+<li>Sau lệnh nối, <code>mine.tail</code> đang trỏ tới node nào? Nếu lúc này tôi gọi <code>mine.add_last("ZM007")</code> thì chuyện gì xảy ra với các bài <code>ZM003</code> (thứ hai), <code>ZM004</code>, <code>ZM005</code> trong danh sách của tôi? Còn danh sách của bạn thì sao?</li>
+<li>Để hai danh sách độc lập, mỗi bài của <code>source</code> phải được đưa vào <code>target</code> bằng cách nào? Phương thức có sẵn nào của <code>Playlist</code> làm đúng việc đó và tự lo <code>tail</code>, <code>size</code>?</li>
+<li>Dùng phương thức có sẵn nào để biết một bài đã có trong <code>target</code> hay chưa? Khi nào thì tăng biến đếm số bài đã thêm?</li>
+<li>Vì sao mã hiện tại báo <code>AttributeError</code> khi <code>target</code> rỗng? Cách làm mới của bạn có cần xử lý riêng trường hợp này không?</li>
+<li>Cách nối thẳng tốn O(1). Cách làm đúng của bạn tốn bao nhiêu, với n là số bài của <code>target</code> và m là số bài của <code>source</code>? Phần nào tốn nhất?</li>
+<li>Nêu một trường hợp mà nối thẳng hai danh sách là chấp nhận được, và điều kiện đi kèm.</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Viết lại hàm <code>append_all</code> trong <code>gop_danh_sach.py</code>. Không đổi tên hàm, tham số; không sửa lớp <code>Playlist</code>; không dùng list Python hay <code>set</code> để lưu các bài.</li>
+<li>Chạy <code>python gop_danh_sach.py</code> phải cho đúng kết quả:</li>
+</ul>
+<pre><code>Số bài đã thêm: 2
+Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
+Số bài: 5 | bài cuối: ZM005
+Danh sách của bạn: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
+Danh sách của tôi: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
+Số bài đã thêm vào danh sách mới: 4
+Danh sách mới: ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; ZM006 -&gt; None
+</code></pre>
+<ul>
+<li>Chạy <code>pytest -q</code> phải xanh cả 5 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex07</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-07</a> rồi chép các tệp vào kho: <code>gop_danh_sach.py</code>, <code>test_gop_danh_sach.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong tệp mã nguồn.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

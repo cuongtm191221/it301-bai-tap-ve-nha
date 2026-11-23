@@ -1,0 +1,124 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Hàng chờ phát: thêm bài ở cuối, lấy bài ở đầu để phát, bỏ một bài bất kỳ, cùng năm bẫy dữ liệu phải xử lý." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-09/minh_hoa.png" /></p>
+<p><em>Hàng chờ phát: thêm bài ở cuối, lấy bài ở đầu để phát, bỏ một bài bất kỳ, cùng năm bẫy dữ liệu phải xử lý.</em></p>
+<p>Trong ứng dụng nghe nhạc Zing MP3, mỗi người nghe có một <strong>hàng chờ phát</strong>: các bài sẽ lần lượt được phát sau bài hiện tại.</p>
+<ul>
+<li>Mỗi bài trong hàng chờ được lưu dưới dạng chuỗi:</li>
+</ul>
+<pre><code>&quot;MÃ_BÀI - TÊN_BÀI&quot;
+</code></pre>
+<ul>
+<li>Ví dụ một hàng chờ có ba bài:</li>
+</ul>
+<pre><code>ZM001 - Bình minh trên phố  -&gt;  ZM002 - Mưa đêm  -&gt;  ZM003 - Đường về nhà  -&gt;  None
+</code></pre>
+<p>Người nghe liên tục thêm bài vào cuối hàng chờ, ứng dụng liên tục lấy bài ở đầu ra để phát, và người nghe có thể bỏ một bài bất kỳ. Nếu lưu bằng list Python thì mỗi lần lấy bài ở đầu phải dời mọi phần tử còn lại (Session 05). Vì vậy nhóm quyết định lưu hàng chờ bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>: <code>head</code> là bài sẽ phát tiếp theo, <code>tail</code> là bài cuối hàng chờ, <code>size</code> là số bài đang chờ.</p>
+<p>Bạn được giao viết lớp <code>PlayQueue</code> cho hàng chờ này.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Lớp <code>PlayQueue</code> (khung có sẵn trong <code>hang_cho.py</code>) cần bốn chức năng. Mỗi chức năng <strong>trả về</strong> thông báo đúng từng chữ như mô tả; phần giao diện của ứng dụng sẽ hiển thị thông báo đó.</p>
+<p><strong>2.1. Thêm bài vào cuối hàng chờ: <code>add_song(code, title)</code></strong></p>
+<p>Hệ thống cần:</p>
+<ul>
+<li>Xóa khoảng trắng hai đầu của mã bài và tên bài.</li>
+<li>Chuyển mã bài thành chữ hoa.</li>
+<li>Ghép thành chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code> và thêm vào <strong>cuối</strong> hàng chờ trong O(1).</li>
+<li>Trả về:</li>
+</ul>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố
+</code></pre>
+<p><strong>2.2. Phát bài tiếp theo: <code>play_next()</code></strong></p>
+<p>Hệ thống cần lấy bài ở <strong>đầu</strong> hàng chờ ra khỏi hàng chờ trong O(1) và trả về:</p>
+<pre><code>Đang phát: ZM001 - Bình minh trên phố
+</code></pre>
+<p><strong>2.3. Bỏ một bài khỏi hàng chờ: <code>remove_song(code)</code></strong></p>
+<p>Người nghe nhập mã bài cần bỏ. Hệ thống chuẩn hóa mã (xóa khoảng trắng, chữ hoa), tìm bài có mã đó, gỡ node khỏi hàng chờ và trả về:</p>
+<pre><code>Đã bỏ: ZM003 - Đường về nhà
+</code></pre>
+<p><strong>2.4. Hiển thị hàng chờ: <code>to_lines()</code></strong></p>
+<p>Trả về một list các dòng, đánh số từ 1 theo thứ tự sẽ phát:</p>
+<pre><code>1. ZM001 - Bình minh trên phố
+2. ZM002 - Mưa đêm
+3. ZM004 - Phố cũ
+</code></pre>
+<p>Nếu hàng chờ không có bài nào, trả về list chỉ có một dòng:</p>
+<pre><code>Hàng chờ đang trống.
+</code></pre>
+<p>Sau mọi chức năng, <code>size</code> phải bằng đúng số bài đang chờ, <code>tail</code> phải là node cuối (hoặc <code>None</code> khi hàng chờ rỗng).</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mã bài hoặc tên bài bị thừa khoảng trắng, mã viết thường</strong></p>
+<ul>
+<li>Gọi <code>add_song("  zm002 ", " Mưa đêm ")</code>, hệ thống vẫn phải lưu và trả về đúng chuẩn:</li>
+</ul>
+<pre><code>Đã thêm: ZM002 - Mưa đêm
+</code></pre>
+<p><strong>Bẫy 2 — Thêm bài đã có trong hàng chờ</strong></p>
+<ul>
+<li>Hàng chờ đã có <code>ZM001</code>. Gọi <code>add_song("zm001", "Bình minh trên phố")</code>, hệ thống không thêm và trả về:</li>
+</ul>
+<pre><code>Bài ZM001 đã có trong hàng chờ.
+</code></pre>
+<p><strong>Bẫy 3 — Phát khi hàng chờ đã hết bài</strong></p>
+<ul>
+<li>Hệ thống không được báo lỗi mà trả về:</li>
+</ul>
+<pre><code>Hàng chờ đang trống, không có bài để phát.
+</code></pre>
+<ul>
+<li>Sau khi phát bài cuối cùng, <code>head</code> và <code>tail</code> đều phải là <code>None</code>.</li>
+</ul>
+<p><strong>Bẫy 4 — Bỏ một bài không có trong hàng chờ</strong></p>
+<ul>
+<li>Gọi <code>remove_song("ZM999")</code>, hàng chờ giữ nguyên và hệ thống trả về:</li>
+</ul>
+<pre><code>Không tìm thấy bài ZM999 trong hàng chờ.
+</code></pre>
+<p><strong>Bẫy 5 — Bỏ bài đang đứng cuối, rồi thêm bài mới</strong></p>
+<ul>
+<li>Hàng chờ có <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>. Bỏ <code>ZM003</code> rồi thêm <code>ZM004</code>. Nếu <code>tail</code> không lùi về <code>ZM002</code> khi bỏ bài cuối, bài <code>ZM004</code> sẽ bị nối vào một node đã bị gỡ và biến mất khỏi hàng chờ. Kết quả hiển thị đúng:</li>
+</ul>
+<pre><code>1. ZM001 - Bình minh trên phố
+2. ZM002 - Mưa đêm
+3. ZM004 - Phố cũ
+</code></pre>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python hang_cho.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố
+Đã thêm: ZM002 - Mưa đêm
+Đã thêm: ZM003 - Đường về nhà
+Bài ZM001 đã có trong hàng chờ.
+Không tìm thấy bài ZM999 trong hàng chờ.
+Đã bỏ: ZM003 - Đường về nhà
+Đã thêm: ZM004 - Phố cũ
+1. ZM001 - Bình minh trên phố
+2. ZM002 - Mưa đêm
+3. ZM004 - Phố cũ
+Số bài đang chờ: 3
+Đang phát: ZM001 - Bình minh trên phố
+Đang phát: ZM002 - Mưa đêm
+Đang phát: ZM004 - Phố cũ
+Hàng chờ đang trống, không có bài để phát.
+Hàng chờ đang trống.
+</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng chức năng, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất giải pháp: với <code>remove_song</code>, cần theo dõi những node nào khi duyệt? Khi nào phải sửa <code>head</code>, khi nào phải sửa <code>tail</code>? Vẽ hình cho ba trường hợp: bỏ bài đầu, bỏ bài giữa, bỏ bài cuối.</li>
+<li>Thiết kế thuật toán: viết mã giả hoặc mô tả các bước của <code>add_song</code> và <code>remove_song</code>.</li>
+<li>Chi phí: ghi Big-O thời gian của bốn chức năng, n là số bài đang chờ.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân bốn phương thức trong <code>hang_cho.py</code>. Không đổi tên lớp, tên phương thức, tham số.</li>
+<li>Không dùng list Python để lưu hàng chờ (list chỉ dùng cho giá trị trả về của <code>to_lines</code>).</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python hang_cho.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 7 test.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ nối lại liên kết.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex09</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-09</a> rồi chép các tệp vào kho: <code>hang_cho.py</code>, <code>test_hang_cho.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>hang_cho.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

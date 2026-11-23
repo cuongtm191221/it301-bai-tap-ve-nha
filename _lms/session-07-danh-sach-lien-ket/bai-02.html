@@ -1,0 +1,139 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người nghe thấy bài ZM002 biến mất khỏi danh sách phát và ứng dụng bị treo; kỹ sư phần mềm lần theo con trỏ tail." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-02/minh_hoa.png" /></p>
+<p><em>Người nghe thấy bài ZM002 biến mất khỏi danh sách phát và ứng dụng bị treo; kỹ sư phần mềm lần theo con trỏ tail.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
+<p>Mỗi người nghe có một danh sách phát. Nhóm chọn lưu danh sách phát bằng <strong>danh sách liên kết đơn</strong>: mỗi node giữ mã một bài hát, <code>head</code> là bài sẽ phát đầu tiên, <code>tail</code> là bài cuối danh sách, <code>size</code> là số bài.</p>
+<p>Ví dụ danh sách phát có ba bài:</p>
+<pre><code>head                         tail
+ |                            |
+ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None        size = 3
+</code></pre>
+<p>Trong lúc nghe nhạc, người nghe làm hai thao tác:</p>
+<ul>
+<li>Bấm "Thêm vào danh sách phát": bài mới được thêm vào <strong>cuối</strong> danh sách.</li>
+<li>Bấm "Phát tiếp theo": bài được chèn vào <strong>đầu</strong> danh sách để phát ngay sau bài hiện tại.</li>
+</ul>
+<p>Cả hai thao tác phải chạy trong O(1), dù danh sách có vài bài hay vài nghìn bài.</p>
+<p>Kịch bản kiểm tra của nhóm:</p>
+<ul>
+<li>Danh sách <code>playlist</code>: thêm lần lượt <code>"ZM001"</code>, <code>"ZM002"</code>, <code>"ZM003"</code> vào cuối, rồi chọn "Phát tiếp theo" cho <code>"ZM000"</code>.</li>
+<li>Danh sách <code>morning</code> (đang rỗng): chọn "Phát tiếp theo" cho <code>"ZM010"</code>, rồi thêm <code>"ZM011"</code> vào cuối.</li>
+</ul>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Danh sách phát: ZM000 -&gt; ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None
+Bài cuối danh sách: ZM003
+Số bài: 4
+Danh sách buổi sáng: ZM010 -&gt; ZM011 -&gt; None
+</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người nghe phản ánh hai hiện tượng: có bài vừa thêm xong thì <strong>biến mất</strong> khỏi danh sách phát, và với một danh sách mới tạo thì ứng dụng <strong>bị treo</strong> khi thêm bài.</p>
+<p>Lập trình viên trước đã viết lớp <code>Playlist</code> với hai phương thức <code>add_first</code> và <code>add_last</code>, nhưng chưa nắm chắc ba điều của danh sách liên kết đơn có <code>tail</code>:</p>
+<ul>
+<li><code>tail</code> phải luôn trỏ tới <strong>node cuối cùng</strong>. Thêm một node vào cuối mà không dời <code>tail</code> thì lần thêm sau sẽ nối đè lên node vừa thêm.</li>
+<li>Khi danh sách <strong>rỗng</strong>, node đầu tiên được thêm vào vừa là <code>head</code> vừa là <code>tail</code>, dù nó được thêm bằng <code>add_first</code> hay <code>add_last</code>.</li>
+<li><code>size</code> phải tăng đúng 1 ở <strong>mọi</strong> thao tác thêm.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Tệp <code>playlist.py</code> trong thư mục khởi đầu:</p>
+<pre><code>class Node:
+    def __init__(self, value, next=None):
+        self.value = value
+        self.next = next
+
+
+class Playlist:
+    def __init__(self):
+        self.head = None    # bài sẽ phát đầu tiên
+        self.tail = None    # bài cuối danh sách
+        self.size = 0       # số bài trong danh sách
+
+    def add_first(self, code):
+        # Chèn bài &quot;phát tiếp theo&quot; vào đầu danh sách
+        node = Node(code, self.head)
+        self.head = node
+
+    def add_last(self, code):
+        # Thêm bài vào cuối danh sách
+        node = Node(code)
+        if self.head is None:
+            self.head = node
+            self.tail = node
+        else:
+            self.tail.next = node
+        self.size += 1
+
+    def to_text(self):
+        parts = []
+        current = self.head
+        while current is not None:
+            parts.append(current.value)
+            current = current.next
+        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
+
+
+playlist = Playlist()
+# Người nghe thêm ba bài vào cuối danh sách
+playlist.add_last(&quot;ZM001&quot;)
+playlist.add_last(&quot;ZM002&quot;)
+playlist.add_last(&quot;ZM003&quot;)
+# Người nghe chọn &quot;phát tiếp theo&quot; cho bài ZM000
+playlist.add_first(&quot;ZM000&quot;)
+print(&quot;Danh sách phát:&quot;, playlist.to_text())
+print(&quot;Bài cuối danh sách:&quot;, playlist.tail.value)
+print(&quot;Số bài:&quot;, playlist.size)
+
+# Một danh sách mới: chọn &quot;phát tiếp theo&quot; trước, rồi mới thêm vào cuối
+morning = Playlist()
+morning.add_first(&quot;ZM010&quot;)
+morning.add_last(&quot;ZM011&quot;)
+print(&quot;Danh sách buổi sáng:&quot;, morning.to_text())
+</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Danh sách phát: ZM000 -&gt; ZM001 -&gt; ZM003 -&gt; None
+Bài cuối danh sách: ZM001
+Số bài: 3
+Traceback (most recent call last):
+  ...
+    self.tail.next = node
+AttributeError: 'NoneType' object has no attribute 'next'
+</code></pre>
+<p>Chương trình dừng ở dòng <code>morning.add_last("ZM011")</code>. Trước đó, ba dòng đã in ra cũng sai so với kết quả đúng:</p>
+<ul>
+<li>Bài <code>ZM002</code> biến mất khỏi danh sách phát.</li>
+<li>Bài cuối danh sách được báo là <code>ZM001</code>, không phải <code>ZM003</code>.</li>
+<li>Số bài là 3, trong khi người nghe đã thêm 4 bài.</li>
+</ul>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Vẽ danh sách (các node, <code>head</code>, <code>tail</code>) sau từng lệnh <code>add_last("ZM001")</code>, <code>add_last("ZM002")</code>, <code>add_last("ZM003")</code> khi chạy mã hiện tại. Sau lệnh thứ hai, <code>tail</code> đang trỏ tới node nào?</li>
+<li>Vì sao bài <code>ZM002</code> biến mất sau lệnh <code>add_last("ZM003")</code>? Node <code>ZM002</code> còn được node nào trỏ tới không?</li>
+<li>Trong <code>add_last</code>, cần thêm dòng lệnh nào, ở nhánh nào, để <code>tail</code> luôn là node cuối?</li>
+<li>Sau <code>morning.add_first("ZM010")</code>, <code>head</code> và <code>tail</code> của <code>morning</code> đang là gì?</li>
+<li>Vì sao dòng <code>self.tail.next = node</code> báo <code>AttributeError: 'NoneType' object has no attribute 'next'</code>?</li>
+<li><code>add_first</code> cần làm thêm việc gì khi danh sách đang rỗng?</li>
+<li>Vì sao số bài in ra là 3 mà không phải 4? Phương thức nào quên tăng <code>size</code>?</li>
+<li>Sau khi sửa, <code>add_first</code> và <code>add_last</code> có còn là O(1) không? Vì sao?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai phương thức <code>add_first</code> và <code>add_last</code> trong <code>playlist.py</code>. Không đổi tên lớp, tên phương thức; không dùng list Python để lưu các bài.</li>
+<li>Chạy <code>python playlist.py</code> phải cho đúng kết quả:</li>
+</ul>
+<pre><code>Danh sách phát: ZM000 -&gt; ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None
+Bài cuối danh sách: ZM003
+Số bài: 4
+Danh sách buổi sáng: ZM010 -&gt; ZM011 -&gt; None
+</code></pre>
+<ul>
+<li>Chạy <code>pytest -q</code> phải xanh cả 3 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex01</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-02</a> rồi chép các tệp vào kho: <code>playlist.py</code>, <code>test_playlist.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong <code>playlist.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

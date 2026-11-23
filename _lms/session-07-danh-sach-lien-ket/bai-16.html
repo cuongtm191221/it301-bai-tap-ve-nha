@@ -1,0 +1,92 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Sau một lần đồng bộ lỗi, bài cuối trỏ ngược về giữa danh sách: ứng dụng đếm bài mãi không xong." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-16/minh_hoa.png" /></p>
+<p><em>Sau một lần đồng bộ lỗi, bài cuối trỏ ngược về giữa danh sách: ứng dụng đếm bài mãi không xong.</em></p>
+<p>Trong ứng dụng nghe nhạc Zing MP3, danh sách phát của người nghe được đồng bộ giữa điện thoại và máy tính. Mỗi danh sách là một <strong>danh sách liên kết đơn</strong>; mỗi node giữ một mã bài. Các chức năng như đếm số bài, tính tổng thời lượng, hiển thị đều duyệt từ node đầu cho tới khi gặp <code>None</code>.</p>
+<p>Tuần này bộ phận hỗ trợ nhận nhiều phản ánh: mở một số danh sách phát thì ứng dụng <strong>treo cứng</strong>, pin tụt nhanh. Nhóm kiểm tra dữ liệu và thấy sau một lần đồng bộ lỗi, node cuối của các danh sách này không trỏ tới <code>None</code> mà trỏ <strong>ngược về một node phía trước</strong>:</p>
+<pre><code>Bình thường:   ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005 -&gt; None
+
+Bị lặp vòng:   ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; ZM005
+                                  ^                    |
+                                  +--------------------+
+</code></pre>
+<p>Với danh sách bị lặp vòng, vòng lặp <code>while current is not None</code> không bao giờ dừng. Trong lúc chờ sửa bộ đồng bộ, nhóm cần một hàm <strong>phát hiện danh sách bị lặp vòng</strong> để ứng dụng kiểm tra trước khi duyệt.</p>
+<p>Hàm này chạy mỗi lần mở một danh sách phát, trên điện thoại, với danh sách có thể tới 10.000 bài. Vì vậy trưởng nhóm yêu cầu bạn đề xuất ít nhất hai giải pháp, so sánh về thời gian và bộ nhớ rồi mới chọn. Lưu ý: hàm chỉ nhận <strong>node đầu</strong>; không thể tin <code>size</code> hay <code>tail</code> vì chính chúng cũng có thể đã sai sau lần đồng bộ lỗi.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Tệp <code>lap_vong.py</code> có sẵn lớp <code>Node</code> và hàm <code>build(values, loop_to)</code> để tạo danh sách chạy thử: <code>build(["ZM001", "ZM002", "ZM003"], loop_to=1)</code> tạo danh sách ba bài mà node cuối trỏ về node ở vị trí 1 (tính từ 0). Bạn viết ba hàm.</p>
+<p><strong>2.1. Hai hàm phát hiện: <code>has_loop_v1(head)</code> và <code>has_loop_v2(head)</code></strong></p>
+<p>Mỗi hàm cài một giải pháp của bạn. Cả hai nhận node đầu, trả về <code>True</code> nếu danh sách bị lặp vòng, <code>False</code> nếu duyệt tới được <code>None</code>. Hai hàm phải cho cùng kết quả với mọi dữ liệu, nhưng <strong>khác nhau về cách làm</strong>.</p>
+<p>Ràng buộc cho cả hai hàm:</p>
+<ul>
+<li>Phải <strong>luôn dừng</strong>, kể cả với danh sách bị lặp vòng. Không dùng cách "duyệt quá một số bước cố định thì coi là lặp vòng" (ví dụ quá 100.000 bước): danh sách thật có thể dài hơn con số đó.</li>
+<li>Không sửa danh sách: không đổi <code>value</code>, không đổi <code>next</code>, không thêm thuộc tính vào <code>Node</code>.</li>
+</ul>
+<p><strong>2.2. Đếm an toàn: <code>count_message(head)</code></strong></p>
+<p>Dùng một trong hai hàm trên (hàm bạn đã chọn ở phần phân tích) để kiểm tra trước, rồi trả về thông báo:</p>
+<pre><code>Danh sách phát có 5 bài.
+</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Node cuối trỏ về node đầu</strong></p>
+<ul>
+<li>Cả danh sách là một vòng tròn kín. Vẫn là lặp vòng; hai hàm trả về <code>True</code>.</li>
+</ul>
+<p><strong>Bẫy 2 — Một node trỏ về chính nó</strong></p>
+<ul>
+<li>Danh sách một bài mà <code>next</code> của node đó là chính nó; hoặc danh sách năm bài mà node cuối trỏ về chính nó. Hai hàm trả về <code>True</code>.</li>
+</ul>
+<p><strong>Bẫy 3 — Danh sách trống hoặc chỉ có một bài</strong></p>
+<ul>
+<li><code>head</code> là <code>None</code>, hoặc một node duy nhất có <code>next</code> là <code>None</code>: không lặp vòng, hai hàm trả về <code>False</code> và không được báo lỗi. <code>count_message(None)</code> trả về:</li>
+</ul>
+<pre><code>Danh sách phát đang trống.
+</code></pre>
+<p><strong>Bẫy 4 — Bài lặp lại không phải là lặp vòng</strong></p>
+<ul>
+<li>Người nghe được phép thêm một bài nhiều lần. Danh sách dưới đây có hai node cùng mã <code>ZM001</code>, hai node cùng mã <code>ZM002</code>, nhưng duyệt vẫn tới <code>None</code> nên <strong>không</strong> lặp vòng:</li>
+</ul>
+<pre><code>ZM001 -&gt; ZM002 -&gt; ZM001 -&gt; ZM002 -&gt; None
+</code></pre>
+<ul>
+<li>Lặp vòng nghĩa là gặp lại <strong>chính node đã đi qua</strong>, không phải gặp lại một mã bài. Giải pháp nào so sánh <code>value</code> sẽ sai ở bẫy này.</li>
+</ul>
+<p><strong>Bẫy 5 — Đếm trên danh sách bị lặp vòng</strong></p>
+<ul>
+<li><code>count_message</code> không được treo mà trả về:</li>
+</ul>
+<pre><code>Danh sách phát bị lặp vòng, không thể đếm.
+</code></pre>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python lap_vong.py</code> (đoạn chạy thử có sẵn ở cuối tệp; mỗi dòng gồm tên trường hợp, kết quả của hai hàm phát hiện và thông báo đếm) phải in ra đúng:</p>
+<pre><code>Bình thường | False | False | Danh sách phát có 5 bài.
+Cuối trỏ về giữa | True | True | Danh sách phát bị lặp vòng, không thể đếm.
+Cuối trỏ về đầu | True | True | Danh sách phát bị lặp vòng, không thể đếm.
+Có bài lặp lại | False | False | Danh sách phát có 4 bài.
+Trống | False | False | Danh sách phát đang trống.
+</code></pre>
+<p>Lưu ý khi chạy thử: nếu hàm của bạn sai, chương trình có thể không dừng. Bấm Ctrl + C để ngắt.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của ba hàm: kiểu dữ liệu đầu vào, giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc phát hiện lặp vòng. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, vẽ hình minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ dùng thêm (Big-O), có luôn dừng hay không, và vì sao, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho <code>count_message</code> và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+<li>Với danh sách 10.000 bài không lặp vòng, ước lượng lượng bộ nhớ dùng thêm của từng giải pháp (tính theo số phần tử phải ghi nhớ).</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Với mỗi giải pháp, lập bảng chạy tay trên hai danh sách ở mục 1 (bình thường, và bị lặp vòng về <code>ZM003</code>): ghi giá trị các biến sau từng bước cho tới khi hàm trả về.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân ba hàm trong <code>lap_vong.py</code>. Không đổi tên hàm, tham số.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python lap_vong.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 17 test (mỗi test về phát hiện chạy trên cả hai hàm).</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích nêu ý tưởng ở đầu mỗi hàm.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex16</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-16">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-16</a> rồi chép các tệp vào kho: <code>lap_vong.py</code>, <code>test_lap_vong.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>lap_vong.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

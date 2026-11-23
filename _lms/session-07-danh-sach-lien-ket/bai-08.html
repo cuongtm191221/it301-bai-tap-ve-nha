@@ -1,0 +1,154 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người nghe bấm Bài trước nhưng trình phát lại nhảy sang bài sau, rồi đứng hình ở bài cuối." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-08/minh_hoa.png" /></p>
+<p><em>Người nghe bấm Bài trước nhưng trình phát lại nhảy sang bài sau, rồi đứng hình ở bài cuối.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm xây dựng trình phát nhạc của ứng dụng Zing MP3.</p>
+<p>Thanh điều khiển của trình phát có hai nút: <strong>"Bài trước"</strong> và <strong>"Bài tiếp theo"</strong>. Vì phải đi được cả hai chiều, danh sách phát được lưu bằng <strong>danh sách liên kết đôi</strong>: mỗi node có <code>prev</code> và <code>next</code>. Lớp <code>Player</code> giữ thêm con trỏ <code>current</code> chỉ tới node của <strong>bài đang phát</strong>; khi chưa phát bài nào thì <code>current</code> là <code>None</code>.</p>
+<p>Ví dụ danh sách có ba bài, đang phát bài thứ hai:</p>
+<pre><code>head                              tail
+ |                                 |
+ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003
+              ^
+           current
+</code></pre>
+<p>Ba thao tác, mỗi thao tác <strong>trả về</strong> một thông báo để giao diện hiển thị:</p>
+<ul>
+<li><code>play_first()</code>: bắt đầu phát từ bài đầu, trả về <code>Đang phát: ZM001</code>. Danh sách chưa có bài nào thì trả về <code>Danh sách phát đang trống.</code></li>
+<li><code>next_song()</code>: chuyển sang bài kế tiếp, trả về <code>Đang phát: ...</code>. Đang ở bài cuối thì <strong>giữ nguyên bài đang phát</strong> và trả về <code>Đã ở bài cuối, không thể chuyển tiếp.</code></li>
+<li><code>prev_song()</code>: lùi về bài đứng trước, trả về <code>Đang phát: ...</code>. Đang ở bài đầu thì giữ nguyên và trả về <code>Đã ở bài đầu, không thể lùi.</code></li>
+<li>Nếu chưa phát bài nào mà người nghe bấm một trong hai nút, cả hai phương thức trả về <code>Chưa phát bài nào.</code></li>
+</ul>
+<p>Kịch bản kiểm tra của nhóm: danh sách <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>; phát từ đầu; bấm tiếp, trước, trước, tiếp, tiếp, tiếp, tiếp; in bài đang phát; rồi với một trình phát mới mở, bấm "Bài tiếp theo" và "phát từ đầu".</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Đang phát: ZM001
+Đang phát: ZM002
+Đang phát: ZM001
+Đã ở bài đầu, không thể lùi.
+Đang phát: ZM002
+Đang phát: ZM003
+Đã ở bài cuối, không thể chuyển tiếp.
+Đã ở bài cuối, không thể chuyển tiếp.
+Bài đang phát: ZM003
+Chưa phát bài nào.
+Danh sách phát đang trống.
+</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người nghe phản ánh: bấm "Bài trước" thì trình phát lại <strong>nhảy sang bài sau</strong>; nghe tới bài cuối mà bấm "Bài tiếp theo" thì trình phát <strong>đứng hình</strong>, phải tắt ứng dụng mở lại.</p>
+<p>Lập trình viên trước viết <code>next_song</code> xong thì chép nguyên sang <code>prev_song</code>, và chưa nghĩ tới các vị trí biên của con trỏ <code>current</code>:</p>
+<ul>
+<li>Lùi về bài trước phải đi theo <code>prev</code>; tiến tới bài sau đi theo <code>next</code>.</li>
+<li>Ở bài cuối, <code>current.next</code> là <code>None</code>. Nếu vẫn gán <code>current = current.next</code> thì <code>current</code> thành <code>None</code>: trình phát <strong>mất dấu bài đang phát</strong>, và lệnh <code>current.value</code> tiếp theo báo <code>AttributeError</code>.</li>
+<li>Tương tự ở bài đầu với <code>current.prev</code>.</li>
+<li>Phải kiểm tra biên <strong>trước khi</strong> dời <code>current</code>; khi không dời được thì <code>current</code> giữ nguyên.</li>
+<li><code>current</code> là <code>None</code> (chưa phát bài nào) cũng là một trường hợp phải xử lý.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Tệp <code>trinh_phat.py</code> trong thư mục khởi đầu (<code>add_last</code> đã đúng, không cần sửa):</p>
+<pre><code>class Node:
+    def __init__(self, value):
+        self.value = value
+        self.prev = None
+        self.next = None
+
+
+class Player:
+    def __init__(self):
+        self.head = None       # bài đầu danh sách phát
+        self.tail = None       # bài cuối danh sách phát
+        self.current = None    # bài đang phát, None khi chưa phát bài nào
+
+    def add_last(self, code):
+        # Cho sẵn, đã đúng: thêm bài vào cuối, nối đủ hai chiều
+        node = Node(code)
+        if self.tail is None:
+            self.head = node
+            self.tail = node
+        else:
+            node.prev = self.tail
+            self.tail.next = node
+            self.tail = node
+
+    def play_first(self):
+        # Bắt đầu phát từ bài đầu danh sách
+        self.current = self.head
+        return &quot;Đang phát: &quot; + self.current.value
+
+    def next_song(self):
+        # Nút &quot;Bài tiếp theo&quot;
+        self.current = self.current.next
+        return &quot;Đang phát: &quot; + self.current.value
+
+    def prev_song(self):
+        # Nút &quot;Bài trước&quot;
+        self.current = self.current.next
+        return &quot;Đang phát: &quot; + self.current.value
+
+
+player = Player()
+for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;]:
+    player.add_last(code)
+print(player.play_first())
+print(player.next_song())
+print(player.prev_song())
+print(player.prev_song())
+print(player.next_song())
+print(player.next_song())
+print(player.next_song())
+print(player.next_song())
+print(&quot;Bài đang phát:&quot;, player.current.value)
+
+# Trình phát mới mở, chưa có bài và chưa phát bài nào
+new_player = Player()
+print(new_player.next_song())
+print(new_player.play_first())
+</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Đang phát: ZM001
+Đang phát: ZM002
+Đang phát: ZM003
+Traceback (most recent call last):
+  ...
+    return &quot;Đang phát: &quot; + self.current.value
+AttributeError: 'NoneType' object has no attribute 'value'
+</code></pre>
+<p>Chương trình dừng ở lần bấm "Bài trước" thứ hai. Trước đó, dòng thứ ba đã sai: sau khi bấm "Bài trước" ở <code>ZM002</code>, trình phát phải về <code>ZM001</code> nhưng lại báo <code>Đang phát: ZM003</code>.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Sau <code>play_first()</code> và <code>next_song()</code>, <code>current</code> đang ở node nào? Lệnh <code>prev_song()</code> của mã hiện tại dời <code>current</code> theo liên kết nào, tới node nào?</li>
+<li>Sửa dòng lệnh nào trong <code>prev_song</code> để lùi đúng chiều?</li>
+<li>Ở lần bấm "Bài trước" thứ hai của mã hiện tại, <code>current</code> đang ở <code>ZM003</code>. Sau lệnh gán, <code>current</code> có giá trị gì? Vì sao dòng <code>return</code> báo <code>AttributeError: 'NoneType' object has no attribute 'value'</code>?</li>
+<li>Sau lỗi đó, trình phát còn biết bài đang phát là bài nào không? Vì sao phải kiểm tra biên trước khi dời <code>current</code>, không phải sau?</li>
+<li>Viết điều kiện nhận biết "đang ở bài cuối" và "đang ở bài đầu" chỉ bằng <code>current</code>, không dùng <code>head</code>, <code>tail</code>.</li>
+<li>Với trình phát mới mở, <code>current</code> là gì? <code>next_song()</code> của mã hiện tại báo lỗi gì, ở dòng nào?</li>
+<li><code>play_first()</code> của mã hiện tại làm gì khi danh sách chưa có bài nào? Cần sửa thế nào?</li>
+<li>Mỗi lần bấm nút tốn bao nhiêu bước, dù danh sách có 3 bài hay 3.000 bài? Nếu danh sách phát là danh sách liên kết đơn thì nút "Bài trước" tốn bao nhiêu bước, vì sao?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa ba phương thức <code>play_first</code>, <code>next_song</code>, <code>prev_song</code> trong <code>trinh_phat.py</code>. Không đổi tên lớp, tên phương thức; không dùng list Python để lưu các bài. Các thông báo phải đúng từng ký tự.</li>
+<li>Chạy <code>python trinh_phat.py</code> phải cho đúng kết quả:</li>
+</ul>
+<pre><code>Đang phát: ZM001
+Đang phát: ZM002
+Đang phát: ZM001
+Đã ở bài đầu, không thể lùi.
+Đang phát: ZM002
+Đang phát: ZM003
+Đã ở bài cuối, không thể chuyển tiếp.
+Đã ở bài cuối, không thể chuyển tiếp.
+Bài đang phát: ZM003
+Chưa phát bài nào.
+Danh sách phát đang trống.
+</code></pre>
+<ul>
+<li>Chạy <code>pytest -q</code> phải xanh cả 5 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex08</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-08</a> rồi chép các tệp vào kho: <code>trinh_phat.py</code>, <code>test_trinh_phat.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong tệp mã nguồn.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

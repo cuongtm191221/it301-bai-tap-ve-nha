@@ -1,0 +1,153 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người nghe mở danh sách phát thấy số bài hiện thiếu và các bài đầu biến mất sau khi tìm kiếm." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-01/minh_hoa.png" /></p>
+<p><em>Màn hình danh sách phát báo thiếu một bài, và sau một lần tìm kiếm thì các bài đứng đầu biến mất.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
+<p>Mỗi người nghe có một danh sách phát, lưu bằng <strong>danh sách liên kết đơn</strong>: mỗi node giữ mã một bài hát, <code>head</code> là bài sẽ phát đầu tiên, <code>tail</code> là bài cuối danh sách.</p>
+<p>Ví dụ danh sách phát có bốn bài:</p>
+<pre><code>head                                    tail
+ |                                       |
+ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  ZM004  -&gt;  None
+</code></pre>
+<p>Màn hình danh sách phát cần ba thao tác <strong>chỉ đọc</strong>, không được làm thay đổi danh sách:</p>
+<ul>
+<li>Hiện số bài ở đầu màn hình ("4 bài hát").</li>
+<li>Ô tìm kiếm: người nghe gõ mã bài, ứng dụng cuộn tới vị trí của bài đó (vị trí tính từ 0); không có thì báo không tìm thấy.</li>
+<li>Hiện toàn bộ danh sách theo thứ tự sẽ phát.</li>
+</ul>
+<p>Kịch bản kiểm tra của nhóm: tạo danh sách gồm <code>"ZM001"</code>, <code>"ZM002"</code>, <code>"ZM003"</code>, <code>"ZM004"</code>; đếm số bài; tìm <code>"ZM003"</code>; in danh sách; tìm <code>"ZM999"</code> (không có); in lại danh sách; cuối cùng đếm số bài của một danh sách mới tạo, chưa có bài nào.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Số bài: 4
+Vị trí của ZM003: 2
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Vị trí của ZM999: None
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Số bài của danh sách mới: 0
+</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người nghe phản ánh ba hiện tượng: số bài hiện ra luôn <strong>thiếu một bài</strong>; sau khi dùng ô tìm kiếm thì <strong>các bài đứng trước bài vừa tìm biến mất</strong>; và với danh sách mới tạo thì màn hình <strong>bị treo</strong>.</p>
+<p>Lập trình viên trước đã viết hai phương thức <code>count</code> và <code>find</code>, nhưng chưa nắm chắc cách duyệt danh sách liên kết:</p>
+<ul>
+<li>Duyệt bằng một <strong>biến riêng</strong> (thường đặt tên <code>current</code>), bắt đầu từ <code>head</code>, mỗi bước gán <code>current = current.next</code>. Không được dời chính <code>head</code>, vì <code>head</code> là lối vào duy nhất của danh sách.</li>
+<li>Điều kiện dừng là <code>current is not None</code>: node cuối cùng vẫn phải được xử lý. Viết <code>current.next is not None</code> thì vòng lặp dừng trước node cuối.</li>
+<li>Danh sách rỗng có <code>head</code> là <code>None</code>; gọi <code>.next</code> hoặc <code>.value</code> trên <code>None</code> sẽ báo <code>AttributeError</code>.</li>
+<li>Tìm không thấy phải trả về <code>None</code>, không trả về một con số.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Tệp <code>playlist.py</code> trong thư mục khởi đầu (<code>add_last</code> và <code>to_text</code> đã đúng, không cần sửa):</p>
+<pre><code>class Node:
+    def __init__(self, value, next=None):
+        self.value = value
+        self.next = next
+
+
+class Playlist:
+    def __init__(self):
+        self.head = None    # bài sẽ phát đầu tiên
+        self.tail = None    # bài cuối danh sách
+
+    def add_last(self, code):
+        # Cho sẵn, đã đúng: thêm bài vào cuối danh sách
+        node = Node(code)
+        if self.head is None:
+            self.head = node
+            self.tail = node
+        else:
+            self.tail.next = node
+            self.tail = node
+
+    def count(self):
+        # Đếm số bài trong danh sách
+        total = 0
+        current = self.head
+        while current.next is not None:
+            total += 1
+            current = current.next
+        return total
+
+    def find(self, code):
+        # Trả về vị trí (tính từ 0) của bài có mã code, không có thì trả None
+        position = 0
+        while self.head is not None:
+            if self.head.value == code:
+                return position
+            self.head = self.head.next
+            position += 1
+        return position
+
+    def to_text(self):
+        # Cho sẵn, đã đúng
+        parts = []
+        current = self.head
+        while current is not None:
+            parts.append(current.value)
+            current = current.next
+        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
+
+
+playlist = Playlist()
+for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;, &quot;ZM004&quot;]:
+    playlist.add_last(code)
+print(&quot;Số bài:&quot;, playlist.count())
+print(&quot;Vị trí của ZM003:&quot;, playlist.find(&quot;ZM003&quot;))
+print(&quot;Danh sách phát:&quot;, playlist.to_text())
+print(&quot;Vị trí của ZM999:&quot;, playlist.find(&quot;ZM999&quot;))
+print(&quot;Danh sách phát:&quot;, playlist.to_text())
+
+# Danh sách mới tạo, chưa có bài nào
+empty = Playlist()
+print(&quot;Số bài của danh sách mới:&quot;, empty.count())
+</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Số bài: 3
+Vị trí của ZM003: 2
+Danh sách phát: ZM003 -&gt; ZM004 -&gt; None
+Vị trí của ZM999: 2
+Danh sách phát: None
+Traceback (most recent call last):
+  ...
+    while current.next is not None:
+AttributeError: 'NoneType' object has no attribute 'next'
+</code></pre>
+<p>Chương trình dừng ở dòng <code>empty.count()</code>. Trước đó, năm dòng đã in cũng sai so với kết quả đúng:</p>
+<ul>
+<li>Số bài là 3, trong khi danh sách có 4 bài.</li>
+<li>Sau lần tìm <code>ZM003</code>, danh sách chỉ còn <code>ZM003 -&gt; ZM004</code>.</li>
+<li>Tìm <code>ZM999</code> (không có) lại trả về số 2 thay vì <code>None</code>.</li>
+<li>Sau lần tìm thứ hai, danh sách phát trống trơn.</li>
+</ul>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Chạy tay <code>count()</code> trên danh sách bốn bài: ghi giá trị của <code>current</code> và <code>total</code> sau mỗi vòng lặp. Vòng lặp dừng khi <code>current</code> đang ở node nào? Node đó đã được đếm chưa?</li>
+<li>Cần đổi điều kiện của vòng <code>while</code> trong <code>count</code> thành gì?</li>
+<li>Vì sao <code>empty.count()</code> báo <code>AttributeError: 'NoneType' object has no attribute 'next'</code>? Sau khi đổi điều kiện ở câu trên, lỗi này còn không?</li>
+<li>Trong <code>find</code>, biến nào đang bị dời đi sau mỗi vòng lặp? Sau lệnh <code>find("ZM003")</code>, <code>head</code> đang trỏ tới node nào?</li>
+<li>Các node <code>ZM001</code>, <code>ZM002</code> còn nằm trong bộ nhớ không, và còn cách nào đi tới chúng không?</li>
+<li>Vì sao <code>find("ZM999")</code> trả về 2? Khi không tìm thấy, <code>find</code> phải trả về gì?</li>
+<li>Viết lại vòng lặp của <code>find</code> với biến <code>current</code>.</li>
+<li><code>count</code> và <code>find</code> có Big-O thời gian là bao nhiêu (n là số bài)? Vì sao?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai phương thức <code>count</code> và <code>find</code> trong <code>playlist.py</code>. Không đổi tên lớp, tên phương thức; không dùng list Python để lưu các bài.</li>
+<li>Chạy <code>python playlist.py</code> phải cho đúng kết quả:</li>
+</ul>
+<pre><code>Số bài: 4
+Vị trí của ZM003: 2
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Vị trí của ZM999: None
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Số bài của danh sách mới: 0
+</code></pre>
+<ul>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex01</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-01</a> rồi chép các tệp vào kho: <code>playlist.py</code>, <code>test_playlist.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong tệp mã nguồn.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

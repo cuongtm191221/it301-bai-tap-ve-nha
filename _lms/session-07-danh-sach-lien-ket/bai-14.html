@@ -1,0 +1,97 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người nghe muốn nghe danh sách phát theo thứ tự ngược lại: xem trước, rồi áp dụng hẳn." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-14/minh_hoa.png" /></p>
+<p><em>Người nghe muốn nghe danh sách phát theo thứ tự ngược lại: xem trước, rồi áp dụng hẳn.</em></p>
+<p>Trong ứng dụng nghe nhạc Zing MP3, người nghe hay thêm bài mới vào cuối danh sách phát, nên các bài mới nhất luôn phải chờ lâu nhất. Nhóm sản phẩm bổ sung chế độ <strong>"Phát ngược"</strong>, gồm hai nút:</p>
+<ul>
+<li><strong>"Xem trước"</strong>: hiện một bản đảo ngược của danh sách phát để người nghe xem thử. Danh sách phát đang dùng không được thay đổi.</li>
+<li><strong>"Áp dụng"</strong>: đảo hẳn thứ tự của danh sách phát đang dùng.</li>
+</ul>
+<p>Danh sách phát là <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>, mỗi node giữ một mã bài:</p>
+<pre><code>Trước:   ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None      (head là ZM001, tail là ZM004)
+Sau:     ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None      (head là ZM004, tail là ZM001)
+</code></pre>
+<p>Vấn đề: danh sách liên kết đơn chỉ đi được một chiều, không thể "đi lùi từ cuối về đầu" để đọc ngược. Một danh sách phát của người dùng trả phí có thể tới 10.000 bài, và nút "Áp dụng" chạy ngay trên điện thoại, nên nhóm quan tâm cả thời gian lẫn <strong>bộ nhớ dùng thêm</strong>.</p>
+<p>Bạn được giao thiết kế và viết hai chức năng này. Trưởng nhóm yêu cầu bạn đề xuất ít nhất hai cách đảo thứ tự, so sánh, rồi quyết định cách nào dùng cho nút nào.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Tệp <code>dao_nguoc.py</code> có sẵn lớp <code>Node</code> và lớp <code>Playlist</code> (với <code>add_last</code>, <code>to_text</code> đã đúng). Bạn viết hai hàm.</p>
+<p><strong>2.1. Xem trước: <code>reversed_copy(playlist)</code></strong></p>
+<ul>
+<li>Trả về một <strong><code>Playlist</code> mới</strong> chứa các bài của <code>playlist</code> theo thứ tự ngược lại, với <code>head</code>, <code>tail</code>, <code>size</code> đúng.</li>
+<li><code>playlist</code> gốc giữ nguyên: đúng các node cũ, đúng thứ tự cũ.</li>
+<li>Hai danh sách <strong>không dùng chung node nào</strong>: sau đó thêm bài vào danh sách này không làm đổi danh sách kia.</li>
+<li>Chi phí thời gian yêu cầu: O(n).</li>
+</ul>
+<p><strong>2.2. Áp dụng: <code>reverse_in_place(playlist)</code></strong></p>
+<ul>
+<li>Đảo thứ tự ngay trên <code>playlist</code>, <strong>không tạo node mới</strong>: sau khi đảo, danh sách vẫn gồm đúng các node cũ, chỉ có các liên kết <code>next</code>, <code>head</code>, <code>tail</code> thay đổi.</li>
+<li>Hàm không trả về gì (<code>None</code>).</li>
+<li>Chi phí yêu cầu: thời gian O(n), bộ nhớ dùng thêm O(1).</li>
+</ul>
+<p>Ràng buộc cho cả hai hàm: không chép các bài sang list, tuple, dict hay chuỗi; không dùng đệ quy.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bản xem trước dính vào danh sách gốc</strong></p>
+<ul>
+<li>Tạo bản đảo của <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>, rồi thêm <code>ZM009</code> vào bản đảo và thêm <code>ZM004</code> vào danh sách gốc. Kết quả đúng:</li>
+</ul>
+<pre><code>Bản đảo:        ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; ZM009 -&gt; None
+Danh sách gốc:  ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+</code></pre>
+<ul>
+<li>Nếu bản đảo dùng lại node của danh sách gốc, một trong hai dòng trên sẽ sai.</li>
+</ul>
+<p><strong>Bẫy 2 — "Áp dụng" lại tạo node mới</strong></p>
+<ul>
+<li>Bộ test giữ lại các node trước khi đảo và so sánh <strong>chính các node đó</strong> sau khi đảo. Cách "tạo bản đảo rồi gán <code>head</code> của nó cho danh sách cũ" không vượt qua được test này.</li>
+</ul>
+<p><strong>Bẫy 3 — Quên <code>tail</code> sau khi đảo</strong></p>
+<ul>
+<li>Sau khi đảo <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>, node <code>ZM001</code> phải là <code>tail</code> và <code>tail.next</code> phải là <code>None</code>. Nếu <code>tail</code> vẫn chỉ vào <code>ZM003</code> (lúc này là node đầu), lệnh <code>add_last("ZM004")</code> sẽ nối bài mới vào sau node đầu và làm mất hai bài <code>ZM002</code>, <code>ZM001</code>. Kết quả đúng sau khi thêm:</li>
+</ul>
+<pre><code>ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; ZM004 -&gt; None
+</code></pre>
+<p><strong>Bẫy 4 — Danh sách trống hoặc chỉ có một bài</strong></p>
+<ul>
+<li>Cả hai hàm không được báo lỗi. Danh sách trống: <code>head</code> và <code>tail</code> vẫn là <code>None</code>, bản đảo là một <code>Playlist</code> trống. Danh sách một bài: giữ nguyên, <code>head</code> và <code>tail</code> cùng chỉ một node, và thêm bài sau đó vẫn đúng.</li>
+</ul>
+<p><strong>Bẫy 5 — Mất phần sau của danh sách khi đổi chiều liên kết</strong></p>
+<ul>
+<li>Khi đổi <code>next</code> của một node để nó trỏ về node đứng trước, nếu chưa giữ lại node đứng sau thì phần còn lại của danh sách không còn đường tới. Dấu hiệu: danh sách sau khi đảo chỉ còn một hoặc hai bài. Bộ test có trường hợp đảo hai lần liên tiếp phải ra đúng thứ tự ban đầu, đủ năm bài.</li>
+</ul>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python dao_nguoc.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Bản đảo: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None
+Danh sách gốc: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Bản đảo sau khi thêm ZM005: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; ZM005 -&gt; None | số bài: 5
+Danh sách gốc: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None | số bài: 4
+Đảo tại chỗ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None
+Bài đầu: ZM004 | bài cuối: ZM001
+Sau khi thêm ZM006: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; ZM006 -&gt; None | số bài: 5
+Danh sách trống: None | None
+</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ ba phần sau:</p>
+<p><strong>(1) Đề xuất và phân tích nhiều giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output của hai hàm: kiểu dữ liệu đầu vào, giá trị trả về, trạng thái của danh sách gốc sau khi gọi, trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất <strong>ít nhất hai giải pháp</strong> khác nhau về cách làm cho việc đảo thứ tự một danh sách liên kết đơn. Với mỗi giải pháp: mô tả ý tưởng trong 2–3 câu, vẽ hình minh họa trên ví dụ ở mục 1, viết mã giả.</li>
+<li>So sánh các giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ dùng thêm (Big-O), có giữ nguyên danh sách gốc hay không, độ dễ đọc và dễ bảo trì, mức phù hợp với bối cảnh của bài.</li>
+<li>Chọn giải pháp dùng cho từng nút ("Xem trước", "Áp dụng") và nêu lý do dựa trên bảng so sánh. Lựa chọn không có lý do không được tính điểm.</li>
+<li>Với danh sách 10.000 bài, ước lượng số node được tạo thêm của từng giải pháp.</li>
+</ul>
+<p><strong>(2) Chạy tay</strong></p>
+<ul>
+<li>Lập bảng chạy tay giải pháp đảo tại chỗ trên danh sách <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>: sau mỗi vòng lặp, ghi giá trị của từng biến con trỏ và vẽ lại các liên kết.</li>
+</ul>
+<p><strong>(3) Triển khai code</strong></p>
+<ul>
+<li>Viết thân hai hàm trong <code>dao_nguoc.py</code>. Không đổi tên hàm, tham số; không sửa lớp <code>Playlist</code>.</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python dao_nguoc.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ đổi chiều liên kết.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex14</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-14">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-14</a> rồi chép các tệp vào kho: <code>dao_nguoc.py</code>, <code>test_dao_nguoc.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>dao_nguoc.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

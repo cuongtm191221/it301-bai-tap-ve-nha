@@ -1,0 +1,198 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhóm vận hành cần một công cụ gõ lệnh để sửa nhanh danh sách phát; người gõ lệnh thì hay gõ thiếu, gõ sai." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-17/minh_hoa.png" /></p>
+<p><em>Nhóm vận hành cần một công cụ gõ lệnh để sửa nhanh danh sách phát; người gõ lệnh thì hay gõ thiếu, gõ sai.</em></p>
+<p>Nhóm vận hành nội dung của Zing MP3 mỗi ngày phải chỉnh hàng chục danh sách phát tuyển chọn. Giao diện quản trị trên web chậm, nên nhóm đề nghị một <strong>công cụ dòng lệnh</strong>: gõ một lệnh ngắn, nhận ngay một dòng thông báo.</p>
+<p>Ví dụ một phiên làm việc:</p>
+<pre><code>&gt; THEM ZM001 | Bình minh trên phố
+Đã thêm vào cuối: ZM001 - Bình minh trên phố
+&gt; DAU ZM003 | Đường về nhà
+Đã thêm vào đầu: ZM003 - Đường về nhà
+&gt; XEM
+1. ZM003 - Đường về nhà
+2. ZM001 - Bình minh trên phố
+</code></pre>
+<p>Công cụ gồm hai tầng. Tầng dưới là lớp <code>Playlist</code>: một <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>, mỗi node giữ chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code>. Tầng trên là hàm <code>handle(playlist, line)</code>: nhận một dòng lệnh, kiểm tra, gọi tầng dưới và <strong>trả về</strong> thông báo. Vòng lặp nhập lệnh <code>main()</code> (có lệnh <code>THOAT</code>) đã có sẵn.</p>
+<p>Người vận hành gõ vội: thiếu tên bài, sai mã, thừa khoảng trắng, gõ lệnh không tồn tại. Công cụ <strong>không được dừng vì lỗi</strong> trong bất kỳ trường hợp nào, và dữ liệu sai không được lọt vào danh sách phát. Bạn được giao viết trọn công cụ này.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><strong>2.1. Lớp <code>Playlist</code></strong> (khung có sẵn; các phương thức nhận mã và tên <strong>đã chuẩn hóa</strong>)</p>
+<table>
+<thead>
+<tr>
+<th>Phương thức</th>
+<th>Việc cần làm</th>
+<th>Trả về</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add_last(code, title)</code></td>
+<td>Thêm bài vào cuối, O(1)</td>
+<td>không</td>
+</tr>
+<tr>
+<td><code>add_first(code, title)</code></td>
+<td>Thêm bài vào đầu, O(1)</td>
+<td>không</td>
+</tr>
+<tr>
+<td><code>find(code)</code></td>
+<td>Tìm bài theo mã</td>
+<td>Vị trí tính từ 1; <code>0</code> nếu không có</td>
+</tr>
+<tr>
+<td><code>value_at(position)</code></td>
+<td>Lấy bài ở một vị trí</td>
+<td>Chuỗi của bài; <code>None</code> nếu vị trí không có</td>
+</tr>
+<tr>
+<td><code>remove(code)</code></td>
+<td>Gỡ node của bài</td>
+<td>Chuỗi của bài đã bỏ; <code>None</code> nếu không có</td>
+</tr>
+<tr>
+<td><code>to_lines()</code></td>
+<td>Hiển thị</td>
+<td>List các dòng <code>"1. MÃ - TÊN"</code>; list rỗng nếu chưa có bài</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2.2. Hàm <code>handle(playlist, line)</code></strong></p>
+<p>Tên lệnh không phân biệt hoa thường. Mã bài được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.</p>
+<table>
+<thead>
+<tr>
+<th>Lệnh</th>
+<th>Ý nghĩa</th>
+<th>Thông báo khi thành công</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>THEM &lt;mã&gt; | &lt;tên&gt;</code></td>
+<td>Thêm vào cuối</td>
+<td><code>Đã thêm vào cuối: ZM001 - Bình minh trên phố</code></td>
+</tr>
+<tr>
+<td><code>DAU &lt;mã&gt; | &lt;tên&gt;</code></td>
+<td>Thêm vào đầu</td>
+<td><code>Đã thêm vào đầu: ZM003 - Đường về nhà</code></td>
+</tr>
+<tr>
+<td><code>BO &lt;mã&gt;</code></td>
+<td>Bỏ một bài</td>
+<td><code>Đã bỏ: ZM002 - Mưa đêm</code></td>
+</tr>
+<tr>
+<td><code>TIM &lt;mã&gt;</code></td>
+<td>Tìm vị trí</td>
+<td><code>Bài ZM002 - Mưa đêm đang ở vị trí 3.</code></td>
+</tr>
+<tr>
+<td><code>XEM</code></td>
+<td>Hiển thị</td>
+<td>Các dòng <code>1. ...</code>, <code>2. ...</code> nối với nhau bằng ký tự xuống dòng</td>
+</tr>
+<tr>
+<td><code>DEM</code></td>
+<td>Đếm</td>
+<td><code>Danh sách phát có 3 bài.</code></td>
+</tr>
+</tbody>
+</table>
+<p>Dấu <code>|</code> <strong>đầu tiên</strong> của dòng ngăn cách mã và tên. Các trường hợp không thành công:</p>
+<pre><code>Bài ZM001 đã có trong danh sách phát.        (THEM, DAU: trùng mã)
+Không tìm thấy bài ZM009.                    (BO, TIM: không có bài)
+Danh sách phát đang trống.                   (XEM: chưa có bài)
+</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Lệnh viết thường, thừa khoảng trắng</strong></p>
+<ul>
+<li><code>"  them   zm002 |  Mưa đêm  "</code> vẫn là một lệnh thêm hợp lệ:</li>
+</ul>
+<pre><code>Đã thêm vào cuối: ZM002 - Mưa đêm
+</code></pre>
+<p><strong>Bẫy 2 — Thiếu thông tin</strong></p>
+<ul>
+<li>Thiếu mã bài (<code>"THEM"</code>, <code>"THEM | Phố cũ"</code>, <code>"BO"</code>) hoặc thiếu tên bài (<code>"THEM ZM004"</code>). Thông báo nêu đúng cú pháp của lệnh đang gõ:</li>
+</ul>
+<pre><code>Thiếu mã bài. Cú pháp: THEM &lt;mã bài&gt; | &lt;tên bài&gt;
+Thiếu tên bài. Cú pháp: DAU &lt;mã bài&gt; | &lt;tên bài&gt;
+Thiếu mã bài. Cú pháp: BO &lt;mã bài&gt;
+</code></pre>
+<p><strong>Bẫy 3 — Lệnh không tồn tại, dòng trống</strong></p>
+<pre><code>Lệnh không hợp lệ: PHAT        (gõ &quot;phat zm001&quot;)
+Chưa nhập lệnh.                (dòng rỗng hoặc chỉ có khoảng trắng)
+</code></pre>
+<p><strong>Bẫy 4 — Mã bài sai định dạng</strong></p>
+<ul>
+<li>Mã bài hợp lệ gồm đúng 5 ký tự: <code>ZM</code> và ba chữ số. Các mã <code>M4</code>, <code>ZM0004</code>, <code>ZMABC</code>, <code>12345</code>, <code>ZM1</code> đều bị từ chối, ở mọi lệnh có mã:</li>
+</ul>
+<pre><code>Mã bài không hợp lệ: M4
+</code></pre>
+<ul>
+<li>Thứ tự kiểm tra của <code>THEM</code> và <code>DAU</code>: thiếu mã, mã sai định dạng, thiếu tên, trùng mã.</li>
+</ul>
+<p><strong>Bẫy 5 — Bỏ bài cuối rồi thêm, bỏ hết rồi thêm lại</strong></p>
+<ul>
+<li>Danh sách có <code>ZM001</code>, <code>ZM002</code>. Gõ <code>BO ZM002</code> rồi thêm <code>ZM003</code>: kết quả phải là <code>ZM001</code>, <code>ZM003</code>.</li>
+<li>Bỏ bài duy nhất: <code>head</code> và <code>tail</code> đều là <code>None</code>; thêm bài sau đó vẫn đúng.</li>
+</ul>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python quan_ly.py demo</code> phải in ra đúng:</p>
+<pre><code>&gt; THEM ZM001 | Bình minh trên phố
+Đã thêm vào cuối: ZM001 - Bình minh trên phố
+&gt;   them   zm002 |  Mưa đêm  
+Đã thêm vào cuối: ZM002 - Mưa đêm
+&gt; DAU ZM003 | Đường về nhà
+Đã thêm vào đầu: ZM003 - Đường về nhà
+&gt; THEM ZM001 | Bình minh trên phố
+Bài ZM001 đã có trong danh sách phát.
+&gt; THEM ZM004
+Thiếu tên bài. Cú pháp: THEM &lt;mã bài&gt; | &lt;tên bài&gt;
+&gt; THEM M4 | Phố cũ
+Mã bài không hợp lệ: M4
+&gt; PHAT ZM001
+Lệnh không hợp lệ: PHAT
+&gt; 
+Chưa nhập lệnh.
+&gt; TIM zm002
+Bài ZM002 - Mưa đêm đang ở vị trí 3.
+&gt; BO ZM002
+Đã bỏ: ZM002 - Mưa đêm
+&gt; THEM ZM004 | Phố cũ
+Đã thêm vào cuối: ZM004 - Phố cũ
+&gt; XEM
+1. ZM003 - Đường về nhà
+2. ZM001 - Bình minh trên phố
+3. ZM004 - Phố cũ
+&gt; DEM
+Danh sách phát có 3 bài.
+</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy.</li>
+<li><code>Playlist.remove</code>: vẽ hình bốn trường hợp (bỏ bài đầu, bài giữa, bài cuối, bài duy nhất) và ghi rõ liên kết phải sửa.</li>
+<li><code>handle</code>: viết mã giả cho trình tự kiểm tra một dòng lệnh; giải thích vì sao việc kiểm tra dữ liệu nhập đặt ở <code>handle</code>, không đặt trong <code>Playlist</code>.</li>
+<li>Chi phí: Big-O thời gian của sáu phương thức của <code>Playlist</code> và của từng lệnh, n là số bài. Lệnh <code>TIM</code> của bạn duyệt danh sách mấy lượt?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>quan_ly.py</code>; được thêm phương thức, hàm, lớp phụ; không đổi tên và tham số đã có trong khung.</li>
+<li>Không dùng list, dict, set, deque của Python để lưu các bài (list chỉ dùng cho giá trị trả về khi hiển thị).</li>
+<li>Xử lý đủ 5 bẫy; chương trình in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 9 test có sẵn. Mã sạch, có chú thích ở những chỗ sửa liên kết.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu <code>collections.deque</code> của Python: nó được tổ chức bên trong thế nào, thao tác nào là O(1), thao tác nào là O(n).</li>
+<li>Tạo <code>nghien_cuu.py</code>: dùng <code>timeit</code> đo thời gian <strong>thêm 20.000 bài vào đầu</strong> với list (<code>insert(0, ...)</code>), <code>deque</code> (<code>appendleft</code>) và <code>Playlist</code> của bạn (<code>add_first</code>). Ghi bảng số đo, giải thích bằng Big-O, và cho biết với công việc thật bạn chọn <code>deque</code> hay lớp tự viết, vì sao.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex17</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-17">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-17</a> rồi chép các tệp vào kho: <code>quan_ly.py</code>, <code>test_quan_ly.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>quan_ly.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>. Tạo thêm <code>nghien_cuu.py</code> cho phần đo thời gian.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

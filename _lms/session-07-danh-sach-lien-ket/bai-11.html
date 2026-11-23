@@ -1,0 +1,136 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người nghe chèn một bài vào giữa danh sách phát và đưa bài yêu thích lên đầu." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-11/minh_hoa.png" /></p>
+<p><em>Người nghe chèn một bài vào giữa danh sách phát và đưa bài yêu thích lên đầu.</em></p>
+<p>Trong ứng dụng nghe nhạc Zing MP3, người nghe thường xuyên <strong>sắp xếp lại</strong> danh sách phát của mình: chèn một bài mới vào ngay sau bài đang nghe, hoặc đưa một bài yêu thích lên đầu danh sách.</p>
+<ul>
+<li>Mỗi bài trong danh sách phát được lưu dưới dạng chuỗi:</li>
+</ul>
+<pre><code>&quot;MÃ_BÀI - TÊN_BÀI&quot;
+</code></pre>
+<ul>
+<li>Ví dụ một danh sách phát có ba bài:</li>
+</ul>
+<pre><code>ZM001 - Bình minh trên phố  -&gt;  ZM002 - Mưa đêm  -&gt;  ZM003 - Đường về nhà  -&gt;  None
+</code></pre>
+<p>Nếu lưu bằng list Python, mỗi lần chèn vào giữa hay đưa một bài lên đầu đều phải dời hàng loạt phần tử (Session 05). Với <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>, khi đã đứng ở đúng node thì chèn hay gỡ chỉ là sửa vài liên kết. Đổi lại, người viết phải tự giữ cho <code>head</code>, <code>tail</code>, <code>size</code> luôn đúng, và phải sửa liên kết <strong>đúng thứ tự</strong> để không làm rơi mất phần sau của danh sách.</p>
+<p>Bạn được giao viết lớp <code>EditablePlaylist</code> cho tính năng này.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Lớp <code>EditablePlaylist</code> (khung có sẵn trong <code>sap_xep.py</code>) cần bốn chức năng. Mỗi chức năng <strong>trả về</strong> thông báo đúng từng chữ như mô tả. Mọi mã bài nhận vào đều phải được xóa khoảng trắng hai đầu và chuyển thành chữ hoa; tên bài được xóa khoảng trắng hai đầu.</p>
+<p><strong>2.1. Thêm bài vào cuối: <code>add_song(code, title)</code></strong></p>
+<p>Thêm bài vào <strong>cuối</strong> danh sách phát trong O(1) và trả về:</p>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố
+</code></pre>
+<p>Nếu mã bài đã có trong danh sách phát, không thêm và trả về:</p>
+<pre><code>Bài ZM001 đã có trong danh sách phát.
+</code></pre>
+<p><strong>2.2. Chèn bài mới sau một bài: <code>insert_after(after_code, code, title)</code></strong></p>
+<p>Tìm bài có mã <code>after_code</code> (gọi là bài mốc), chèn bài mới vào <strong>ngay sau</strong> bài mốc và trả về:</p>
+<pre><code>Đã chèn: ZM004 - Phố cũ (sau ZM001)
+</code></pre>
+<p>Sau lệnh trên, danh sách ở ví dụ mục 1 trở thành <code>ZM001</code>, <code>ZM004</code>, <code>ZM002</code>, <code>ZM003</code>.</p>
+<p><strong>2.3. Đưa một bài lên đầu: <code>move_to_top(code)</code></strong></p>
+<p>Tìm bài có mã <code>code</code>, gỡ node của bài đó khỏi vị trí hiện tại rồi nối <strong>chính node đó</strong> vào đầu danh sách (không tạo node mới), trả về:</p>
+<pre><code>Đã đưa lên đầu: ZM002 - Mưa đêm
+</code></pre>
+<p>Số bài không đổi sau thao tác này.</p>
+<p><strong>2.4. Hiển thị danh sách phát: <code>to_lines()</code></strong></p>
+<p>Trả về một list các dòng, đánh số từ 1:</p>
+<pre><code>1. ZM001 - Bình minh trên phố
+2. ZM004 - Phố cũ
+3. ZM002 - Mưa đêm
+</code></pre>
+<p>Nếu danh sách phát không có bài nào, trả về list chỉ có một dòng:</p>
+<pre><code>Danh sách phát đang trống.
+</code></pre>
+<p>Sau mọi chức năng, <code>size</code> phải bằng đúng số bài, <code>tail</code> phải là node cuối và <code>tail.next</code> phải là <code>None</code>.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chèn một bài đã có trong danh sách phát</strong></p>
+<ul>
+<li>Danh sách đã có <code>ZM003</code>. Gọi <code>insert_after("ZM001", "zm003", "Đường về nhà")</code>, hệ thống không chèn và trả về:</li>
+</ul>
+<pre><code>Bài ZM003 đã có trong danh sách phát.
+</code></pre>
+<ul>
+<li>Việc kiểm tra trùng được làm <strong>trước</strong> việc tìm bài mốc: nếu vừa trùng mã vừa không có bài mốc thì vẫn trả về thông báo trùng.</li>
+</ul>
+<p><strong>Bẫy 2 — Không có bài mốc</strong></p>
+<ul>
+<li>Gọi <code>insert_after("ZM999", "ZM004", "Phố cũ")</code>, danh sách giữ nguyên và hệ thống trả về:</li>
+</ul>
+<pre><code>Không tìm thấy bài ZM999 để chèn sau.
+</code></pre>
+<ul>
+<li>Danh sách đang trống cũng thuộc trường hợp này; hệ thống không được báo lỗi.</li>
+</ul>
+<p><strong>Bẫy 3 — Chèn sau bài cuối, rồi thêm bài mới</strong></p>
+<ul>
+<li>Danh sách có <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>. Chèn <code>ZM004</code> sau <code>ZM003</code>, rồi gọi <code>add_song("ZM005", "Gió qua thềm")</code>. Nếu <code>tail</code> không được dời sang <code>ZM004</code> khi chèn, bài <code>ZM005</code> sẽ được nối vào sau <code>ZM003</code> và làm <code>ZM004</code> biến mất. Thứ tự đúng: <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>, <code>ZM004</code>, <code>ZM005</code>.</li>
+</ul>
+<p><strong>Bẫy 4 — Đưa bài cuối lên đầu, rồi thêm bài mới</strong></p>
+<ul>
+<li>Danh sách có <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>. Đưa <code>ZM003</code> lên đầu, rồi thêm <code>ZM004</code>. Khi gỡ node cuối, <code>tail</code> phải lùi về <code>ZM002</code> và <code>tail.next</code> phải là <code>None</code>. Nếu quên, <code>tail</code> vẫn chỉ vào <code>ZM003</code> (lúc này đang ở đầu) và bài <code>ZM004</code> sẽ chen vào giữa, làm mất các bài phía sau. Thứ tự đúng: <code>ZM003</code>, <code>ZM001</code>, <code>ZM002</code>, <code>ZM004</code>.</li>
+</ul>
+<p><strong>Bẫy 5 — Bài đã ở đầu, bài không có, danh sách trống</strong></p>
+<ul>
+<li>Đưa lên đầu đúng bài đang đứng đầu (kể cả khi danh sách chỉ có một bài): danh sách giữ nguyên, trả về:</li>
+</ul>
+<pre><code>Bài ZM001 đã ở đầu danh sách phát.
+</code></pre>
+<ul>
+<li>Đưa lên đầu một bài không có, hoặc gọi trên danh sách trống: hệ thống không được báo lỗi mà trả về:</li>
+</ul>
+<pre><code>Không tìm thấy bài ZM999 trong danh sách phát.
+</code></pre>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python sap_xep.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Đã thêm: ZM001 - Bình minh trên phố
+Đã thêm: ZM002 - Mưa đêm
+Đã thêm: ZM003 - Đường về nhà
+Đã chèn: ZM004 - Phố cũ (sau ZM001)
+Không tìm thấy bài ZM999 để chèn sau.
+Bài ZM004 đã có trong danh sách phát.
+Đã chèn: ZM005 - Gió qua thềm (sau ZM003)
+Đã thêm: ZM006 - Ngày nắng
+1. ZM001 - Bình minh trên phố
+2. ZM004 - Phố cũ
+3. ZM002 - Mưa đêm
+4. ZM003 - Đường về nhà
+5. ZM005 - Gió qua thềm
+6. ZM006 - Ngày nắng
+Bài ZM001 đã ở đầu danh sách phát.
+Không tìm thấy bài ZM999 trong danh sách phát.
+Đã đưa lên đầu: ZM006 - Ngày nắng
+Đã thêm: ZM007 - Đêm thành phố
+1. ZM006 - Ngày nắng
+2. ZM001 - Bình minh trên phố
+3. ZM004 - Phố cũ
+4. ZM002 - Mưa đêm
+5. ZM003 - Đường về nhà
+6. ZM005 - Gió qua thềm
+7. ZM007 - Đêm thành phố
+Số bài: 7 | bài cuối: ZM007 - Đêm thành phố
+</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm, bạn phải thực hiện đầy đủ hai phần sau:</p>
+<p><strong>(1) Phân tích và thiết kế giải pháp (bắt buộc, viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Phân tích Input/Output: với từng chức năng, nêu dữ liệu đầu vào (kiểu dữ liệu) và giá trị trả về trong trường hợp thường và trong từng bẫy.</li>
+<li>Đề xuất giải pháp cho <code>insert_after</code>: có hai liên kết phải gán (của node mới và của node mốc). Gán theo thứ tự nào? Vẽ hình cho thấy chuyện gì xảy ra nếu gán ngược thứ tự.</li>
+<li>Đề xuất giải pháp cho <code>move_to_top</code>: để gỡ một node trong danh sách liên kết đơn, cần giữ node nào khi duyệt? Vẽ hình hai trường hợp: bài cần đưa lên nằm ở giữa, nằm ở cuối; ghi rõ liên kết nào phải sửa.</li>
+<li>Thiết kế thuật toán: viết mã giả hoặc mô tả các bước của <code>insert_after</code> và <code>move_to_top</code>.</li>
+<li>Chi phí: ghi Big-O thời gian của bốn chức năng, n là số bài. Trong <code>move_to_top</code>, phần tìm tốn bao nhiêu, phần gỡ và nối tốn bao nhiêu? So với list Python thì khác ở phần nào?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết thân bốn phương thức trong <code>sap_xep.py</code>. Được viết thêm phương thức phụ. Không đổi tên lớp, tên phương thức, tham số.</li>
+<li>Không dùng list Python để lưu danh sách phát (list chỉ dùng cho giá trị trả về của <code>to_lines</code>).</li>
+<li>Xử lý đủ 5 bẫy ở mục 3; <code>python sap_xep.py</code> in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test.</li>
+<li>Mã sạch, dễ đọc, tên biến theo snake_case, có chú thích ở những chỗ sửa liên kết.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex11</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-11">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-11</a> rồi chép các tệp vào kho: <code>sap_xep.py</code>, <code>test_sap_xep.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, viết mã trong <code>sap_xep.py</code>.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,87 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trợ lý AI viết xong hàm lọc bài trùng trong vài giây, ba test đều xanh. Kỹ sư có nên đưa lên bản chính thức?" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-15/minh_hoa.png" /></p>
+<p><em>Trợ lý AI viết xong hàm lọc bài trùng trong vài giây, ba test đều xanh. Kỹ sư có nên đưa lên bản chính thức?</em></p>
+<p>Trong ứng dụng nghe nhạc Zing MP3, khi người nghe gộp nhiều danh sách phát, cùng một bài có thể xuất hiện nhiều lần. Nhóm cần chức năng <strong>"Lọc bài trùng"</strong>: với mỗi mã bài, giữ lại <strong>lần xuất hiện đầu tiên</strong>, bỏ các lần sau, các bài còn lại giữ nguyên thứ tự.</p>
+<p>Danh sách phát là <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code>, <code>size</code></strong>, mỗi node giữ một mã bài:</p>
+<pre><code>Trước khi lọc:  ZM001 -&gt; ZM002 -&gt; ZM001 -&gt; ZM003 -&gt; ZM002 -&gt; None     (5 bài)
+Sau khi lọc:    ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None                       (3 bài, đã bỏ 2)
+</code></pre>
+<p>Sau khi lọc, hàm trả về <strong>số bài đã bỏ</strong>; <code>size</code> phải bằng số bài còn lại; <code>tail</code> phải là node cuối và <code>tail.next</code> là <code>None</code>, để các chức năng khác (thêm bài, đếm bài) tiếp tục chạy đúng.</p>
+<p>Một đồng nghiệp đã nhờ trợ lý AI viết hàm này. AI trả về đoạn mã kèm ba test, cả ba đều xanh, và đồng nghiệp đề nghị đưa lên bản chính thức ngay hôm nay. Bạn là người <strong>duyệt mã</strong>. Quy định của nhóm: mã do AI sinh chỉ được dùng khi người duyệt đã tự chạy thử với dữ liệu của mình và chịu trách nhiệm về nó.</p>
+<h2><strong>2. Mã do AI sinh</strong></h2>
+<p>Tệp <code>loc_trung.py</code> trong thư mục khởi đầu có sẵn lớp <code>Node</code>, lớp <code>Playlist</code> (<code>add_last</code>, <code>to_text</code> đã đúng, không cần sửa) và hàm do AI viết:</p>
+<pre><code>def remove_duplicates(playlist):
+    &quot;&quot;&quot;Bỏ các bài trùng mã, giữ lại lần xuất hiện đầu tiên. Trả về số bài đã bỏ.&quot;&quot;&quot;
+    removed = 0
+    current = playlist.head
+    while current is not None:
+        runner = current
+        while runner.next is not None:
+            if runner.next.value == current.value:
+                runner.next = runner.next.next
+                removed += 1
+            runner = runner.next
+        current = current.next
+    return removed
+</code></pre>
+<p>Lời giải thích AI gửi kèm: "Hàm dùng hai vòng lặp lồng nhau: <code>current</code> lần lượt đứng ở từng bài, <code>runner</code> đi qua các bài phía sau và gỡ những node có cùng mã. Độ phức tạp O(n²), không dùng thêm bộ nhớ. Đã kiểm tra với ba test."</p>
+<p>Ba test của AI nằm trong <code>test_loc_trung.py</code>: danh sách không có bài trùng, danh sách có một bài trùng ở giữa, danh sách trống. Chạy thử đoạn cuối tệp:</p>
+<pre><code>Trước khi lọc: ZM001 -&gt; ZM002 -&gt; ZM001 -&gt; ZM003 -&gt; None
+Số bài đã bỏ: 1
+Sau khi lọc: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; None
+</code></pre>
+<p>Kết quả trông đúng. Đoạn chạy thử này nằm ở cuối tệp; bạn sẽ sửa nó để thử các bộ dữ liệu khác. Nhiệm vụ của bạn là tìm ra những dữ liệu mà đoạn mã này <strong>không</strong> xử lý đúng.</p>
+<h2><strong>3. Các hướng cần kiểm chứng</strong></h2>
+<p>Ba test của AI đều dùng dữ liệu "đẹp". Hãy kiểm chứng đoạn mã với những tình huống có thật trong nghiệp vụ dưới đây. Đề không cho biết tình huống nào làm lộ lỗi; bạn phải tự chạy tay hoặc chạy thử để biết.</p>
+<p><strong>Hướng 1 — Vị trí của bài trùng</strong></p>
+<ul>
+<li>Bài trùng đứng <strong>liền ngay sau</strong> bài gốc; nhiều bài trùng đứng liền nhau (người nghe bấm "Thêm" ba lần liên tiếp).</li>
+<li>Bài trùng là <strong>bài cuối cùng</strong> của danh sách.</li>
+</ul>
+<p><strong>Hướng 2 — Trạng thái của danh sách sau khi lọc</strong></p>
+<ul>
+<li><code>size</code> sau khi lọc.</li>
+<li><code>tail</code> sau khi lọc, và điều xảy ra khi gọi <code>add_last</code> ngay sau đó.</li>
+</ul>
+<p><strong>Hướng 3 — Dữ liệu ở biên</strong></p>
+<ul>
+<li>Mọi bài trong danh sách đều cùng một mã.</li>
+<li>Danh sách chỉ có một bài.</li>
+</ul>
+<p><strong>Hướng 4 — Lời giải thích của AI</strong></p>
+<ul>
+<li>"O(n²), không dùng thêm bộ nhớ" có đúng không? Với danh sách phát 10.000 bài, vòng lặp trong chạy khoảng bao nhiêu lượt?</li>
+</ul>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò người duyệt mã, bạn phải thực hiện đầy đủ bốn phần sau:</p>
+<p><strong>(1) Tìm dữ liệu làm lộ lỗi</strong></p>
+<ul>
+<li>Theo các hướng ở mục 3, tự nghĩ ra <strong>ít nhất 6 bộ dữ liệu thử</strong> (mỗi bộ là một dãy mã bài). Với mỗi bộ: dự đoán kết quả đúng trước, rồi sửa đoạn chạy thử ở cuối <code>loc_trung.py</code> để chạy hàm của AI trên bộ đó và in ra số bài đã bỏ, danh sách sau khi lọc, <code>size</code>, <code>tail.value</code>.</li>
+<li>Ghi vào bảng trong <code>PHAN_TICH.md</code>: dữ liệu, kết quả đúng, kết quả thực tế (hoặc thông báo lỗi), đúng hay sai. Các bộ dữ liệu của bạn phải làm lộ <strong>ít nhất 3 lỗi khác nhau</strong>.</li>
+</ul>
+<p><strong>(2) Phân tích (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Với mỗi lỗi: dòng lệnh gây lỗi và bảng chạy tay trên bộ dữ liệu nhỏ nhất làm lộ lỗi đó, cho thấy lỗi xuất hiện ở bước nào.</li>
+<li>Điền bảng <strong>"Nhật ký giữ – sửa – loại bỏ"</strong>: phần nào trong mã của AI bạn giữ nguyên, phần nào sửa, phần nào bỏ, kèm lý do.</li>
+<li>Đề xuất <strong>giải pháp thứ hai</strong> nhanh hơn cho danh sách dài. So sánh hai giải pháp theo bảng 5 tiêu chí: thời gian (Big-O), bộ nhớ dùng thêm (Big-O), số lượt duyệt, độ dễ đọc, mức phù hợp khi danh sách có 100 bài và khi có 10.000 bài. Nêu rõ bạn chọn giải pháp nào cho bản chính thức.</li>
+<li>Trả lời hướng 4: nhận xét về lời giải thích của AI.</li>
+</ul>
+<p><strong>(3) Sửa mã và cài giải pháp thứ hai (trong <code>loc_trung.py</code>)</strong></p>
+<ul>
+<li>Sửa hàm <code>remove_duplicates</code> (giữ cách làm hai vòng lặp, không dùng thêm bộ nhớ) để hết mọi lỗi bạn tìm được.</li>
+<li>Viết hàm <code>remove_duplicates_fast</code> theo giải pháp thứ hai của bạn; được dùng <code>set</code> hoặc <code>dict</code> để ghi nhớ, không chép các bài sang list rồi dựng lại danh sách.</li>
+<li>Cả hai hàm: gỡ node ngay trên danh sách, trả về số bài đã bỏ, cập nhật đúng <code>size</code> và <code>tail</code>.</li>
+</ul>
+<p><strong>(4) Kiểm chứng sau khi sửa</strong></p>
+<ul>
+<li>Chạy lại <strong>toàn bộ</strong> các bộ dữ liệu thử ở phần (1) trên cả hai hàm đã sửa, ghi kết quả vào cột "Sau khi sửa" của bảng. Mọi dòng phải đúng, kể cả <code>size</code> và <code>tail</code>.</li>
+<li><code>pytest -q</code> vẫn xanh cả ba test có sẵn của AI.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex15</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-15">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-15</a> rồi chép các tệp vào kho: <code>loc_trung.py</code>, <code>test_loc_trung.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền <code>PHAN_TICH.md</code>, sửa và viết mã trong <code>loc_trung.py</code>.</li>
+<li>Mức AI của bài: AI-2 cho phần phản biện (đề đã cung cấp mã do AI sinh; bạn được hỏi AI để hiểu đoạn mã, nhưng dữ liệu thử, phân tích và mã sửa phải do bạn tự làm và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

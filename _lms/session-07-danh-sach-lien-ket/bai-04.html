@@ -1,0 +1,150 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người nghe mở mục Nghe gần đây nhưng chỉ thấy một bài, dù vừa nghe bốn bài." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-04/minh_hoa.png" /></p>
+<p><em>Mục "Nghe gần đây" chỉ hiện một bài, dù người nghe vừa nghe bốn bài.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm xây dựng mục "Nghe gần đây" của ứng dụng nghe nhạc Zing MP3.</p>
+<p>Mỗi lần người nghe nghe xong một bài, mã bài được ghi vào <strong>lịch sử nghe</strong>. Mục "Nghe gần đây" hiện các bài <strong>từ mới về cũ</strong>, còn trang thống kê hiện <strong>từ cũ đến mới</strong>. Vì phải đi được cả hai chiều, nhóm lưu lịch sử bằng <strong>danh sách liên kết đôi</strong>: mỗi node có <code>prev</code> (bài nghe ngay trước) và <code>next</code> (bài nghe ngay sau); <code>head</code> là bài nghe cũ nhất, <code>tail</code> là bài nghe mới nhất.</p>
+<p>Ví dụ lịch sử có ba bài:</p>
+<pre><code>head                              tail
+ |                                 |
+ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003          size = 3
+</code></pre>
+<p>Hai thao tác làm thay đổi lịch sử:</p>
+<ul>
+<li>Nghe xong một bài: ghi bài đó vào <strong>cuối</strong> lịch sử (<code>add_last</code>).</li>
+<li>Lịch sử chỉ giữ một số bài gần nhất: khi vượt quá thì bỏ bài <strong>cũ nhất</strong> ở đầu (<code>remove_first</code>), trả về mã bài đã bỏ. Lịch sử trống mà vẫn gọi bỏ thì báo <code>IndexError("lịch sử nghe đang trống")</code>.</li>
+</ul>
+<p>Kịch bản kiểm tra của nhóm: ghi lần lượt <code>"ZM001"</code>, <code>"ZM002"</code>, <code>"ZM003"</code>, <code>"ZM004"</code>; in lịch sử theo hai chiều; bỏ bài cũ nhất; in lại từ mới về cũ; in node đứng trước bài cũ nhất (phải là <code>None</code>); cuối cùng, với một lịch sử chỉ có một bài, bỏ bài đó rồi in bài mới nhất.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None
+Bỏ bài cũ nhất: ZM001
+Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; None
+Bài đứng trước bài cũ nhất: None
+Bài mới nhất sau khi xóa hết: None
+</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người nghe phản ánh: mục "Nghe gần đây" <strong>chỉ hiện đúng một bài</strong>, dù trang thống kê (từ cũ đến mới) vẫn hiện đủ. Nhóm kiểm thử báo thêm: sau khi lịch sử bị xóa hết, ứng dụng vẫn hiện một bài "ma" ở mục này.</p>
+<p>Lập trình viên trước đã viết <code>add_last</code> và <code>remove_first</code> giống hệt bản của danh sách liên kết đơn, nên bỏ sót phần riêng của danh sách liên kết đôi:</p>
+<ul>
+<li>Mỗi lần nối một node mới phải đặt <strong>cả hai chiều</strong>: <code>next</code> của node cũ và <code>prev</code> của node mới. Thiếu <code>prev</code> thì duyệt xuôi vẫn đúng, nhưng duyệt ngược dừng ngay ở node đầu tiên gặp.</li>
+<li>Khi bỏ node đầu, node kế tiếp trở thành <code>head</code>, và <code>prev</code> của <code>head</code> phải là <code>None</code>. Nếu không, <code>head</code> vẫn giữ liên kết tới một node đã bị gỡ.</li>
+<li>Khi bỏ <strong>node duy nhất</strong>, cả <code>head</code> và <code>tail</code> đều phải thành <code>None</code>.</li>
+</ul>
+<p>Lưu ý: lỗi thứ hai đang bị lỗi thứ nhất che mất. Sau khi sửa <code>add_last</code>, hãy chạy lại để thấy lỗi của <code>remove_first</code> lộ ra.</p>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Tệp <code>history.py</code> trong thư mục khởi đầu (<code>to_text</code> và <code>to_text_backward</code> đã đúng, không cần sửa):</p>
+<pre><code>class Node:
+    def __init__(self, value):
+        self.value = value
+        self.prev = None
+        self.next = None
+
+
+class History:
+    def __init__(self):
+        self.head = None    # bài nghe cũ nhất
+        self.tail = None    # bài nghe mới nhất
+        self.size = 0       # số bài trong lịch sử
+
+    def add_last(self, code):
+        # Ghi bài vừa nghe vào cuối lịch sử
+        node = Node(code)
+        if self.tail is None:
+            self.head = node
+            self.tail = node
+        else:
+            self.tail.next = node
+            self.tail = node
+        self.size += 1
+
+    def remove_first(self):
+        # Bỏ bài nghe cũ nhất, trả về mã bài
+        code = self.head.value
+        self.head = self.head.next
+        self.size -= 1
+        return code
+
+    def to_text(self):
+        # Cho sẵn, đã đúng: từ cũ đến mới
+        parts = []
+        current = self.head
+        while current is not None:
+            parts.append(current.value)
+            current = current.next
+        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
+
+    def to_text_backward(self):
+        # Cho sẵn, đã đúng: từ mới về cũ, đi theo prev
+        parts = []
+        current = self.tail
+        while current is not None:
+            parts.append(current.value)
+            current = current.prev
+        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
+
+
+history = History()
+for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;, &quot;ZM004&quot;]:
+    history.add_last(code)
+print(&quot;Từ cũ đến mới:&quot;, history.to_text())
+print(&quot;Từ mới về cũ:&quot;, history.to_text_backward())
+# Lịch sử chỉ giữ 3 bài gần nhất: bỏ bài cũ nhất
+print(&quot;Bỏ bài cũ nhất:&quot;, history.remove_first())
+print(&quot;Từ mới về cũ:&quot;, history.to_text_backward())
+print(&quot;Bài đứng trước bài cũ nhất:&quot;, history.head.prev)
+
+# Lịch sử chỉ có một bài rồi bị xóa hết
+single = History()
+single.add_last(&quot;ZM010&quot;)
+single.remove_first()
+print(&quot;Bài mới nhất sau khi xóa hết:&quot;, single.tail)
+</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Từ mới về cũ: ZM004 -&gt; None
+Bỏ bài cũ nhất: ZM001
+Từ mới về cũ: ZM004 -&gt; None
+Bài đứng trước bài cũ nhất: None
+Bài mới nhất sau khi xóa hết: &lt;__main__.Node object at 0x...&gt;
+</code></pre>
+<p>Chương trình không báo lỗi nào, nhưng ba dòng sai so với kết quả đúng:</p>
+<ul>
+<li>Hai lần in "Từ mới về cũ" chỉ có <code>ZM004</code>.</li>
+<li>Lịch sử đã xóa hết mà <code>tail</code> vẫn trỏ tới một node.</li>
+</ul>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Sau bốn lệnh <code>add_last</code> của mã hiện tại, <code>prev</code> của node <code>ZM004</code> đang là gì? <code>prev</code> của node <code>ZM002</code> là gì?</li>
+<li>Vì sao duyệt từ cũ đến mới vẫn đủ bốn bài, còn duyệt từ mới về cũ chỉ được một bài?</li>
+<li>Trong <code>add_last</code>, cần thêm dòng lệnh nào, ở nhánh nào? Dòng đó phải đứng trước hay sau dòng <code>self.tail = node</code>? Vì sao?</li>
+<li>Sửa xong <code>add_last</code>, chạy lại chương trình: dòng "Bài đứng trước bài cũ nhất" in ra gì? Vì sao nó không còn là <code>None</code>?</li>
+<li>Trong <code>remove_first</code>, cần thêm lệnh gì để <code>head</code> mới không còn liên kết về node đã bỏ?</li>
+<li>Với lịch sử chỉ có một bài, sau <code>remove_first</code> của mã hiện tại thì <code>head</code> và <code>tail</code> là gì? Cần sửa thế nào?</li>
+<li>Vì sao gọi <code>remove_first</code> trên lịch sử trống sẽ báo <code>AttributeError</code>? Cần kiểm tra gì và báo lỗi nào?</li>
+<li>Vì sao chương trình không hề báo lỗi mà kết quả vẫn sai? Loại lỗi này nên được phát hiện bằng cách nào?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai phương thức <code>add_last</code> và <code>remove_first</code> trong <code>history.py</code>. Không đổi tên lớp, tên phương thức; không dùng list Python để lưu lịch sử.</li>
+<li>Chạy <code>python history.py</code> phải cho đúng kết quả:</li>
+</ul>
+<pre><code>Từ cũ đến mới: ZM001 -&gt; ZM002 -&gt; ZM003 -&gt; ZM004 -&gt; None
+Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; ZM001 -&gt; None
+Bỏ bài cũ nhất: ZM001
+Từ mới về cũ: ZM004 -&gt; ZM003 -&gt; ZM002 -&gt; None
+Bài đứng trước bài cũ nhất: None
+Bài mới nhất sau khi xóa hết: None
+</code></pre>
+<ul>
+<li>Chạy <code>pytest -q</code> phải xanh cả 4 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex04</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-04">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-04</a> rồi chép các tệp vào kho: <code>history.py</code>, <code>test_history.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong tệp mã nguồn.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

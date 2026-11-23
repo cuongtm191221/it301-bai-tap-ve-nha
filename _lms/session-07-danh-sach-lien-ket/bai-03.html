@@ -1,0 +1,168 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người nghe bỏ bài cuối danh sách phát rồi thêm bài mới, nhưng bài mới không hiện ra." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-03/minh_hoa.png" /></p>
+<p><em>Người nghe bỏ bài cuối rồi thêm bài mới, nhưng bài mới không xuất hiện trong danh sách phát.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
+<p>Danh sách phát của mỗi người nghe được lưu bằng <strong>danh sách liên kết đơn</strong> có <code>head</code> (bài sẽ phát đầu tiên), <code>tail</code> (bài cuối danh sách) và <code>size</code> (số bài).</p>
+<p>Ví dụ danh sách phát có ba bài:</p>
+<pre><code>head                         tail
+ |                            |
+ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  None        size = 3
+</code></pre>
+<p>Trong lúc nghe nhạc có hai thao tác lấy bài ra khỏi danh sách:</p>
+<ul>
+<li><strong>Phát xong một bài</strong>: ứng dụng lấy bài ở <strong>đầu</strong> danh sách ra để phát (<code>remove_first</code>), trả về mã bài đó.</li>
+<li><strong>Người nghe bấm "Bỏ khỏi danh sách phát"</strong> ở một bài bất kỳ: ứng dụng xóa bài có mã đó (<code>remove</code>), trả về <code>True</code> nếu xóa được, <code>False</code> nếu không có bài đó.</li>
+</ul>
+<p>Sau mỗi thao tác, <code>head</code>, <code>tail</code> và <code>size</code> phải đúng với danh sách thật. Khi danh sách đã hết bài mà ứng dụng vẫn gọi phát tiếp, <code>remove_first</code> phải báo <code>IndexError("danh sách phát đang trống")</code> để phần giao diện hiện thông báo, thay vì làm treo ứng dụng.</p>
+<p>Kịch bản kiểm tra của nhóm: danh sách gồm <code>"ZM001"</code>, <code>"ZM002"</code>, <code>"ZM003"</code>; bỏ <code>"ZM003"</code> rồi thêm <code>"ZM004"</code> vào cuối; bỏ <code>"ZM001"</code>; phát lần lượt hai bài còn lại; in số bài và bài cuối; cuối cùng gọi phát tiếp khi danh sách đã trống.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Bỏ ZM003: True
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None
+Bỏ ZM001: True
+Danh sách phát: ZM002 -&gt; ZM004 -&gt; None
+Phát xong: ZM002
+Phát xong: ZM004
+Số bài còn lại: 0
+Bài cuối danh sách: None
+Không phát được: danh sách phát đang trống
+</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người nghe phản ánh: bỏ bài cuối rồi thêm bài mới thì <strong>bài mới không hiện ra</strong>; bấm bỏ bài đang đứng đầu thì <strong>không có gì xảy ra</strong>; số bài hiển thị <strong>không giảm</strong> khi nghe hết; và nghe hết danh sách thì ứng dụng <strong>bị treo</strong>.</p>
+<p>Lập trình viên trước đã viết <code>remove_first</code> và <code>remove</code>, nhưng bỏ sót các trường hợp biên của thao tác xóa trên danh sách liên kết đơn có <code>tail</code>:</p>
+<ul>
+<li>Xóa <strong>node cuối</strong>: <code>tail</code> phải lùi về node đứng trước. Nếu không, <code>tail</code> vẫn trỏ tới node đã bị gỡ, và lần thêm cuối tiếp theo nối bài mới vào node đó.</li>
+<li>Xóa <strong>node đầu</strong>: không có node đứng trước, nên phải xử lý riêng bằng cách dời <code>head</code>.</li>
+<li>Xóa <strong>node duy nhất</strong>: cả <code>head</code> và <code>tail</code> đều phải thành <code>None</code>.</li>
+<li><strong>Danh sách rỗng</strong>: <code>head</code> là <code>None</code>, gọi <code>.value</code> hoặc <code>.next</code> trên <code>None</code> sẽ báo <code>AttributeError</code>.</li>
+<li><code>size</code> phải giảm đúng 1 ở <strong>mọi</strong> lần xóa thành công.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Tệp <code>playlist.py</code> trong thư mục khởi đầu (<code>add_last</code> và <code>to_text</code> đã đúng, không cần sửa):</p>
+<pre><code>class Node:
+    def __init__(self, value, next=None):
+        self.value = value
+        self.next = next
+
+
+class Playlist:
+    def __init__(self):
+        self.head = None    # bài sẽ phát đầu tiên
+        self.tail = None    # bài cuối danh sách
+        self.size = 0       # số bài trong danh sách
+
+    def add_last(self, code):
+        # Cho sẵn, đã đúng: thêm bài vào cuối danh sách
+        node = Node(code)
+        if self.head is None:
+            self.head = node
+            self.tail = node
+        else:
+            self.tail.next = node
+            self.tail = node
+        self.size += 1
+
+    def to_text(self):
+        # Cho sẵn, đã đúng
+        parts = []
+        current = self.head
+        while current is not None:
+            parts.append(current.value)
+            current = current.next
+        return &quot; -&gt; &quot;.join(parts + [&quot;None&quot;])
+
+    def remove_first(self):
+        # Phát xong bài đầu: lấy bài đầu ra khỏi danh sách và trả về mã bài
+        code = self.head.value
+        self.head = self.head.next
+        return code
+
+    def remove(self, code):
+        # Người nghe bỏ một bài: xóa bài có mã code, trả True nếu xóa được
+        prev = self.head
+        while prev.next is not None:
+            if prev.next.value == code:
+                prev.next = prev.next.next
+                self.size -= 1
+                return True
+            prev = prev.next
+        return False
+
+
+playlist = Playlist()
+for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;]:
+    playlist.add_last(code)
+# Người nghe bỏ bài cuối, rồi thêm một bài mới
+print(&quot;Bỏ ZM003:&quot;, playlist.remove(&quot;ZM003&quot;))
+playlist.add_last(&quot;ZM004&quot;)
+print(&quot;Danh sách phát:&quot;, playlist.to_text())
+# Người nghe bỏ bài đang đứng đầu
+print(&quot;Bỏ ZM001:&quot;, playlist.remove(&quot;ZM001&quot;))
+print(&quot;Danh sách phát:&quot;, playlist.to_text())
+# Phát lần lượt cho tới hết danh sách
+print(&quot;Phát xong:&quot;, playlist.remove_first())
+print(&quot;Phát xong:&quot;, playlist.remove_first())
+print(&quot;Số bài còn lại:&quot;, playlist.size)
+print(&quot;Bài cuối danh sách:&quot;, playlist.tail)
+# Danh sách đã hết bài nhưng ứng dụng vẫn gọi phát tiếp
+playlist.remove_first()
+</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Bỏ ZM003: True
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; None
+Bỏ ZM001: False
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; None
+Phát xong: ZM001
+Phát xong: ZM002
+Số bài còn lại: 3
+Bài cuối danh sách: &lt;__main__.Node object at 0x...&gt;
+Traceback (most recent call last):
+  ...
+    code = self.head.value
+AttributeError: 'NoneType' object has no attribute 'value'
+</code></pre>
+<p>Chương trình dừng ở lệnh <code>remove_first()</code> cuối cùng. Trước đó, các dòng đã in cũng sai so với kết quả đúng:</p>
+<ul>
+<li>Bài <code>ZM004</code> vừa thêm không có trong danh sách phát.</li>
+<li>Bỏ <code>ZM001</code> trả về <code>False</code> và bài vẫn còn nguyên.</li>
+<li>Đã phát hết mà số bài còn lại vẫn là 3, và <code>tail</code> vẫn trỏ tới một node.</li>
+</ul>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Sau lệnh <code>remove("ZM003")</code> của mã hiện tại, <code>tail</code> đang trỏ tới node nào? Node đó còn nằm trong danh sách không?</li>
+<li>Lệnh <code>add_last("ZM004")</code> nối bài mới vào node nào? Vì sao duyệt từ <code>head</code> không thấy <code>ZM004</code>?</li>
+<li>Trong <code>remove</code>, cần thêm lệnh gì, ở đâu, để <code>tail</code> đúng khi xóa node cuối?</li>
+<li>Vòng lặp của <code>remove</code> bắt đầu so sánh từ node nào? Vì sao <code>remove("ZM001")</code> trả về <code>False</code>?</li>
+<li>Viết đoạn mã xử lý riêng trường hợp bài cần xóa nằm ở <code>head</code>.</li>
+<li><code>remove_first</code> thiếu những việc gì khi (a) xóa node duy nhất, (b) cập nhật <code>size</code>?</li>
+<li>Vì sao lệnh <code>remove_first()</code> cuối cùng báo <code>AttributeError</code>? Cần kiểm tra điều gì ở đầu phương thức, và báo lỗi nào?</li>
+<li>Điều gì xảy ra nếu gọi <code>remove("ZM001")</code> trên một danh sách rỗng với mã hiện tại?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Sửa hai phương thức <code>remove_first</code> và <code>remove</code> trong <code>playlist.py</code>. Không đổi tên lớp, tên phương thức; không dùng list Python để lưu các bài.</li>
+<li>Ở đoạn chạy thử cuối tệp, bọc lệnh <code>remove_first()</code> cuối cùng bằng <code>try</code> / <code>except IndexError</code> để in ra dòng <code>Không phát được: ...</code>.</li>
+<li>Chạy <code>python playlist.py</code> phải cho đúng kết quả:</li>
+</ul>
+<pre><code>Bỏ ZM003: True
+Danh sách phát: ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None
+Bỏ ZM001: True
+Danh sách phát: ZM002 -&gt; ZM004 -&gt; None
+Phát xong: ZM002
+Phát xong: ZM004
+Số bài còn lại: 0
+Bài cuối danh sách: None
+Không phát được: danh sách phát đang trống
+</code></pre>
+<ul>
+<li>Chạy <code>pytest -q</code> phải xanh cả 5 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex03</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-03</a> rồi chép các tệp vào kho: <code>playlist.py</code>, <code>test_playlist.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong tệp mã nguồn.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

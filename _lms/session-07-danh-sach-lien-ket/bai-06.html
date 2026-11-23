@@ -1,0 +1,122 @@
+<h2><strong>1. Bối cảnh nghiệp vụ</strong></h2>
+<p><img alt="Người nghe bấm Phát ngay, danh sách phát xuất hiện bài trùng và một bài lạ không hề có." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-06/minh_hoa.png" /></p>
+<p><em>Người nghe bấm Phát ngay, danh sách phát xuất hiện bài trùng và một bài lạ không hề có.</em></p>
+<p>Bạn là kỹ sư phần mềm trong nhóm xây dựng tính năng danh sách phát của ứng dụng nghe nhạc Zing MP3.</p>
+<p>Trong danh sách phát, mỗi bài có nút <strong>"Phát ngay"</strong>. Khi người nghe bấm nút này, bài đó được <strong>chuyển lên đầu</strong> danh sách để phát trước, các bài còn lại giữ nguyên thứ tự. Danh sách phát lưu bằng <strong>danh sách liên kết đơn</strong> có <code>head</code>, <code>tail</code>, <code>size</code>; mỗi node giữ mã một bài.</p>
+<p>Ví dụ, danh sách đang là:</p>
+<pre><code>ZM001  -&gt;  ZM002  -&gt;  ZM003  -&gt;  ZM004  -&gt;  None        size = 4
+</code></pre>
+<p>Bấm "Phát ngay" ở bài <code>ZM003</code> thì danh sách phải thành:</p>
+<pre><code>ZM003  -&gt;  ZM001  -&gt;  ZM002  -&gt;  ZM004  -&gt;  None        size = 4
+</code></pre>
+<p>Hàm <code>play_now(playlist, code)</code> thực hiện việc này và phải đúng trong mọi trường hợp:</p>
+<ul>
+<li>Bài có trong danh sách: chuyển lên đầu, trả về <code>True</code>. Số bài <strong>không đổi</strong>.</li>
+<li>Bài đang đứng <strong>cuối</strong>: sau khi chuyển, <code>tail</code> phải là bài đứng trước nó.</li>
+<li>Bài <strong>đã ở đầu</strong>: không làm gì, vẫn trả về <code>True</code>.</li>
+<li>Bài <strong>không có</strong> trong danh sách (ví dụ đã bị gỡ khỏi kho nhạc): danh sách giữ nguyên, trả về <code>False</code>.</li>
+<li>Danh sách <strong>rỗng</strong>: trả về <code>False</code>.</li>
+</ul>
+<p>Kịch bản kiểm tra của nhóm: danh sách <code>ZM001</code> đến <code>ZM004</code>; lần lượt "Phát ngay" <code>ZM003</code>, <code>ZM004</code>, <code>ZM004</code> lần nữa, <code>ZM999</code>; thêm <code>ZM005</code> vào cuối; cuối cùng "Phát ngay" trên một danh sách mới tạo.</p>
+<p>Kết quả đúng cần hiển thị:</p>
+<pre><code>Phát ngay ZM003: True
+Danh sách phát: ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None | số bài: 4
+Phát ngay ZM004: True
+Danh sách phát: ZM004 -&gt; ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; None | bài cuối: ZM002
+Phát ngay ZM004 lần nữa: True
+Phát ngay ZM999: False
+Danh sách phát: ZM004 -&gt; ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; ZM005 -&gt; None | số bài: 5
+Phát ngay trên danh sách mới: False
+</code></pre>
+<h2><strong>2. Vấn đề hiện tại</strong></h2>
+<p>Người nghe phản ánh: sau vài lần bấm "Phát ngay", danh sách phát có <strong>bài bị lặp</strong>, xuất hiện cả <strong>bài không tồn tại</strong>, số bài hiển thị <strong>tăng dần</strong>, và bài thêm vào sau đó <strong>không hiện ra</strong>.</p>
+<p>Lập trình viên trước đã viết <code>play_now</code> theo ý "gỡ bài ra rồi thêm lại ở đầu", nhưng chưa xử lý đủ các trường hợp của thao tác gỡ một node:</p>
+<ul>
+<li>Gỡ một node ở giữa: nối node đứng trước sang node đứng sau, và <strong>giảm <code>size</code></strong>; nếu không, lần <code>add_first</code> ngay sau đó làm <code>size</code> tăng thêm 1.</li>
+<li>Gỡ node <strong>cuối</strong>: <code>tail</code> phải lùi về node đứng trước.</li>
+<li>Node cần gỡ là <strong><code>head</code></strong>: vòng lặp tìm theo <code>prev.next</code> không bao giờ xét tới <code>head</code>.</li>
+<li><strong>Không tìm thấy</strong>: phải dừng và trả về <code>False</code>, không được thêm gì vào danh sách.</li>
+</ul>
+<h2><strong>3. Mã nguồn hiện tại (Legacy Code)</strong></h2>
+<p>Tệp <code>phat_ngay.py</code> trong thư mục khởi đầu có sẵn lớp <code>Node</code>, lớp <code>Playlist</code> (các phương thức <code>add_first</code>, <code>add_last</code>, <code>find</code>, <code>to_text</code> đã đúng, không cần sửa). Phần cần xem xét là hàm <code>play_now</code> và đoạn chạy thử:</p>
+<pre><code>def play_now(playlist, code):
+    # Chuyển bài có mã code lên đầu danh sách phát. Trả True nếu bài có trong danh sách, False nếu không.
+    prev = playlist.head
+    while prev.next is not None:
+        if prev.next.value == code:
+            prev.next = prev.next.next
+            break
+        prev = prev.next
+    playlist.add_first(code)
+    return True
+
+
+playlist = Playlist()
+for code in [&quot;ZM001&quot;, &quot;ZM002&quot;, &quot;ZM003&quot;, &quot;ZM004&quot;]:
+    playlist.add_last(code)
+print(&quot;Phát ngay ZM003:&quot;, play_now(playlist, &quot;ZM003&quot;))
+print(&quot;Danh sách phát:&quot;, playlist.to_text(), &quot;| số bài:&quot;, playlist.size)
+print(&quot;Phát ngay ZM004:&quot;, play_now(playlist, &quot;ZM004&quot;))
+print(&quot;Danh sách phát:&quot;, playlist.to_text(), &quot;| bài cuối:&quot;, playlist.tail.value)
+print(&quot;Phát ngay ZM004 lần nữa:&quot;, play_now(playlist, &quot;ZM004&quot;))
+print(&quot;Phát ngay ZM999:&quot;, play_now(playlist, &quot;ZM999&quot;))
+playlist.add_last(&quot;ZM005&quot;)
+print(&quot;Danh sách phát:&quot;, playlist.to_text(), &quot;| số bài:&quot;, playlist.size)
+
+# Danh sách mới tạo, chưa có bài nào
+empty = Playlist()
+print(&quot;Phát ngay trên danh sách mới:&quot;, play_now(empty, &quot;ZM001&quot;))
+
+</code></pre>
+<p>Kết quả hiển thị trên Console:</p>
+<pre><code>Phát ngay ZM003: True
+Danh sách phát: ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None | số bài: 5
+Phát ngay ZM004: True
+Danh sách phát: ZM004 -&gt; ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; None | bài cuối: ZM004
+Phát ngay ZM004 lần nữa: True
+Phát ngay ZM999: True
+Danh sách phát: ZM999 -&gt; ZM004 -&gt; ZM004 -&gt; ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; None | số bài: 9
+Traceback (most recent call last):
+  ...
+    while prev.next is not None:
+AttributeError: 'NoneType' object has no attribute 'next'
+</code></pre>
+<p>Chương trình dừng ở lần gọi trên danh sách mới. Trước đó, đối chiếu với kết quả đúng: số bài sau lần đầu là 5 thay vì 4; bài cuối sau lần hai là <code>ZM004</code> thay vì <code>ZM002</code>; "Phát ngay" <code>ZM999</code> trả về <code>True</code>; danh sách cuối cùng có <code>ZM999</code>, có hai bài <code>ZM004</code>, không có <code>ZM005</code>, và số bài là 9.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Với vai trò kỹ sư phần mềm của nhóm, hãy thực hiện:</p>
+<p><strong>(1) Phân tích lỗi</strong> (trả lời vào <code>PHAN_TICH.md</code>)</p>
+<ul>
+<li>Sau lần gọi đầu tiên, danh sách in ra đúng thứ tự nhưng số bài là 5. Dòng lệnh nào làm <code>size</code> tăng, và thiếu dòng lệnh nào để bù lại?</li>
+<li>Ở lần gọi thứ hai (<code>ZM004</code> đang đứng cuối), sau khi gỡ thì <code>tail</code> đang trỏ tới node nào? Cần thêm lệnh gì, ở đâu?</li>
+<li>Ở lần gọi thứ ba (<code>ZM004</code> đang ở đầu), vòng <code>while</code> có xét tới node <code>head</code> không? Vì sao danh sách có hai bài <code>ZM004</code>?</li>
+<li>Ở lần gọi với <code>ZM999</code>, vòng <code>while</code> kết thúc như thế nào? Vì sao <code>ZM999</code> vẫn được thêm vào và hàm vẫn trả về <code>True</code>?</li>
+<li>Vì sao <code>ZM005</code> không xuất hiện khi duyệt từ <code>head</code>, dù <code>add_last</code> đã chạy? (Gợi ý: xem lại câu trả lời về <code>tail</code>.)</li>
+<li>Vì sao gọi <code>play_now</code> trên danh sách rỗng báo <code>AttributeError</code>?</li>
+<li>Liệt kê theo thứ tự các trường hợp mà <code>play_now</code> phải kiểm tra trước khi gỡ node, và giá trị trả về của từng trường hợp.</li>
+<li>Big-O thời gian của <code>play_now</code> là gì (n là số bài)? Phần nào của hàm quyết định chi phí đó?</li>
+</ul>
+<p><strong>(2) Sửa lỗi</strong></p>
+<ul>
+<li>Viết lại hàm <code>play_now</code> trong <code>phat_ngay.py</code>. Không đổi tên hàm, tham số; không sửa lớp <code>Playlist</code>; không dùng list Python để lưu các bài.</li>
+<li>Chạy <code>python phat_ngay.py</code> phải cho đúng kết quả:</li>
+</ul>
+<pre><code>Phát ngay ZM003: True
+Danh sách phát: ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; ZM004 -&gt; None | số bài: 4
+Phát ngay ZM004: True
+Danh sách phát: ZM004 -&gt; ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; None | bài cuối: ZM002
+Phát ngay ZM004 lần nữa: True
+Phát ngay ZM999: False
+Danh sách phát: ZM004 -&gt; ZM003 -&gt; ZM001 -&gt; ZM002 -&gt; ZM005 -&gt; None | số bài: 5
+Phát ngay trên danh sách mới: False
+</code></pre>
+<ul>
+<li>Chạy <code>pytest -q</code> phải xanh cả 5 test.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex06</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-06</a> rồi chép các tệp vào kho: <code>phat_ngay.py</code>, <code>test_phat_ngay.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Điền phần phân tích vào <code>PHAN_TICH.md</code>, sửa mã trong tệp mã nguồn.</li>
+<li>Mức AI của bài: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

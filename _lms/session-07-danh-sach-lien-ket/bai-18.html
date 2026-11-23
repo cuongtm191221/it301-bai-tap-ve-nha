@@ -1,0 +1,134 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người nghe lùi về bài cũ rồi chọn một bài khác: các bài phía sau phải được bỏ đi, như nút lùi của trình duyệt." src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-07-danh-sach-lien-ket/bai-18/minh_hoa.png" /></p>
+<p><em>Người nghe lùi về bài cũ rồi chọn một bài khác: các bài phía sau phải được bỏ đi, như nút lùi của trình duyệt.</em></p>
+<p>Trong ứng dụng nghe nhạc Zing MP3, người nghe thường không phát theo một danh sách có sẵn mà <strong>chọn bài tùy hứng</strong>: nghe bài này, tìm bài khác, bấm vào một bài gợi ý. Ứng dụng gọi chuỗi các bài đã mở là một <strong>phiên nghe</strong>, và có hai nút <strong>"Lùi"</strong>, <strong>"Tiến"</strong> để đi lại trong phiên nghe, hoạt động giống nút lùi và tiến của trình duyệt web.</p>
+<p>Ví dụ người nghe mở lần lượt <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>, rồi bấm "Lùi" một lần:</p>
+<pre><code>head                       tail
+ |                          |
+ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM003
+              ^
+           current (bài đang phát)
+</code></pre>
+<p>Lúc này bấm "Tiến" sẽ trở lại <code>ZM003</code>. Nhưng nếu người nghe <strong>chọn một bài mới</strong> <code>ZM004</code>, thì giống trình duyệt, nhánh phía sau (<code>ZM003</code>) bị bỏ đi và <code>ZM004</code> trở thành bài cuối của phiên nghe:</p>
+<pre><code>ZM001  &lt;-&gt;  ZM002  &lt;-&gt;  ZM004
+                          ^
+                       current
+</code></pre>
+<p>Phiên nghe được lưu bằng <strong>danh sách liên kết đôi có <code>head</code>, <code>tail</code>, <code>size</code></strong> và con trỏ <code>current</code>. Phiên bản hiện tại của ứng dụng lưu phiên nghe bằng list Python kèm một chỉ số, và mỗi lần bỏ nhánh sau phải cắt list. Nhóm muốn chuyển sang danh sách liên kết đôi để bỏ cả nhánh sau chỉ bằng một lần đổi liên kết.</p>
+<p>Bạn được giao viết trọn lớp <code>ListeningSession</code>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Lớp <code>ListeningSession</code> (khung có sẵn trong <code>lui_tien.py</code>, lớp <code>Node</code> đã có <code>value</code>, <code>prev</code>, <code>next</code>) cần bốn chức năng. Mỗi node giữ chuỗi <code>"MÃ_BÀI - TÊN_BÀI"</code>. Mỗi chức năng <strong>trả về</strong> thông báo đúng từng chữ.</p>
+<p><strong>2.1. Phát một bài: <code>play(code, title)</code></strong></p>
+<ul>
+<li>Chuẩn hóa: xóa khoảng trắng hai đầu của mã và tên, mã chuyển thành chữ hoa.</li>
+<li>Tạo node mới và đặt <strong>ngay sau bài đang phát</strong>; node mới trở thành bài đang phát và là <code>tail</code>. Trả về:</li>
+</ul>
+<pre><code>Đang phát: ZM001 - Bình minh trên phố
+</code></pre>
+<ul>
+<li>Phiên nghe chưa có bài nào thì node mới là <code>head</code>, <code>tail</code> và <code>current</code>.</li>
+<li>Cùng một bài có thể được phát ở hai thời điểm khác nhau của phiên nghe (mở <code>ZM001</code>, <code>ZM002</code>, rồi lại mở <code>ZM001</code>): đó là hai node khác nhau.</li>
+</ul>
+<p><strong>2.2. Lùi: <code>back()</code></strong></p>
+<p>Chuyển <code>current</code> về bài đã nghe ngay trước đó, trả về:</p>
+<pre><code>Lùi về: ZM002 - Mưa đêm
+</code></pre>
+<p><strong>2.3. Tiến: <code>forward()</code></strong></p>
+<p>Chuyển <code>current</code> tới bài đã nghe ngay sau đó, trả về:</p>
+<pre><code>Tiến tới: ZM003 - Đường về nhà
+</code></pre>
+<p><strong>2.4. Hiển thị phiên nghe: <code>to_lines()</code></strong></p>
+<p>Trả về list các dòng theo thứ tự từ <code>head</code>. Dòng của bài đang phát bắt đầu bằng <code>"&gt; "</code>, các dòng khác bắt đầu bằng hai khoảng trắng:</p>
+<pre><code>  ZM001 - Bình minh trên phố
+&gt; ZM002 - Mưa đêm
+  ZM003 - Đường về nhà
+</code></pre>
+<p>Sau mọi chức năng: <code>size</code> bằng số bài đang giữ; <code>head.prev</code> và <code>tail.next</code> là <code>None</code>; đi xuôi theo <code>next</code> và đi ngược theo <code>prev</code> gặp đúng các node đó. Bộ test kiểm tra các điều này sau mỗi thao tác.</p>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mã bài hoặc tên bài bị thừa khoảng trắng, mã viết thường</strong></p>
+<ul>
+<li><code>play("  zm002 ", " Mưa đêm ")</code> trả về:</li>
+</ul>
+<pre><code>Đang phát: ZM002 - Mưa đêm
+</code></pre>
+<p><strong>Bẫy 2 — Phát bài mới sau khi đã lùi</strong></p>
+<ul>
+<li>Phiên nghe có <code>ZM001</code>, <code>ZM002</code>, <code>ZM003</code>. Lùi hai lần (đang ở <code>ZM001</code>) rồi <code>play("ZM004", "Phố cũ")</code>. Hai bài phía sau bị bỏ; <code>size</code> là 2; <code>tail</code> là <code>ZM004</code>; <code>ZM004.prev</code> là <code>ZM001</code>. Thông báo ghi rõ số bài bị bỏ:</li>
+</ul>
+<pre><code>Đang phát: ZM004 - Phố cũ (đã bỏ 2 bài phía sau)
+</code></pre>
+<ul>
+<li>Sau đó bấm "Tiến" phải nhận thông báo của bẫy 3, không được tiến tới một bài đã bị bỏ.</li>
+</ul>
+<p><strong>Bẫy 3 — Lùi ở bài đầu tiên, tiến ở bài cuối</strong></p>
+<ul>
+<li><code>current</code> giữ nguyên, hệ thống trả về lần lượt:</li>
+</ul>
+<pre><code>Đây là bài đầu tiên của phiên nghe.
+Không có bài nào phía sau để tiến tới.
+</code></pre>
+<p><strong>Bẫy 4 — Chưa phát bài nào</strong></p>
+<ul>
+<li><code>back()</code>, <code>forward()</code> đều trả về thông báo dưới đây và không báo lỗi; <code>to_lines()</code> trả về list chỉ có một dòng này:</li>
+</ul>
+<pre><code>Chưa phát bài nào.
+</code></pre>
+<p><strong>Bẫy 5 — Chọn đúng bài đang phát</strong></p>
+<ul>
+<li>Đang phát <code>ZM003</code> mà gọi <code>play("zm003", "Đường về nhà")</code>: không tạo node mới, <strong>không bỏ nhánh phía sau</strong>, trả về:</li>
+</ul>
+<pre><code>Bài ZM003 đang được phát.
+</code></pre>
+<ul>
+<li>Chỉ so sánh với bài <strong>đang phát</strong>. Nếu <code>ZM003</code> có trong phiên nghe nhưng không phải bài đang phát thì vẫn tạo node mới như mục 2.1.</li>
+</ul>
+<p><strong>Kịch bản chạy thử.</strong> Chạy <code>python lui_tien.py</code> (đoạn chạy thử có sẵn ở cuối tệp) phải in ra đúng:</p>
+<pre><code>Chưa phát bài nào.
+Đang phát: ZM001 - Bình minh trên phố
+Đang phát: ZM002 - Mưa đêm
+Đang phát: ZM003 - Đường về nhà
+Bài ZM003 đang được phát.
+Không có bài nào phía sau để tiến tới.
+Lùi về: ZM002 - Mưa đêm
+Lùi về: ZM001 - Bình minh trên phố
+Đây là bài đầu tiên của phiên nghe.
+Tiến tới: ZM002 - Mưa đêm
+  ZM001 - Bình minh trên phố
+&gt; ZM002 - Mưa đêm
+  ZM003 - Đường về nhà
+Đang phát: ZM004 - Phố cũ (đã bỏ 1 bài phía sau)
+Không có bài nào phía sau để tiến tới.
+  ZM001 - Bình minh trên phố
+  ZM002 - Mưa đêm
+&gt; ZM004 - Phố cũ
+Số bài đang giữ: 3 | bài cuối: ZM004 - Phố cũ
+</code></pre>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p>Bạn phụ trách trọn tính năng và phải thực hiện đủ ba phần:</p>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy.</li>
+<li>Thiết kế <code>play</code>: vẽ hình trước và sau cho ba trường hợp (phiên nghe trống; <code>current</code> đang là <code>tail</code>; <code>current</code> ở giữa và phải bỏ nhánh sau). Ghi rõ từng liên kết phải gán và thứ tự gán.</li>
+<li>Lập bảng trạng thái cho kịch bản chạy thử: sau mỗi lệnh, ghi <code>head</code>, <code>tail</code>, <code>current</code>, <code>size</code>.</li>
+<li>Chi phí: ghi Big-O thời gian của bốn chức năng, n là số bài trong phiên nghe. Trong <code>play</code>, việc bỏ nhánh sau cần mấy lần đổi liên kết? Việc cập nhật <code>size</code> tốn bao nhiêu trong thiết kế của bạn, và có cách nào để <code>play</code> là O(1) không (gợi ý: nghĩ xem cần lưu thêm thông tin gì)? So sánh với cách dùng list Python kèm chỉ số.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết mã trong <code>lui_tien.py</code>; được thêm phương thức, hàm, lớp phụ; không đổi tên và tham số đã có trong khung.</li>
+<li>Không dùng list, dict, set, deque của Python để lưu các bài (list chỉ dùng cho giá trị trả về khi hiển thị).</li>
+<li>Xử lý đủ 5 bẫy; chương trình in đúng kịch bản chạy thử; <code>pytest -q</code> xanh cả 8 test có sẵn. Mã sạch, có chú thích ở những chỗ sửa liên kết.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (viết vào mục cuối của <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Tìm hiểu History API của trình duyệt (<code>history.back()</code>, <code>history.forward()</code>, <code>history.go(n)</code>, <code>history.pushState()</code>): mỗi lệnh ứng với chức năng nào trong lớp của bạn? Trình duyệt xử lý nhánh phía sau thế nào khi mở trang mới sau khi đã lùi?</li>
+<li>Dựa trên <code>history.go(n)</code>, thiết kế chức năng <code>go(steps)</code> (âm là lùi, dương là tiến nhiều bước): viết mã giả, nêu các bẫy và thông báo bạn đề xuất. Cài vào <code>lui_tien.py</code> là điểm cộng.</li>
+<li>Được tra cứu tài liệu và hỏi AI để tìm hiểu; phải ghi nguồn và viết lại bằng lời của bạn.</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo một kho GitHub riêng cho bài này, đặt tên theo mẫu <code>[Tên Lớp]_IT301_Session07_Ex18</code>.</li>
+<li>Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-18">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-07-danh-sach-lien-ket/bai-18</a> rồi chép các tệp vào kho: <code>lui_tien.py</code>, <code>test_lui_tien.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Viết mã trong <code>lui_tien.py</code>, điền phần phân tích và phần nghiên cứu mở rộng vào <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI của bài: AI-0 cho phần phân tích và mã chính (tự làm, không dùng AI); AI-1 cho phần nghiên cứu mở rộng (được hỏi AI để tìm hiểu, phải ghi nguồn và tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

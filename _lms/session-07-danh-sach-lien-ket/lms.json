@@ -1,0 +1,142 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Lỗi đếm và tìm bài hát trong danh sách phát Zing MP3",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 8446
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Lỗi thêm bài hát vào danh sách phát Zing MP3",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 7815
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Lỗi bỏ bài hát khỏi danh sách phát Zing MP3",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 9503
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Lỗi xem lịch sử nghe nhạc trên Zing MP3",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 8867
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Lỗi thống kê thời lượng danh sách phát Zing MP3",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 7914
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Lỗi tính năng \"Phát ngay\" trên Zing MP3",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 8999
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Lỗi gộp danh sách phát được chia sẻ trên Zing MP3",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 8946
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Lỗi nút \"Bài trước\" và \"Bài tiếp theo\" của trình phát Zing MP3",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 8935
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Hàng chờ phát nhạc của Zing MP3",
+  "l": "Khá",
+  "h2": 5,
+  "len": 7394
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Lịch sử \"Nghe gần đây\" của Zing MP3",
+  "l": "Khá",
+  "h2": 5,
+  "len": 9208
+ },
+ {
+  "n": 11,
+  "t": "Bài 11: Sắp xếp lại danh sách phát trên Zing MP3",
+  "l": "Khá",
+  "h2": 5,
+  "len": 9152
+ },
+ {
+  "n": 12,
+  "t": "Bài 12: Bỏ mọi bài của một ca sĩ khỏi danh sách phát Zing MP3",
+  "l": "Khá",
+  "h2": 5,
+  "len": 8514
+ },
+ {
+  "n": 13,
+  "t": "Bài 13: Nút \"Nghe lại bài cách đây k lượt\" trên Zing MP3",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 7405
+ },
+ {
+  "n": 14,
+  "t": "Bài 14: Chế độ \"Phát ngược\" cho danh sách phát Zing MP3",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 8305
+ },
+ {
+  "n": 15,
+  "t": "Bài 15: Phản biện mã do AI viết: lọc bài trùng trong danh sách phát Zing MP3",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 7530
+ },
+ {
+  "n": 16,
+  "t": "Bài 16: Danh sách phát bị lặp vòng làm treo ứng dụng Zing MP3",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 7899
+ },
+ {
+  "n": 17,
+  "t": "Bài 17: Trình quản lý danh sách phát bằng dòng lệnh cho nhóm vận hành Zing MP3",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 9685
+ },
+ {
+  "n": 18,
+  "t": "Bài 18: Nút \"Lùi\" và \"Tiến\" trong phiên nghe nhạc Zing MP3",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 9637
+ },
+ {
+  "n": 19,
+  "t": "Bài 19: Hàng chờ ưu tiên của \"Phòng nghe chung\" trên Zing MP3",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 9139
+ },
+ {
+  "n": 20,
+  "t": "Bài 20: Nút \"Hoàn tác\" khi chỉnh danh sách phát trên Zing MP3",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 8884
+ }
+]
