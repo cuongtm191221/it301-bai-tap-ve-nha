@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhóm vận hành Shopee lọc danh sách người chơi minigame" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-07/minh_hoa.png" /></p>
+<p><em>Nhóm vận hành Shopee lọc danh sách người chơi minigame</em></p>
+<p>Minigame <strong>Lắc xu</strong> của <strong>Shopee</strong> ghi mỗi lượt lắc thành mã người dùng, là <strong>số nguyên từ 0 đến 999999</strong>, theo thứ tự thời gian; một người lắc nhiều lần. Cuối đợt, nhóm vận hành cần <strong>danh sách người chơi</strong>: mỗi người một lần, theo thứ tự lượt lắc đầu tiên của họ (để trao thưởng theo thứ tự tham gia).</p>
+<p>Công cụ hiện tại kiểm tra "đã có trong danh sách kết quả chưa" bằng cách dò cả danh sách: chạy tức thì với vài nghìn lượt, nhưng đợt 12.12 có hàng trăm nghìn lượt thì chạy rất lâu. Hệ thống không cho dùng <code>dict</code>, <code>set</code> (thư viện nội bộ đang khóa phiên bản), nên trưởng nhóm yêu cầu một giải pháp khác chỉ dùng list, chứng minh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Shopee Shake Players CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_turns()</code> trả về 8 lượt (xem <code>lac_xu.py</code>).</p>
+<p><strong>Chức năng 1 — Ghi lượt tham gia</strong> (mã 0–999999). <strong>Chức năng 2 — Danh sách người chơi</strong> (menu phụ chọn giải pháp): in <code>&lt;k&gt; người chơi: ...</code> (10 mã đầu, mã in đủ 6 chữ số). <strong>Chức năng 3 — Số lượt của một người.</strong></p>
+<p><strong>Chức năng 4 — Đo</strong> hai giải pháp với n = 2.000, 4.000, 8.000. <strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>unique_v1</code>, <code>unique_v2</code> cho <strong>cùng kết quả</strong>, <strong>khác nhau về cách làm</strong>, không dùng <code>dict</code>, <code>set</code>; giải pháp 2 xử lý 300.000 lượt trong 1 giây; không làm đổi danh sách lượt.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== SHOPEE - MINIGAME LẮC XU =====&#10;1. Ghi lượt tham gia&#10;2. Danh sách người chơi&#10;3. Số lượt của một người&#10;4. Đo so sánh hai giải pháp&#10;5. Thoát&#10;Chọn chức năng (1-5): 2&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 1&#10;5 người chơi: 100245, 532001, 777777, 000003, 888120&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 2&#10;5 người chơi: 100245, 532001, 777777, 000003, 888120&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Mã người dùng: 000999&#10;Đã ghi lượt của 000999. Tổng 9 lượt.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;2000 | 3.9 | 3.2&#10;4000 | 15.3 | 2.9&#10;8000 | 61.3 | 2.3&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Giữ thứ tự lượt đầu.</strong> <code>100245</code> lắc ở lượt 1, 3, 6: đứng đầu danh sách, chỉ một lần.</p>
+<p><strong>Bẫy 2 — Mã ở biên.</strong> Mã <code>0</code> và <code>999999</code> hợp lệ; <code>000003</code> là mã 3.</p>
+<p><strong>Bẫy 3 — Danh sách rỗng.</strong> Trả list rỗng.</p>
+<p><strong>Bẫy 4 — Dữ liệu lớn.</strong> 300.000 lượt: giải pháp 2 trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Mã vượt 999999, có chữ, âm, trống; menu phụ và menu chính sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp khác nhau (ý tưởng, hình minh họa trên 8 lượt mẫu, mã giả); giải pháp 1 xét bao nhiêu phần tử trong trường hợp xấu nhất? Giải pháp của bạn dựa vào điều gì của mã người dùng?</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm số đo chức năng 4 trên máy bạn; giải pháp 2 tốn bao nhiêu bộ nhớ (ước lượng bằng <code>sys.getsizeof</code>)? Chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>lac_xu.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH07</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-07</a> rồi chép các tệp vào kho: <code>lac_xu.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

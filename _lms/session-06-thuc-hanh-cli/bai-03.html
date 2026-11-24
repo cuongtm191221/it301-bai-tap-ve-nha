@@ -1,0 +1,39 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên Pharmacity dọn danh sách đơn online" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-03/minh_hoa.png" /></p>
+<p><em>Nhân viên Pharmacity dọn danh sách đơn online</em></p>
+<p>Cửa hàng <strong>Pharmacity</strong> nhận đơn thuốc online cả ngày; mỗi đơn là <code>[mã đơn, trạng thái "MOI" hoặc "HUY", số tiền]</code>, xếp theo thời gian nhận. Hai vấn đề hay gặp: khách hủy đơn, và ứng dụng thỉnh thoảng <strong>gửi trùng một đơn nhiều lần liền nhau</strong>. Trước giờ giao hàng, nhân viên dọn danh sách: bỏ đơn hủy, gộp đơn trùng liền nhau, có khi đảo thứ tự để xem đơn mới nhất trước.</p>
+<p>Bản cũ bỏ đơn hủy bằng <code>remove</code> trong vòng lặp: chạy được với vài chục đơn, nhưng ngày khuyến mãi có hàng trăm nghìn đơn thì treo, vì mỗi lần xóa phải dịch cả phần sau. Trưởng ca yêu cầu dọn <strong>tại chỗ, trong một lượt</strong>.</p>
+<p>Bạn xây dựng module <strong>"Pharmacity Order Cleanup CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_orders()</code> trả về 9 đơn, có 2 đơn hủy và các đơn <code>PC1003</code>, <code>PC1005</code> bị gửi trùng liền nhau (xem <code>don_thuoc.py</code>).</p>
+<p><strong>Chức năng 1 — Xem danh sách đơn. Chức năng 2 — Nhận đơn</strong> (mã <code>PC</code> + 4 chữ số, số tiền). <strong>Chức năng 3 — Hủy đơn</strong> (mọi đơn mã đó đang "MOI" chuyển sang "HUY").</p>
+<p><strong>Chức năng 4 — Dọn danh sách</strong> (menu phụ): <code>1</code> bỏ đơn hủy (<code>Đã bỏ &lt;k&gt; đơn hủy. Còn &lt;n&gt; đơn.</code>); <code>2</code> gộp đơn trùng liền nhau, giữ đơn đầu mỗi nhóm (<code>Đã gộp &lt;k&gt; đơn trùng. Còn &lt;n&gt; đơn.</code>); <code>3</code> đảo thứ tự bằng hai chỉ số (<code>Đã đảo thứ tự danh sách.</code>).</p>
+<p><strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>compact</code> (dồn đơn "MOI" lên đầu, giữ thứ tự giữa chúng, đếm số lần gán), <code>drop_cancelled</code>, <code>merge_duplicates</code>, <code>reverse_in_place</code> làm <strong>tại chỗ</strong>, <strong>một lượt</strong>, không gọi <code>pop</code>, <code>remove</code>, <code>insert</code>; <code>reverse_in_place</code> không dùng <code>reverse()</code>, <code>[::-1]</code>, <code>reversed()</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== PHARMACITY - ĐƠN ONLINE TRONG NGÀY =====&#10;1. Xem danh sách đơn&#10;2. Nhận đơn&#10;3. Hủy đơn&#10;4. Dọn danh sách&#10;5. Thoát&#10;Chọn chức năng (1-5): 4&#10;1. Bỏ đơn hủy  2. Gộp đơn trùng liền nhau  3. Đảo thứ tự&#10;Chọn thao tác: 2&#10;Đã gộp 3 đơn trùng. Còn 6 đơn.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Mã đơn: pc1005&#10;Đã hủy 1 đơn.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 4&#10;1. Bỏ đơn hủy  2. Gộp đơn trùng liền nhau  3. Đảo thứ tự&#10;Chọn thao tác: 1&#10;Đã bỏ 3 đơn hủy. Còn 3 đơn.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Giữ thứ tự.</strong> Sau khi bỏ đơn hủy, các đơn còn lại giữ nguyên thứ tự nhận.</p>
+<p><strong>Bẫy 2 — Chỉ gộp đơn liền nhau.</strong> <code>A, B, A</code> không gộp gì.</p>
+<p><strong>Bẫy 3 — Danh sách rỗng, một đơn.</strong> Không báo lỗi; đảo một đơn giữ nguyên.</p>
+<p><strong>Bẫy 4 — 200.000 đơn.</strong> Bỏ 100.000 đơn hủy trong 2 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Mã đơn sai dạng, số tiền không phải số nguyên dương, hủy đơn không có hoặc đã hủy, menu phụ và menu chính sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Chạy tay <code>compact</code> trên 9 đơn mẫu: chỉ số đọc, chỉ số ghi, list sau mỗi bước, số lần gán.</li>
+<li>So sánh bỏ đơn hủy bằng <code>remove</code> trong vòng lặp và bằng cách dồn tại chỗ: số phần tử bị dịch, Big-O. Vì sao <code>del orders[k:]</code> ở cuối chỉ chạy một lần là chấp nhận được?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>don_thuoc.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH03</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-03</a> rồi chép các tệp vào kho: <code>don_thuoc.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

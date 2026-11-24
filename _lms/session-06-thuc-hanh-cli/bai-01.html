@@ -1,0 +1,39 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Dược sĩ Long Châu nhập thuốc lên quầy" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-01/minh_hoa.png" /></p>
+<p><em>Dược sĩ Long Châu nhập thuốc lên quầy</em></p>
+<p>Ở <strong>Nhà thuốc Long Châu</strong>, phần mềm quầy giữ danh sách thuốc đang bày bán, mỗi thuốc là <code>[mã thuốc, tên, số hộp]</code>. Nhóm phát triển muốn hiểu rõ chi phí của danh sách, nên tự cài lớp <strong><code>DrugArray</code></strong> theo mô hình mảng động của Session 05: vùng lưu trữ <code>_data = [None] * capacity</code> có số ô cố định, capacity ban đầu 1, <strong>đầy thì tạo vùng gấp đôi và chép sang</strong>; bộ đếm <code>copies</code> ghi số phần tử đã chép, <code>checks</code> ghi số lần so sánh mã khi tìm.</p>
+<p>Dược sĩ cần xem quầy (kèm số ô đang dùng), nhập thuốc (mã đã có thì <strong>cộng dồn</strong> số hộp), tra cứu theo mã và bán thuốc.</p>
+<p>Bạn xây dựng module <strong>"Long Chau Counter CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_shelf()</code> trả về quầy có 3 thuốc <code>LC101</code>, <code>LC102</code>, <code>LC103</code> (xem <code>quay_thuoc.py</code>; <code>size</code>, <code>capacity</code>, <code>get</code> có sẵn).</p>
+<p><strong>Chức năng 1 — Xem quầy thuốc.</strong> Mỗi thuốc một dòng, rồi <code>Đang lưu &lt;size&gt;/&lt;capacity&gt; ô, đã chép &lt;copies&gt; lần</code>.</p>
+<p><strong>Chức năng 2 — Nhập thuốc.</strong> Nhập mã, tên, số hộp; mã đã có thì cộng số hộp (<code>Đã cộng thêm &lt;mã&gt;: còn &lt;n&gt; hộp.</code>), mã mới thì thêm vào cuối (<code>Đã thêm mới ...</code>).</p>
+<p><strong>Chức năng 3 — Tra cứu thuốc.</strong> In <code>Vị trí &lt;i&gt;: &lt;tên&gt;, còn &lt;n&gt; hộp (so sánh &lt;k&gt; mã).</code> hoặc <code>Không có thuốc này (so sánh &lt;k&gt; mã).</code></p>
+<p><strong>Chức năng 4 — Bán thuốc.</strong> Không bán quá số hộp đang có. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Trong <code>DrugArray</code>, bạn viết <code>append</code> (kèm hàm phụ đổi vùng lưu trữ), <code>find</code>, <code>items</code>. Vùng lưu trữ chỉ được đọc, gán theo chỉ số: <strong>không</strong> dùng <code>append</code>, <code>insert</code> trên <code>_data</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== NHÀ THUỐC LONG CHÂU - QUẦY THUỐC =====&#10;1. Xem quầy thuốc&#10;2. Nhập thuốc&#10;3. Tra cứu thuốc&#10;4. Bán thuốc&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. LC101 | Panadol Extra | 24 hộp&#10;2. LC102 | Berberin | 15 hộp&#10;3. LC103 | Vitamin C 500mg | 40 hộp&#10;Đang lưu 3/4 ô, đã chép 0 lần&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã thuốc: LC104&#10;Tên thuốc: Men vi sinh Biolactyl&#10;Số hộp: 30&#10;Đã thêm mới LC104: còn 30 hộp.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã thuốc: lc102&#10;Tên thuốc: &#10;Số hộp: 10&#10;Đã cộng thêm LC102: còn 25 hộp.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Ô trống không phải thuốc.</strong> Quầy 5 thuốc có 8 ô; <code>items()</code> chỉ trả 5 thuốc.</p>
+<p><strong>Bẫy 2 — Gấp đôi đúng lúc.</strong> Sau 9 lần thêm: capacity 16, <code>copies</code> là 1 + 2 + 4 + 8 = 15.</p>
+<p><strong>Bẫy 3 — Dữ liệu sai.</strong> Mã sai dạng, số hộp không phải số nguyên dương, tên trống (với mã mới), mã không có khi bán, bán quá số hộp: đúng thông báo trong docstring; quầy giữ nguyên.</p>
+<p><strong>Bẫy 4 — Menu sai.</strong> <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Bảng <code>size</code>, <code>capacity</code>, <code>copies</code> sau mỗi lần thêm, từ 1 đến 9 thuốc; tổng số lần chép khi thêm n thuốc khoảng bao nhiêu, vì sao thêm vào cuối vẫn nhanh tính trung bình.</li>
+<li>Số lần so sánh của <code>find</code> khi mã ở đầu, ở cuối, không có; Big-O của <code>append</code> (trường hợp đổi vùng và không đổi vùng), <code>find</code>, <code>items</code>.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>quay_thuoc.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH01</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-01">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-01</a> rồi chép các tệp vào kho: <code>quay_thuoc.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

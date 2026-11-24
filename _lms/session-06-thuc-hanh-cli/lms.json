@@ -1,0 +1,72 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Hệ thống quầy thuốc dùng mảng động của Nhà thuốc Long Châu",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 5535
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Hệ thống sơ đồ ghế phòng chiếu của CGV",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 5218
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Hệ thống dọn danh sách đơn thuốc online của Pharmacity",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5390
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Hệ thống sắp xếp lộ trình giao hàng của tài xế Ahamove",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5316
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Hệ thống sao kê tài khoản trên ứng dụng MB Bank",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5867
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Hệ thống phân tích giá đóng cửa cổ phiếu trên SSI iBoard",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5428
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Hệ thống lọc người chơi minigame Lắc xu của Shopee",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5375
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Hệ thống dọn lịch hẹn khám đã hủy của Vinmec",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5396
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Tối ưu chia chuyến giao hàng của Sendo",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6013
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Tối ưu chốt ca bán hàng trên KiotViet",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6062
+ }
+]

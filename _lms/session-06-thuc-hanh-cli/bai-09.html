@@ -1,0 +1,44 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Điều phối viên Sendo chờ hệ thống chia chuyến xe" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-09/minh_hoa.png" /></p>
+<p><em>Điều phối viên Sendo chờ hệ thống chia chuyến xe</em></p>
+<p>Kho <strong>Sendo</strong> gom đơn chờ giao theo thứ tự đặt; mỗi đơn có mã <code>SDxx</code> và giá trị (đồng), giá trị <strong>0</strong> là đơn chưa thanh toán và không được giao. Mỗi tối, điều phối viên <strong>chia chuyến</strong>: lấy lần lượt các đơn đã thanh toán, đủ <code>size</code> đơn thì thành một chuyến xe, chuyến cuối có thể thiếu.</p>
+<p>Hàm <code>batch_slow</code> trong <code>chia_chuyen.py</code> cho kết quả đúng và đã dùng nhiều năm, nhưng mùa sale có hàng trăm nghìn đơn và việc chia chuyến chạy rất lâu. Đội kỹ thuật cần <strong>viết lại</strong> thành <code>batch_fast</code> cho <strong>đúng y hệt</strong> kết quả cũ (kể cả lỗi), chỉ dùng list, và giải thích vì sao bản cũ chậm.</p>
+<p>Bạn xây dựng module <strong>"Sendo Delivery Batching CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_orders()</code> trả về 8 đơn (xem <code>chia_chuyen.py</code>); <code>batch_slow</code> là hàm Có sẵn, <strong>không sửa</strong>.</p>
+<p><strong>Chức năng 1 — Xem đơn chờ giao.</strong> <strong>Chức năng 2 — Thêm đơn</strong> (mã và giá trị). <strong>Chức năng 3 — Chia chuyến</strong> bằng <code>batch_fast</code>: in từng chuyến <code>Chuyến &lt;i&gt;: &lt;các mã&gt; | &lt;tổng&gt;</code> rồi <code>Tổng: &lt;a&gt; chuyến, &lt;b&gt; đơn.</code></p>
+<p><strong>Chức năng 4 — Đo</strong> bản cũ và bản mới với n = 2.000, 4.000, 8.000 (50 đơn mỗi chuyến). <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== SENDO - CHIA CHUYẾN GIAO HÀNG =====&#10;1. Xem đơn chờ giao&#10;2. Thêm đơn&#10;3. Chia chuyến&#10;4. Đo bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;SD01 | 250.000đ&#10;SD02 | 0đ | chưa thanh toán&#10;SD03 | 480.000đ&#10;SD04 | 120.000đ&#10;SD05 | 0đ | chưa thanh toán&#10;SD06 | 315.000đ&#10;SD07 | 99.000đ&#10;SD08 | 560.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Số đơn mỗi chuyến: 4&#10;Chuyến 1: SD01, SD03, SD04, SD06 | 1.165.000đ&#10;Chuyến 2: SD07, SD08 | 659.000đ&#10;Tổng: 2 chuyến, 6 đơn.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã đơn: sd09&#10;Giá trị (đồng): 150000&#10;Đã thêm SD09 (150.000đ). Có 9 đơn.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;2000 | 2.6 | 0.1&#10;4000 | 12.7 | 0.2&#10;8000 | 59.2 | 0.5&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Kiểm tra trên 200 bộ ngẫu nhiên; danh sách rỗng hoặc toàn đơn chưa thanh toán ra list rỗng; <code>size</code> lớn hơn số đơn ra một chuyến.</p>
+<p><strong>Bẫy 2 — Các chuyến độc lập.</strong> Dùng lại một list mã đơn rồi xóa nó cho chuyến sau sẽ làm rỗng cả chuyến trước.</p>
+<p><strong>Bẫy 3 — Ràng buộc.</strong> Không gọi bản cũ, không làm đổi danh sách đơn; 200.000 đơn trong 1 giây.</p>
+<p><strong>Bẫy 4 — Dữ liệu sai.</strong> <code>size</code> bằng 0, âm, không phải số; mã sai dạng, trùng (<code>sd09</code> là <code>SD09</code>); giá trị âm, số thập phân: đúng thông báo của đề.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Phân tích <code>batch_slow</code>: mỗi dòng <code>queue = queue[1:]</code>, <code>codes = codes + [code]</code>, <code>batches = batches + [...]</code> chép bao nhiêu phần tử; Big-O thời gian và bộ nhớ phụ theo n.</li>
+<li>Thiết kế <code>batch_fast</code>; Big-O; bảng số đo chức năng 4 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu mỗi ô của list Python chứa gì; vì sao <code>sys.getsizeof</code> của list không tính các tuple đơn bên trong; <code>tracemalloc</code> đo khác gì.</li>
+<li>Tạo <code>nghien_cuu.py</code>: với 100.000 đơn, in <code>sys.getsizeof</code> của list và bộ nhớ đỉnh <code>tracemalloc</code> khi tạo list; so sánh bộ nhớ đỉnh của <code>batch_slow</code> và <code>batch_fast</code> trên 8.000 đơn.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>chia_chuyen.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH09</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-09</a> rồi chép các tệp vào kho: <code>chia_chuyen.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

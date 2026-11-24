@@ -1,0 +1,44 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Chủ cửa hàng chờ phần mềm KiotViet chốt ca" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-10/minh_hoa.png" /></p>
+<p><em>Chủ cửa hàng chờ phần mềm KiotViet chốt ca</em></p>
+<p>Chuỗi tạp hóa dùng <strong>KiotViet</strong>: mỗi mặt hàng có <strong>mã 4 chữ số</strong> (0000–9999, không trùng), tên và tồn đầu ca. Cuối ca, phần mềm <strong>chốt ca</strong>: áp lần lượt các giao dịch bán; giao dịch có mã không nằm trong danh mục, hoặc bán nhiều hơn tồn hiện tại, bị <strong>từ chối</strong> để kế toán kiểm tra.</p>
+<p>Hàm <code>close_slow</code> trong <code>chot_ca.py</code> cho kết quả đúng nhưng mỗi giao dịch lại dò cả danh mục; cửa hàng 10.000 mặt hàng, 200.000 giao dịch mỗi ca thì chốt ca không xong. Cần <strong>viết lại</strong> thành <code>close_fast</code> cho <strong>đúng y hệt</strong> kết quả cũ, chỉ dùng list, và giải thích vì sao cách mới làm được.</p>
+<p>Bạn xây dựng module <strong>"KiotViet Shift Closing CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_catalog()</code> có 5 mặt hàng, <code>make_sales()</code> có 7 giao dịch (xem <code>chot_ca.py</code>); <code>close_slow</code> là hàm Có sẵn, <strong>không sửa</strong>.</p>
+<p><strong>Chức năng 1 — Xem danh mục đầu ca.</strong> <strong>Chức năng 2 — Ghi giao dịch bán</strong> (mã, số lượng). <strong>Chức năng 3 — Chốt ca</strong> bằng <code>close_fast</code>: in tồn cuối ca từng mặt hàng và <code>Giao dịch bị từ chối: &lt;các số thứ tự&gt;</code> (hoặc <code>không có</code>).</p>
+<p><strong>Chức năng 4 — Đo</strong> bản cũ và bản mới với n = 500, 1.000, 2.000 (n mặt hàng, n giao dịch). <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== KIOTVIET - CHỐT CA BÁN HÀNG =====&#10;1. Xem danh mục đầu ca&#10;2. Ghi giao dịch bán&#10;3. Chốt ca&#10;4. Đo bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1001 | Mì Hảo Hảo | tồn 50&#10;1002 | Sữa TH 180ml | tồn 24&#10;2005 | Nước mắm Nam Ngư | tồn 10&#10;3010 | Gạo ST25 5kg | tồn 5&#10;4500 | Dầu ăn Neptune 1L | tồn 8&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1001 | Mì Hảo Hảo | còn 47&#10;1002 | Sữa TH 180ml | còn 0&#10;2005 | Nước mắm Nam Ngư | còn 0&#10;3010 | Gạo ST25 5kg | còn 0&#10;4500 | Dầu ăn Neptune 1L | còn 8&#10;Giao dịch bị từ chối: 3, 4, 5&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã hàng: 4500&#10;Số lượng: 3&#10;Đã ghi giao dịch 8: 4500 x 3.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;500 | 7.0 | 0.1&#10;1000 | 28.8 | 0.1&#10;2000 | 115.7 | 0.3&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Xét theo thứ tự: <code>3010</code> bán 6 bị từ chối (tồn 5), bán 5 sau đó vẫn hợp lệ.</p>
+<p><strong>Bẫy 2 — Biên.</strong> Mã <code>0000</code> và <code>9999</code>; bán đúng bằng tồn là hợp lệ; danh mục rỗng thì mọi giao dịch bị từ chối.</p>
+<p><strong>Bẫy 3 — Ràng buộc.</strong> Không gọi bản cũ, không <code>dict</code>, <code>set</code>, không làm đổi dữ liệu vào; 10.000 mặt hàng và 200.000 giao dịch trong 1 giây.</p>
+<p><strong>Bẫy 4 — Dữ liệu sai.</strong> Mã sai dạng; số lượng 0, âm, thập phân.</p>
+<p><strong>Bẫy 5 — Menu sai.</strong> <code>Lựa chọn không hợp lệ, vui lòng nhập số từ 1 đến 5.</code></p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Phân tích <code>close_slow</code>: số lần so sánh mã theo số mặt hàng n và số giao dịch m; Big-O; vì sao danh mục 10.000 hàng và 200.000 giao dịch không xong.</li>
+<li>Thiết kế <code>close_fast</code>: dựa vào điều gì của mã hàng; Big-O thời gian và bộ nhớ phụ; bảng số đo chức năng 4 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu "địa chỉ trực tiếp" (direct addressing): khi nào dùng được; nếu mã hàng là mã vạch 13 chữ số thì cách của bạn cần bao nhiêu bộ nhớ; bảng băm (Session 13) giải quyết điều đó thế nào (chỉ nêu ý tưởng).</li>
+<li>Tạo <code>nghien_cuu.py</code>: in <code>sys.getsizeof</code> của list <code>[-1] * 10**4</code> và <code>[-1] * 10**6</code>, ước lượng (không tạo) cho <code>10**13</code> ô; với 6 mã vạch tự chọn, in phần dư khi chia cho 10.007 và chỉ ra nếu có hai mã cùng phần dư.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>chot_ca.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH10</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-10</a> rồi chép các tệp vào kho: <code>chot_ca.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Chuyên viên dữ liệu SSI xem dãy giá đóng cửa" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-06/minh_hoa.png" /></p>
+<p><em>Chuyên viên dữ liệu SSI xem dãy giá đóng cửa</em></p>
+<p>Ứng dụng <strong>SSI iBoard</strong> có mục "học phân tích dữ liệu" cho nhà đầu tư mới: giá đóng cửa các phiên của một mã (ví dụ FPT) lưu trong list số nguyên, phiên cũ trước. Người dùng xem k phiên gần nhất và giá trung bình, và hỏi một câu kinh điển: <strong>nếu mua một lần và bán ở một phiên sau đó, trong quá khứ lãi nhiều nhất bao nhiêu?</strong> (Bài chỉ để học xử lý mảng, không phải khuyến nghị đầu tư.)</p>
+<p>Bản thử đầu tiên thử mọi cặp (phiên mua, phiên bán): dữ liệu 20 năm theo phút có hàng trăm nghìn mốc và chạy không xong. Nhóm cần cách <strong>một lượt duyệt</strong>, và <strong>số đo</strong> thời gian, bộ nhớ khi dữ liệu gấp đôi.</p>
+<p>Bạn xây dựng module <strong>"SSI Price Lab CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_prices()</code> trả về giá 10 phiên của FPT (xem <code>gia_co_phieu.py</code>).</p>
+<p><strong>Chức năng 1 — Thêm giá phiên mới</strong> (1.000–10.000.000đ). <strong>Chức năng 2 — Xem k phiên gần nhất</strong> và <code>Trung bình &lt;k&gt; phiên: &lt;giá&gt;</code> (làm tròn xuống).</p>
+<p><strong>Chức năng 3 — Thời điểm mua bán tốt nhất trong quá khứ.</strong> <code>best_trade</code>: in <code>Mua phiên &lt;a&gt;, bán phiên &lt;b&gt;: lãi &lt;tiền&gt; mỗi cổ phiếu.</code> hoặc <code>Không có cách mua bán nào có lãi.</code> Nhiều cách cùng lãi thì chọn phiên bán sớm nhất, rồi phiên mua sớm nhất. Một lượt duyệt, bộ nhớ phụ O(1).</p>
+<p><strong>Chức năng 4 — Đo hiệu năng.</strong> <code>benchmark</code> đo bằng <code>timeit</code> thời gian <code>best_trade</code> và lấy <code>sys.getsizeof</code> của list giá với n = 50.000, 100.000, 200.000. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== SSI IBOARD - THEO DÕI GIÁ FPT =====&#10;1. Thêm giá phiên mới&#10;2. Xem k phiên gần nhất&#10;3. Thời điểm mua bán tốt nhất trong quá khứ&#10;4. Đo hiệu năng&#10;5. Thoát&#10;Chọn chức năng (1-5): 2&#10;Số phiên: 3&#10;102.800đ, 101.900đ, 103.500đ&#10;Trung bình 3 phiên: 102.733đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Mua phiên 4, bán phiên 10: lãi 8.100đ mỗi cổ phiếu.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Giá đóng cửa (đồng): 101000&#10;Đã thêm phiên 11.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | best_trade (ms) | getsizeof list giá (byte)&#10;50000 | 3.74 | 444376&#10;100000 | 7.56 (x2.0) | 800984&#10;200000 | 14.96 (x2.0) | 1624056&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Bán phải sau mua.</strong> Giá giảm dần thì không có lãi; không được "bán" ở phiên trước phiên mua.</p>
+<p><strong>Bẫy 2 — Cùng lãi.</strong> <code>[5000, 3000, 3000, 6000, 6000]</code>: mua phiên 2, bán phiên 4.</p>
+<p><strong>Bẫy 3 — Ít phiên.</strong> Rỗng hoặc một phiên: không có lãi; k lớn hơn số phiên thì lấy tất cả.</p>
+<p><strong>Bẫy 4 — Dữ liệu lớn.</strong> 500.000 phiên trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Giá ngoài khoảng hoặc không phải số nguyên, k không phải số nguyên dương, menu sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>So sánh cách thử mọi cặp và cách một lượt: số phép so sánh theo n, Big-O, ước tính thời gian với 500.000 phiên; chạy tay <code>best_trade</code> trên 10 phiên mẫu (phiên thấp nhất đến hiện tại, lãi tốt nhất sau mỗi phiên).</li>
+<li>Bảng số đo chức năng 4 trên máy bạn: thời gian và <code>getsizeof</code> tăng bao nhiêu lần khi n gấp đôi; <code>getsizeof</code> của list giá có tính bộ nhớ của các số bên trong không?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>gia_co_phieu.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH06</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-06</a> rồi chép các tệp vào kho: <code>gia_co_phieu.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

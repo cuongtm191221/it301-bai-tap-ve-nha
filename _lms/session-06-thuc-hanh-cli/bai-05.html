@@ -1,0 +1,42 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Kỹ sư MB Bank kiểm tra màn hình sao kê" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-05/minh_hoa.png" /></p>
+<p><em>Kỹ sư MB Bank kiểm tra màn hình sao kê</em></p>
+<p>Ứng dụng <strong>MB Bank</strong> lưu lịch sử giao dịch của tài khoản thành list, cũ trước mới sau; mỗi giao dịch là <code>[mã, nội dung, số tiền]</code> (âm là tiền ra). Màn hình sao kê cần <strong>mới nhất trước</strong>. Hàm <code>statement_slow</code> (có sẵn) dựng sao kê bằng <code>insert(0, ...)</code> cho từng giao dịch: tài khoản cá nhân thì ổn, nhưng tài khoản doanh nghiệp vài chục nghìn giao dịch mỗi tháng thì mở sao kê rất chậm.</p>
+<p>Nhóm phát triển muốn: viết lại bằng cách <strong>đọc theo chỉ số từ cuối</strong> và <code>append</code>; tận mắt <strong>quan sát dung lượng list</strong> tăng theo từng nấc bằng <code>sys.getsizeof</code>; và <strong>đo</strong> hai cách khi lịch sử dài gấp đôi.</p>
+<p>Bạn xây dựng module <strong>"MB Bank Statement CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_txs()</code> trả về 5 giao dịch; <code>make_big_txs(n)</code> tạo lịch sử giả lập (xem <code>sao_ke.py</code>).</p>
+<p><strong>Chức năng 1 — Xem sao kê gần nhất.</strong> Nhập k; in k giao dịch mới nhất trước, dạng <code>&lt;mã&gt; | &lt;nội dung&gt; | &lt;+/-tiền&gt;</code>.</p>
+<p><strong>Chức năng 2 — Ghi giao dịch.</strong> Nội dung và số tiền (số nguyên khác 0, có thể có dấu <code>+</code> hoặc <code>-</code>); mã tự sinh.</p>
+<p><strong>Chức năng 3 — Quan sát dung lượng list.</strong> Nhập n (1–100); <code>capacity_steps(n)</code> thêm lần lượt n phần tử vào list rỗng và trả về các mốc <code>(số phần tử, getsizeof)</code> mỗi khi dung lượng đổi.</p>
+<p><strong>Chức năng 4 — Đo</strong> <code>statement_slow</code> và <code>latest_first</code> với n = 20.000, 40.000, 80.000. <strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>latest_first</code> không dùng <code>insert</code>, <code>reverse()</code>, <code>[::-1]</code>, <code>reversed()</code>; không làm đổi lịch sử.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== MB BANK - SAO KÊ TÀI KHOẢN =====&#10;1. Xem sao kê gần nhất&#10;2. Ghi giao dịch&#10;3. Quan sát dung lượng list&#10;4. Đo bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Số giao dịch: 3&#10;MB005 | Tiền nhà | -4.500.000đ&#10;MB004 | Hoàn tiền Shopee | +120.000đ&#10;MB003 | Chuyển khoản cho mẹ | -2.000.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Nội dung: Trà sữa&#10;Số tiền (âm là tiền ra): -45000&#10;Đã ghi MB006: -45.000đ.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Nội dung: &#10;Số tiền (âm là tiền ra): 1000&#10;Lỗi: Nội dung không được để trống&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 3 với n = 20 và chức năng 4 in dạng sau (máy soạn đề, Python 3.10; máy của bạn có thể khác):</p>
+<pre><code>số phần tử | getsizeof (byte)&#10;0 | 56&#10;1 | 88&#10;5 | 120&#10;9 | 184&#10;17 | 248&#10;&#10;n | insert(0) (ms) | đọc từ cuối (ms)&#10;20000 | 66.9 | 1.25&#10;40000 | 266.9 | 2.67&#10;80000 | 1080.5 | 5.08&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — k ở biên.</strong> k lớn hơn số giao dịch: in tất cả; lịch sử rỗng: không in gì.</p>
+<p><strong>Bẫy 2 — Số tiền sai.</strong> <code>0</code>, <code>-0</code>, <code>1.5</code>, chữ, chỉ có dấu: <code>Lỗi: Số tiền phải là số nguyên khác 0 (âm là tiền ra)</code>; nội dung trống: <code>Lỗi: Nội dung không được để trống</code>.</p>
+<p><strong>Bẫy 3 — Mốc dung lượng đúng máy.</strong> Kiểm tra so <code>capacity_steps</code> với số đo thật trên chính máy chạy, không phải con số chép từ đề.</p>
+<p><strong>Bẫy 4 — Lịch sử dài.</strong> 300.000 giao dịch: sao kê trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> k, n sai; menu sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Số phần tử bị dịch khi <code>statement_slow</code> dựng sao kê n giao dịch; Big-O hai cách; bảng số đo chức năng 4 trên máy bạn (n gấp đôi thì mỗi cách tăng mấy lần).</li>
+<li>Bảng mốc dung lượng chức năng 3 với n = 40 trên máy bạn: các mốc đổi ở đâu, mỗi lần tăng thêm bao nhiêu byte; vì sao <code>append</code> tính trung bình vẫn nhanh dù thỉnh thoảng phải chép sang vùng nhớ mới.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>sao_ke.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH05</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-05</a> rồi chép các tệp vào kho: <code>sao_ke.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

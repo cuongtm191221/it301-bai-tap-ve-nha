@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Lễ tân Vinmec dọn danh sách lịch hẹn cuối ngày" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-06-thuc-hanh-cli/bai-08/minh_hoa.png" /></p>
+<p><em>Lễ tân Vinmec dọn danh sách lịch hẹn cuối ngày</em></p>
+<p>Bộ phận lễ tân bệnh viện <strong>Vinmec</strong> giữ danh sách lịch hẹn khám theo thứ tự đặt; mỗi lịch có mã <code>VMxxx</code>, tên bệnh nhân và trạng thái <strong>chờ khám</strong> hoặc <strong>đã hủy</strong>. Cuối mỗi ca, hệ thống <strong>dọn</strong> các lịch đã hủy khỏi danh sách để màn hình gọi số chỉ còn người chờ khám.</p>
+<p>Bản dọn đầu tiên của đội IT bỏ sót lịch: hai lịch hủy đứng liền nhau thì chỉ một lịch bị xóa. Bản sửa lỗi thì đúng nhưng mỗi lần xóa phải dời cả phần sau của danh sách; ở cụm phòng khám lớn, danh sách cả tháng có hàng chục nghìn lịch và việc dọn chạy rất chậm. Trưởng nhóm yêu cầu hai giải pháp đúng, so sánh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Vinmec Appointment Cleaner CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Dữ liệu mẫu: <code>make_appointments()</code> trả về 6 lịch (xem <code>lich_hen.py</code>).</p>
+<p><strong>Chức năng 1 — Đặt lịch</strong>: mã mới là số lớn nhất đang có cộng 1. <strong>Chức năng 2 — Hủy lịch.</strong> <strong>Chức năng 3 — Dọn lịch đã hủy</strong> (menu phụ chọn giải pháp). <strong>Chức năng 4 — Xem lịch hẹn.</strong></p>
+<p><strong>Chức năng 5 — Đo</strong> hai giải pháp với n = 10.000, 20.000, 40.000. <strong>Chức năng 6 — Thoát.</strong></p>
+<p><code>clean_v1</code>, <code>clean_v2</code> sửa <strong>ngay trên list</strong> được truyền vào, giữ thứ tự lịch còn lại, trả về số lịch đã xóa; cho <strong>cùng kết quả</strong>, <strong>khác nhau về cách làm</strong>; giải pháp 2 dọn 200.000 lịch trong 1 giây.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VINMEC - LỊCH HẸN KHÁM =====&#10;1. Đặt lịch&#10;2. Hủy lịch&#10;3. Dọn lịch đã hủy&#10;4. Xem lịch hẹn&#10;5. Đo so sánh hai giải pháp&#10;6. Thoát&#10;Chọn chức năng (1-6): 4&#10;VM001 | Nguyễn An | chờ khám&#10;VM002 | Trần Bình | đã hủy&#10;VM003 | Lê Chi | đã hủy&#10;VM004 | Phạm Dũng | chờ khám&#10;VM005 | Hoàng Em | đã hủy&#10;VM006 | Vũ Giang | chờ khám&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 3&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 1&#10;Đã dọn 3 lịch hủy. Còn 3 lịch hẹn.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 1&#10;Tên bệnh nhân: Đỗ Hà&#10;Đã đặt VM007 cho Đỗ Hà.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 5 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;10000 | 3.1 | 0.6&#10;20000 | 10.8 | 1.1&#10;40000 | 47.7 | 2.5&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Hai lịch hủy liền nhau.</strong> <code>VM002</code>, <code>VM003</code> đều phải bị xóa.</p>
+<p><strong>Bẫy 2 — Sửa ngay trên list.</strong> Màn hình gọi số đang giữ chính list đó; trả về list mới mà không đổi list cũ là sai.</p>
+<p><strong>Bẫy 3 — Mã mới sau khi dọn.</strong> Danh sách còn <code>VM004</code>, <code>VM002</code>: lịch mới là <code>VM005</code>; danh sách rỗng: <code>VM001</code>.</p>
+<p><strong>Bẫy 4 — Dữ liệu lớn.</strong> 200.000 lịch: giải pháp 2 trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Tên trống, hủy mã không có, hủy lịch đã hủy, mã viết thường (<code>vm004</code> hợp lệ); menu phụ và menu chính sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp khác nhau (ý tưởng, hình minh họa trên 6 lịch mẫu, mã giả); với mỗi giải pháp, đếm số lần dời phần tử khi dọn 6 lịch mẫu và nêu số bước theo n.</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm số đo chức năng 5 trên máy bạn; chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>lich_hen.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session06_TH08</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-06-thuc-hanh-cli/bai-08</a> rồi chép các tệp vào kho: <code>lich_hen.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
