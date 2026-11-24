@@ -1,0 +1,38 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người dùng FPT Play mở danh sách Xem tiếp" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-08-thuc-hanh-cli/bai-02/minh_hoa.png" /></p>
+<p><em>Người dùng FPT Play mở danh sách Xem tiếp</em></p>
+<p>Màn hình chính của <strong>FPT Play</strong> có hàng <strong>Xem tiếp</strong>: chương trình vừa mở đứng đầu, chương trình lâu không mở lại đứng cuối, tối đa <strong>5</strong> chương trình. Mở lại một chương trình đã có thì nó chuyển lên đầu, không xuất hiện hai lần; xem xong thì nó biến mất khỏi hàng.</p>
+<p>Bản thử nghiệm có lỗi: chuyển chương trình ở cuối hàng lên đầu thì hàng bị cắt mất phần sau; xóa hết rồi mở chương trình mới thì ứng dụng báo lỗi. Đội kỹ thuật yêu cầu cài lại bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code></strong>, xử lý đúng mọi trường hợp biên.</p>
+<p>Bạn xây dựng module <strong>"FPT Play Continue Watching CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Danh sách mẫu: <code>make_list()</code> có 4 chương trình. Lớp <code>Node</code> và hàm <code>to_text</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem danh sách</strong>: chuỗi <code>to_text()</code> và <code>Có &lt;n&gt; chương trình</code>.</p>
+<p><strong>Chức năng 2 — Mở một chương trình</strong>: đưa lên đầu; vượt 5 chương trình thì bỏ chương trình ở cuối và in <code>Đã bỏ chương trình cũ nhất: &lt;tên&gt;.</code></p>
+<p><strong>Chức năng 3 — Xem tiếp</strong>: chương trình ở đầu. <strong>Chức năng 4 — Đánh dấu đã xem xong.</strong> <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Các phương thức của <code>ContinueList</code> không dùng list Python để lưu.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== FPT PLAY - XEM TIẾP =====&#10;1. Xem danh sách&#10;2. Mở một chương trình&#10;3. Xem tiếp&#10;4. Đánh dấu đã xem xong&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Cà phê sáng -&gt; V-League vòng 5 -&gt; Thời sự 19h -&gt; Phim tối thứ Bảy -&gt; None&#10;Có 4 chương trình&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Tên chương trình: Thời sự 19h&#10;Đang xem: Thời sự 19h.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Tên chương trình: Đố vui cuối tuần&#10;Đang xem: Đố vui cuối tuần.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Tên chương trình: Hoạt hình cho bé&#10;Đang xem: Hoạt hình cho bé.&#10;Đã bỏ chương trình cũ nhất: Phim tối thứ Bảy.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mở lại chương trình ở cuối.</strong> Xóa node <code>tail</code> rồi thêm vào đầu: <code>tail</code> phải lùi về node trước.</p>
+<p><strong>Bẫy 2 — Danh sách rỗng.</strong> <code>add_first</code> vào danh sách rỗng phải đặt cả <code>tail</code>; xóa node duy nhất đưa cả hai về <code>None</code>.</p>
+<p><strong>Bẫy 3 — Không trùng, đúng giới hạn.</strong> Mở lại chương trình đang ở đầu không tạo bản thứ hai; luôn tối đa 5.</p>
+<p><strong>Bẫy 4 — Nhập sai.</strong> Tên trống hoặc dài hơn 40 ký tự; xem xong chương trình không có; menu sai: đúng thông báo của đề.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Vẽ sơ đồ <code>head</code>, <code>tail</code> trước và sau khi mở lại chương trình đang ở cuối; khi mở chương trình thứ sáu.</li>
+<li>Bảng trường hợp biên của <code>add_first</code> và <code>remove</code> (rỗng, một node, trúng <code>head</code>, trúng <code>tail</code>, không có); Big-O của <code>watch</code> theo số chương trình n.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>xem_tiep.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session08_TH02</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-02</a> rồi chép các tệp vào kho: <code>xem_tiep.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên Vietnam Airlines lập hành trình chiều về" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-08-thuc-hanh-cli/bai-07/minh_hoa.png" /></p>
+<p><em>Nhân viên Vietnam Airlines lập hành trình chiều về</em></p>
+<p>Hệ thống đặt vé <strong>Vietnam Airlines</strong> lưu hành trình nhiều chặng (ví dụ <code>HAN -&gt; DAD -&gt; SGN -&gt; PQC</code>) bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code></strong>. Khách đặt khứ hồi thì chiều về là hành trình <strong>đảo chiều</strong>. Hệ thống giá vé đang giữ tham chiếu tới từng node nên phải đảo <strong>ngay trên hành trình</strong>: không tạo node mới, không chép sang list.</p>
+<p>Bản đầu tiên đảo đúng nhưng với các hành trình giả lập dài (kiểm thử tải) thì chạy rất lâu; bản sửa nhanh thì quên cập nhật <code>tail</code>, thêm sân bay sau khi đảo bị nối sai chỗ. Trưởng nhóm yêu cầu hai giải pháp đúng, so sánh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Vietnam Airlines Return Route CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Hành trình mẫu: <code>make_route()</code>. Lớp <code>Node</code>, <code>Route</code> (có <code>add_last</code>, <code>to_text</code>) có sẵn.</p>
+<p><strong>Chức năng 1 — Xem hành trình.</strong> <strong>Chức năng 2 — Thêm sân bay</strong> vào cuối (3 chữ cái, không trùng điểm cuối). <strong>Chức năng 3 — Đảo chiều</strong> (menu phụ chọn giải pháp), in <code>Chiều về: ...</code>.</p>
+<p><strong>Chức năng 4 — Đo</strong> hai giải pháp với n = 1.000, 2.000, 4.000. <strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>reverse_v1</code>, <code>reverse_v2</code> cho <strong>cùng kết quả</strong>, <strong>khác nhau về cách làm</strong>, đảo ngay trên hành trình (không tạo node, không dùng list); giải pháp 2 đảo 200.000 điểm trong 1 giây.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VIETNAM AIRLINES - HÀNH TRÌNH NHIỀU CHẶNG =====&#10;1. Xem hành trình&#10;2. Thêm sân bay&#10;3. Đảo chiều hành trình&#10;4. Đo so sánh hai giải pháp&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;HAN -&gt; DAD -&gt; SGN -&gt; PQC -&gt; None&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 1&#10;Chiều về: PQC -&gt; SGN -&gt; DAD -&gt; HAN -&gt; None&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã sân bay: cxr&#10;Đã thêm CXR.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;1000 | 9.65 | 0.04&#10;2000 | 40.92 | 0.08&#10;4000 | 160.42 | 0.17&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — <code>head</code>, <code>tail</code> sau khi đảo.</strong> Node đầu cũ thành <code>tail</code> với <code>next</code> là <code>None</code>; thêm sân bay sau khi đảo phải nối đúng.</p>
+<p><strong>Bẫy 2 — Hành trình ngắn.</strong> Rỗng, một điểm, hai điểm, số điểm lẻ.</p>
+<p><strong>Bẫy 3 — Giữ node.</strong> Không tạo node mới, không chép sang list; đảo hai lần về như cũ.</p>
+<p><strong>Bẫy 4 — Dữ liệu lớn.</strong> 200.000 điểm: giải pháp 2 trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Mã không đủ 3 chữ cái (gõ thường hợp lệ), trùng điểm cuối; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp khác nhau (ý tưởng, sơ đồ trên 4 điểm mẫu, mã giả); với mỗi giải pháp, đếm số node phải đi qua khi đảo n điểm.</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm số đo chức năng 4 trên máy bạn; chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>hanh_trinh.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session08_TH07</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-07</a> rồi chép các tệp vào kho: <code>hanh_trinh.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

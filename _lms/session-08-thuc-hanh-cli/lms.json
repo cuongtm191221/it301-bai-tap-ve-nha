@@ -1,0 +1,72 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Hệ thống hàng chờ nhận hàng tại bưu cục Viettel Post",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 5058
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Hệ thống danh sách Xem tiếp của FPT Play",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 5015
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Hệ thống danh sách đặt cọc trước của CellphoneS",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5192
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Hệ thống lịch sử xem của Galaxy Play",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5533
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Hệ thống bảng thông báo đơn hàng của Tiki",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5247
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Hệ thống lệnh chuyển tiền chờ xử lý của Agribank",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5596
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Hệ thống đảo chiều hành trình nhiều chặng của Vietnam Airlines",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5216
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Hệ thống gộp hàng chờ khi đóng quầy thu ngân của Co.opmart",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5481
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Tối ưu báo cáo ca trụ bơm xăng Petrolimex",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 5950
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Tối ưu nhật ký bút toán có hoàn tác trên MISA",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 6061
+ }
+]

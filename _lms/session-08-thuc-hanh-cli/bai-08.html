@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Thu ngân Co.opmart chuyển khách khi đóng quầy" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-08-thuc-hanh-cli/bai-08/minh_hoa.png" /></p>
+<p><em>Thu ngân Co.opmart chuyển khách khi đóng quầy</em></p>
+<p>Ở siêu thị <strong>Co.opmart</strong>, khách lấy <strong>số thứ tự đến</strong> (101, 102, ...) rồi xếp vào quầy 1 hoặc quầy 2; trong mỗi quầy, khách đứng theo số tăng dần. Khi quầy 2 đóng (hết ca, máy hỏng), khách quầy 2 được chuyển sang quầy 1 và <strong>xen vào đúng chỗ theo số</strong>, để không ai đến trước mà phải chờ sau người đến sau.</p>
+<p>Mỗi quầy là <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code></strong>; màn hình gọi số giữ tham chiếu tới các node nên phải <strong>chuyển node</strong>, không tạo node mới. Bản đầu tiên chuyển đúng nhưng ngày đông (kiểm thử tải hàng nghìn khách) rất chậm. Trưởng nhóm yêu cầu hai giải pháp đúng, so sánh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Co.opmart Checkout Lanes CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Siêu thị mẫu: <code>make_store()</code>. Lớp <code>Node</code>, <code>Lane</code> (có <code>add_last</code>, <code>remove_first</code>, <code>to_text</code>), <code>Store</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem hai quầy.</strong> <strong>Chức năng 2 — Khách vào quầy</strong> (cấp số tiếp theo). <strong>Chức năng 3 — Đóng quầy 2</strong> (menu phụ chọn giải pháp), in <code>Đã chuyển &lt;k&gt; khách sang quầy 1.</code></p>
+<p><strong>Chức năng 4 — Phục vụ khách</strong> ở một quầy. <strong>Chức năng 5 — Đo</strong> hai giải pháp với n = 500, 1.000, 2.000 khách mỗi quầy. <strong>Chức năng 6 — Thoát.</strong></p>
+<p><code>merge_v1</code>, <code>merge_v2</code> cho <strong>cùng kết quả</strong>, <strong>khác nhau về cách làm</strong>, chuyển node (không tạo node, không dùng list, không <code>sorted</code>); quầy 2 rỗng sau khi gộp; giải pháp 2 gộp hai quầy 100.000 khách trong 1 giây.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== CO.OPMART - QUẦY THU NGÂN =====&#10;1. Xem hai quầy&#10;2. Khách vào quầy&#10;3. Đóng quầy 2, chuyển khách sang quầy 1&#10;4. Phục vụ khách&#10;5. Đo so sánh hai giải pháp&#10;6. Thoát&#10;Chọn chức năng (1-6): 1&#10;Quầy 1: 101 -&gt; 104 -&gt; 105 -&gt; 109 -&gt; None&#10;Quầy 2: 103 -&gt; 106 -&gt; 107 -&gt; 108 -&gt; 110 -&gt; None&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 2&#10;Quầy: 1&#10;Khách số 111 vào quầy 1.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 2&#10;Quầy: 3&#10;Lỗi: Quầy phải là 1 hoặc 2&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 5 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;500 | 14.55 | 0.08&#10;1000 | 59.26 | 0.17&#10;2000 | 227.92 | 0.33&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chen vào đầu, nối vào cuối.</strong> Khách quầy 2 có số nhỏ hơn mọi khách quầy 1 thì thành <code>head</code>; lớn hơn thì <code>tail</code> phải đổi.</p>
+<p><strong>Bẫy 2 — Quầy rỗng.</strong> Một hoặc cả hai quầy rỗng; sau khi gộp, quầy 2 có <code>head</code>, <code>tail</code> là <code>None</code> và vẫn nhận khách mới.</p>
+<p><strong>Bẫy 3 — Giữ node.</strong> Không tạo node mới; khách thêm vào quầy 1 sau khi gộp nối đúng sau <code>tail</code>.</p>
+<p><strong>Bẫy 4 — Dữ liệu lớn.</strong> Hai quầy 100.000 khách: giải pháp 2 trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Quầy không phải 1 hoặc 2, phục vụ ở quầy trống; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất ít nhất hai giải pháp khác nhau (ý tưởng, sơ đồ con trỏ trên dữ liệu mẫu, mã giả); số node phải đi qua theo n và m (số khách hai quầy).</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm số đo chức năng 5 trên máy bạn; chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>quay_thu_ngan.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session08_TH08</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-08</a> rồi chép các tệp vào kho: <code>quay_thu_ngan.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

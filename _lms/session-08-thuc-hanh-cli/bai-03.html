@@ -1,0 +1,38 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên CellphoneS sắp xếp danh sách khách đặt cọc" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-08-thuc-hanh-cli/bai-03/minh_hoa.png" /></p>
+<p><em>Nhân viên CellphoneS sắp xếp danh sách khách đặt cọc</em></p>
+<p>Mỗi đợt mở bán điện thoại mới, <strong>CellphoneS</strong> nhận đặt cọc theo thứ tự; khách nhận máy theo <strong>vị trí</strong> trong danh sách. Khách hạng thành viên cao được <strong>chèn vào một vị trí</strong> do quản lý chọn; khách đổi ý thì <strong>hủy suất theo vị trí</strong>. Nhân viên thường xem danh sách theo trang 3 khách để gọi điện xác nhận.</p>
+<p>Danh sách được cài bằng <strong>danh sách liên kết đơn có <code>head</code>, <code>tail</code></strong> để chèn, hủy không phải dời cả danh sách. Bản đầu tiên chèn vào cuối thì khách đặt cọc sau đó bị chèn sai chỗ; hủy khách cuối thì danh sách hỏng.</p>
+<p>Bạn xây dựng module <strong>"CellphoneS Pre-order CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Danh sách mẫu: <code>make_list()</code> có <code>KH101</code> đến <code>KH105</code>. Lớp <code>Node</code> và hàm <code>to_text</code> có sẵn. Vị trí người dùng nhập đếm từ 1.</p>
+<p><strong>Chức năng 1 — Xem danh sách</strong> (menu phụ): toàn bộ (<code>to_text</code> và <code>Tổng: &lt;n&gt; khách</code>) hoặc một trang 3 khách từ vị trí người dùng nhập.</p>
+<p><strong>Chức năng 2 — Khách đặt cọc</strong> (thêm cuối). <strong>Chức năng 3 — Chèn khách ưu tiên</strong> vào vị trí 1 đến n + 1. <strong>Chức năng 4 — Hủy suất theo vị trí.</strong> <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Các phương thức của <code>PreorderList</code> không dùng list Python để lưu.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== CELLPHONES - ĐẶT CỌC TRƯỚC =====&#10;1. Xem danh sách&#10;2. Khách đặt cọc&#10;3. Chèn khách ưu tiên&#10;4. Hủy suất theo vị trí&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. Toàn bộ  2. Một trang 3 khách&#10;Chọn cách xem: 1&#10;KH101 -&gt; KH102 -&gt; KH103 -&gt; KH104 -&gt; KH105 -&gt; None&#10;Tổng: 5 khách&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Toàn bộ  2. Một trang 3 khách&#10;Chọn cách xem: 2&#10;Từ vị trí: 4&#10;4. KH104&#10;5. KH105&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;1. Toàn bộ  2. Một trang 3 khách&#10;Chọn cách xem: x&#10;Lựa chọn không hợp lệ.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Mã khách: kh106&#10;Đã nhận cọc của KH106, vị trí 6.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Chèn, hủy ở cuối.</strong> Chèn vào vị trí n + 1 hoặc hủy vị trí n phải cập nhật <code>tail</code>.</p>
+<p><strong>Bẫy 2 — Chèn, hủy ở đầu.</strong> Vị trí 1 thay đổi <code>head</code>; danh sách rỗng thì node mới vừa là <code>head</code> vừa là <code>tail</code>.</p>
+<p><strong>Bẫy 3 — Trang cuối.</strong> Trang bắt đầu ở vị trí n - 1 chỉ có 2 khách.</p>
+<p><strong>Bẫy 4 — Vị trí sai.</strong> <code>0</code>, lớn hơn giới hạn, không phải số nguyên: đúng thông báo, giới hạn in theo số khách hiện tại.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Mã sai dạng, mã đã có (kiểm tra mã trước vị trí); danh sách trống khi hủy; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Vẽ sơ đồ con trỏ khi chèn vào vị trí 1, giữa, n + 1 và khi hủy vị trí n: node nào đổi <code>next</code>, khi nào đổi <code>head</code>, <code>tail</code>.</li>
+<li>Số node phải đi qua khi chèn, hủy ở vị trí k; Big-O của <code>get</code>, <code>insert_at</code>, <code>remove_at</code>, <code>page</code>. So với list Python: chèn ở vị trí 1 tốn gì ở mỗi cách?</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>dat_coc.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session08_TH03</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-03</a> rồi chép các tệp vào kho: <code>dat_coc.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

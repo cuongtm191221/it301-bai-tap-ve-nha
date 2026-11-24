@@ -1,0 +1,44 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Kế toán dùng MISA ghi và hoàn tác bút toán" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-08-thuc-hanh-cli/bai-10/minh_hoa.png" /></p>
+<p><em>Kế toán dùng MISA ghi và hoàn tác bút toán</em></p>
+<p>Phần mềm kế toán <strong>MISA</strong> cho phép kế toán ghi <strong>bút toán</strong> (mã <code>BTxxxx</code>, diễn giải, số tiền: dương là thu, âm là chi) và <strong>hoàn tác</strong> bút toán vừa ghi; sau mỗi thao tác, màn hình hiện lại <strong>số dư</strong> và các bút toán gần nhất.</p>
+<p>Lớp <code>SlowJournal</code> trong <code>but_toan.py</code> (danh sách liên kết đơn, chỉ có <code>head</code>) cho kết quả đúng, nhưng cuối kỳ có hàng nghìn bút toán: mỗi lần ghi, hoàn tác hay xem số dư đều đi lại từ đầu, kế toán phải chờ. Đội kỹ thuật cần lớp <code>FastJournal</code> dùng <strong>danh sách liên kết đôi</strong>, <strong>cùng phương thức, cùng kết quả, cùng lỗi</strong> với bản cũ, và giải thích vì sao bản cũ chậm.</p>
+<p>Bạn xây dựng module <strong>"MISA Journal Undo CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Nhật ký mẫu: <code>make_journal(FastJournal)</code> có 4 bút toán. <code>Node</code>, <code>DNode</code>, <code>SlowJournal</code>, <code>money</code>, <code>make_journal</code>, <code>workload</code> có sẵn, <strong>không sửa</strong>.</p>
+<p><strong>Chức năng 1 — Xem k bút toán gần nhất.</strong> <strong>Chức năng 2 — Ghi bút toán.</strong> <strong>Chức năng 3 — Hoàn tác bút toán cuối</strong> (mã không dùng lại). <strong>Chức năng 4 — Xem số dư.</strong></p>
+<p><strong>Chức năng 5 — Đo</strong> <code>workload</code> trên hai lớp với n = 500, 1.000, 2.000. <strong>Chức năng 6 — Thoát.</strong></p>
+<p><code>FastJournal</code>: <code>add_last</code>, <code>remove_last</code>, <code>size</code>, <code>balance</code> không duyệt danh sách; <code>recent(k)</code> đi qua tối đa k node; <code>workload(FastJournal, 100000)</code> trong 1 giây.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== MISA - NHẬT KÝ BÚT TOÁN =====&#10;1. Xem bút toán gần nhất&#10;2. Ghi bút toán&#10;3. Hoàn tác bút toán cuối&#10;4. Xem số dư&#10;5. Đo bản cũ và bản mới&#10;6. Thoát&#10;Chọn chức năng (1-6): 3&#10;Đã hoàn tác BT0004 (+7.200.000đ).&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 4&#10;Số dư: +5.150.000đ (3 bút toán)&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 2&#10;Diễn giải: Chi tiền điện&#10;Số tiền (âm là chi): -1250000&#10;Đã ghi BT0005: -1.250.000đ.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 5 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;500 | 15.9 | 0.3&#10;1000 | 55.3 | 0.5&#10;2000 | 208.0 | 1.0&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Kiểm tra trên 200 chuỗi thao tác ngẫu nhiên (ghi đúng, ghi sai, hoàn tác, xem): cùng kết quả, cùng lỗi.</p>
+<p><strong>Bẫy 2 — Hoàn tác hết.</strong> Node cuối cùng bị xóa thì <code>head</code>, <code>tail</code> về <code>None</code>, số dư về 0; ghi tiếp vẫn đúng.</p>
+<p><strong>Bẫy 3 — Số dư luôn đúng.</strong> Không duyệt khi xem số dư nên phải cập nhật ở mọi chỗ thêm, xóa.</p>
+<p><strong>Bẫy 4 — Nhập sai.</strong> Diễn giải trống hoặc dài; số tiền 0, <code>-0</code>, thập phân, chữ; k không phải số nguyên dương; hoàn tác khi rỗng; menu sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Phân tích <code>SlowJournal</code>: số node đi qua của <code>add_last</code>, <code>remove_last</code>, <code>balance</code>, <code>recent</code> theo n; tổng cho <code>workload(n)</code>; Big-O.</li>
+<li>Thiết kế <code>FastJournal</code> (sơ đồ <code>prev</code>, <code>next</code> khi hoàn tác); Big-O từng phương thức; bảng số đo chức năng 5 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li><code>list.append</code>, <code>list.pop()</code> cũng nhanh ở cuối; tìm hiểu khi nào danh sách đôi vẫn đáng dùng (gỡ một node ở giữa khi đã có tham chiếu tới node) và cái giá bộ nhớ của <code>prev</code>.</li>
+<li>Tạo <code>nghien_cuu.py</code>: so <code>sys.getsizeof</code> (cộng <code>__dict__</code>) của <code>Node</code> và <code>DNode</code>; viết hàm gỡ một node bất kỳ của <code>FastJournal</code> khi biết node đó (cập nhật số dư, kích thước) và chạy thử trên node giữa, node đầu, node cuối.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>but_toan.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session08_TH10</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-10">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-10</a> rồi chép các tệp vào kho: <code>but_toan.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

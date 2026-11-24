@@ -1,0 +1,43 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Trưởng ca Petrolimex chờ báo cáo cuối ca" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-08-thuc-hanh-cli/bai-09/minh_hoa.png" /></p>
+<p><em>Trưởng ca Petrolimex chờ báo cáo cuối ca</em></p>
+<p>Mỗi trụ bơm của <strong>Petrolimex</strong> ghi <strong>nhật ký bơm</strong> bằng danh sách liên kết đơn: mỗi lần bơm có mã <code>Bxxxxx</code>, loại nhiên liệu (<code>RON95</code>, <code>E5</code>, <code>DO</code>) và số lít (lưu bằng decilít). Cuối ca, trưởng ca in <strong>báo cáo</strong>: tổng lít từng loại, lần bơm nhiều nhất, các lần bơm từ một ngưỡng trở lên (để đối chiếu hóa đơn).</p>
+<p>Hàm <code>report_slow</code> trong <code>nhat_ky_bom.py</code> cho kết quả đúng nhưng trạm cao tốc có hàng chục nghìn lần bơm mỗi ca, báo cáo chạy rất lâu. Người viết bản cũ quen làm với list nên duyệt nhật ký "theo chỉ số". Cần <strong>viết lại</strong> thành <code>report_fast</code> cho <strong>đúng y hệt</strong> kết quả cũ và giải thích vì sao bản cũ chậm.</p>
+<p>Bạn xây dựng module <strong>"Petrolimex Shift Report CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Nhật ký mẫu: <code>make_log()</code> có 6 lần bơm. Lớp <code>PumpLog</code>, các hàm <code>liters_text</code>, <code>parse_liters</code>, <code>report_slow</code> có sẵn, <strong>không sửa</strong>.</p>
+<p><strong>Chức năng 1 — Xem nhật ký bơm.</strong> <strong>Chức năng 2 — Ghi lần bơm</strong> (nhiên liệu, số lít). <strong>Chức năng 3 — Báo cáo ca</strong> bằng <code>report_fast</code> với ngưỡng người dùng nhập.</p>
+<p><strong>Chức năng 4 — Đo</strong> bản cũ và bản mới với n = 500, 1.000, 2.000. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== PETROLIMEX - BÁO CÁO CA TRỤ BƠM =====&#10;1. Xem nhật ký bơm&#10;2. Ghi lần bơm&#10;3. Báo cáo ca&#10;4. Đo bản cũ và bản mới&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;B00001 | RON95 | 35.5 lít&#10;B00002 | DO | 120.0 lít&#10;B00003 | E5 | 18.2 lít&#10;B00004 | RON95 | 50.0 lít&#10;B00005 | DO | 120.0 lít&#10;B00006 | E5 | 7.5 lít&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Ngưỡng (lít): 50&#10;RON95: 85.5 lít | E5: 25.7 lít | DO: 240.0 lít&#10;Lần bơm nhiều nhất: B00002&#10;Từ 50.0 lít trở lên: B00002, B00004, B00005&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Nhiên liệu (RON95, E5, DO): ron95&#10;Số lít: 42,7&#10;Đã ghi B00007: RON95 42.7 lít.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;500 | 2.3 | 0.0&#10;1000 | 8.1 | 0.1&#10;2000 | 32.2 | 0.2&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Kiểm tra trên 200 nhật ký ngẫu nhiên; nhật ký rỗng ra <code>((0, 0, 0), None, [])</code>; tổng là tuple.</p>
+<p><strong>Bẫy 2 — Bằng nhau.</strong> <code>B00002</code>, <code>B00005</code> cùng 120 lít: lấy lần đầu; ngưỡng tính cả lần bơm đúng bằng ngưỡng.</p>
+<p><strong>Bẫy 3 — Ràng buộc.</strong> Không gọi bản cũ, <code>get</code>, <code>count</code>; không làm đổi nhật ký; 200.000 lần bơm trong 1 giây.</p>
+<p><strong>Bẫy 4 — Nhập sai.</strong> Nhiên liệu ngoài ba loại (gõ thường hợp lệ); số lít ngoài 0,1–200, quá 1 chữ số thập phân (<code>12,5</code> và <code>12.5</code> đều hợp lệ); menu sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Phân tích <code>report_slow</code>: mỗi lần <code>log.get(i)</code>, <code>log.count()</code>, ghép tuple và <code>over + [code]</code> đi qua hoặc chép bao nhiêu phần tử; tổng theo n; Big-O thời gian và bộ nhớ phụ.</li>
+<li>Thiết kế <code>report_fast</code>; Big-O; bảng số đo chức năng 4 trên máy bạn (n gấp đôi thì mỗi cột tăng mấy lần).</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu <code>__slots__</code> trong lớp Python: node thường lưu thuộc tính ở đâu, <code>__slots__</code> thay đổi gì, đánh đổi là gì.</li>
+<li>Tạo <code>nghien_cuu.py</code>: lớp node có <code>__slots__</code> cùng thuộc tính với <code>Node</code>; in <code>sys.getsizeof</code> một node mỗi loại (node thường cộng cả <code>__dict__</code>), và bộ nhớ đỉnh <code>tracemalloc</code> khi tạo 100.000 node mỗi loại.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>nhat_ky_bom.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session08_TH09</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-09</a> rồi chép các tệp vào kho: <code>nhat_ky_bom.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

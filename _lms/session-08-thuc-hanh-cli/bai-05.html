@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người dùng Tiki xem thông báo đơn hàng" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-08-thuc-hanh-cli/bai-05/minh_hoa.png" /></p>
+<p><em>Người dùng Tiki xem thông báo đơn hàng</em></p>
+<p>Ứng dụng <strong>Tiki</strong> hiện <strong>thông báo đơn hàng</strong> mới nhất ở đầu bảng. Mỗi thay đổi trạng thái đơn sinh một thông báo; người dùng mua nhiều có hàng chục nghìn thông báo. Bản cũ lưu bằng list và thêm bằng <code>insert(0, ...)</code>.</p>
+<p>Một kỹ sư đề xuất chuyển sang <strong>danh sách liên kết đơn</strong> vì thêm ở đầu không phải dời phần tử. Một kỹ sư khác lo màn hình "xem thông báo thứ i" sẽ chậm. Trưởng nhóm yêu cầu cài thử và <strong>đo thật cả hai thao tác</strong> trước khi quyết định.</p>
+<p>Bạn xây dựng module <strong>"Tiki Order Notices CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Bảng mẫu: <code>make_feed()</code> có 5 thông báo. Lớp <code>Node</code> và hàm <code>parse_count</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem k thông báo mới nhất</strong> (k lớn hơn số thông báo thì in tất cả). <strong>Chức năng 2 — Thêm thông báo</strong> (1 đến 60 ký tự). <strong>Chức năng 3 — Xem thông báo thứ i</strong> (mới nhất là 1).</p>
+<p><strong>Chức năng 4 — Đo so sánh với list</strong> (menu phụ): thêm n phần tử vào đầu (n = 10.000, 20.000, 40.000), hoặc đọc 200 vị trí rải đều (n = 2.000, 4.000, 8.000). <strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>NoticeFeed</code> không dùng list Python để lưu; <code>add_first</code> không duyệt danh sách.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== TIKI - THÔNG BÁO ĐƠN HÀNG =====&#10;1. Xem các thông báo mới nhất&#10;2. Thêm thông báo&#10;3. Xem thông báo theo thứ tự&#10;4. Đo so sánh với list&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Số thông báo: 3&#10;1. TK1003 đã xác nhận&#10;2. TK1001 đã giao&#10;3. TK1002 đã xác nhận&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Nội dung: TK1003 đang giao&#10;Đã thêm. Có 6 thông báo.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Số thông báo: 10&#10;1. TK1003 đang giao&#10;2. TK1003 đã xác nhận&#10;3. TK1001 đã giao&#10;4. TK1002 đã xác nhận&#10;5. TK1001 đang giao&#10;6. TK1001 đã xác nhận&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Thứ tự: 2&#10;TK1003 đã xác nhận&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (máy soạn đề, Python 3.10), thêm vào đầu rồi đọc theo vị trí:</p>
+<pre><code>n | list (ms) | danh sách liên kết (ms)&#10;10000 | 15.21 | 2.58&#10;20000 | 77.09 | 6.02&#10;40000 | 287.33 | 10.40&#10;&#10;n | list (ms) | danh sách liên kết (ms)&#10;2000 | 0.01 | 3.60&#10;4000 | 0.00 | 7.67&#10;8000 | 0.02 | 14.88&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Thứ tự đếm từ 1.</strong> Thông báo thứ 1 là <code>head</code>; thứ <code>size</code> là thông báo cũ nhất.</p>
+<p><strong>Bẫy 2 — k lớn, bảng rỗng.</strong> k lớn hơn số thông báo in tất cả; bảng rỗng trả list rỗng.</p>
+<p><strong>Bẫy 3 — Số đo đúng cách.</strong> Chỉ đo thao tác cần so sánh: dựng dữ liệu cho phép đọc theo vị trí nằm ngoài phần tính giờ.</p>
+<p><strong>Bẫy 4 — Nhập sai.</strong> Thứ tự ngoài 1..size (thông báo in đúng size hiện tại), k không phải số nguyên dương, nội dung trống hoặc dài; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Big-O của thêm vào đầu và đọc vị trí i trên list và trên danh sách liên kết, kèm lý do (dời phần tử, đi qua node).</li>
+<li>Bảng số đo chức năng 4 trên máy bạn: khi n gấp đôi, mỗi cột tăng mấy lần; có khớp Big-O không?</li>
+<li>Kết luận cho Tiki: màn hình nào nên dùng cấu trúc nào, dựa trên số đo.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>thong_bao.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session08_TH05</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-08-thuc-hanh-cli/bai-05</a> rồi chép các tệp vào kho: <code>thong_bao.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
