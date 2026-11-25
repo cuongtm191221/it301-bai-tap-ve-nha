@@ -1,0 +1,45 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Chuyên viên VNPT soạn công văn và bấm hoàn tác" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-09/minh_hoa.png" /></p>
+<p><em>Chuyên viên VNPT soạn công văn và bấm hoàn tác</em></p>
+<p>Trình soạn công văn của <strong>VNPT Smart Office</strong> cho phép thêm dòng, sửa dòng, xóa dòng, <strong>hoàn tác</strong> và <strong>làm lại</strong>. Lớp <code>SlowEditor</code> trong <code>soan_van_ban.py</code> làm đúng bằng cách lưu <strong>bản chụp toàn bộ văn bản</strong> sau mỗi thao tác.</p>
+<p>Với văn bản dài (biên bản, hợp đồng hàng nghìn dòng) và nhiều lần sửa, mỗi thao tác chép lại cả văn bản: trình soạn chậm và tốn bộ nhớ. Đội kỹ thuật cần lớp <code>FastEditor</code> <strong>cùng phương thức, cùng kết quả, cùng mô tả, cùng lỗi</strong> với bản cũ, nhưng không chép cả văn bản ở mỗi thao tác; đồng thời giải thích vì sao bản cũ chậm và tốn bộ nhớ.</p>
+<p>Bạn xây dựng module <strong>"VNPT Smart Office Undo CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Văn bản mẫu: <code>make_editor(FastEditor)</code> có 3 dòng. <code>check_text</code>, <code>check_index</code>, <code>SlowEditor</code>, <code>make_editor</code>, <code>workload</code> có sẵn, <strong>không sửa</strong>.</p>
+<p><strong>Chức năng 1 — Xem văn bản.</strong> <strong>Chức năng 2 — Thêm dòng.</strong> <strong>Chức năng 3 — Sửa dòng.</strong> <strong>Chức năng 4 — Xóa dòng.</strong></p>
+<p><strong>Chức năng 5 — Hoàn tác.</strong> <strong>Chức năng 6 — Làm lại.</strong> <strong>Chức năng 7 — Đo</strong> <code>workload</code> trên hai lớp với n = 500, 1.000, 2.000. <strong>Chức năng 8 — Thoát.</strong></p>
+<p>Mỗi thao tác trả về mô tả (<code>thêm dòng 4</code>, <code>sửa dòng 2</code>, <code>xóa dòng 1</code>); hoàn tác, làm lại trả về mô tả của thao tác tương ứng. <code>workload(FastEditor, 50000)</code> trong 1 giây.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VNPT SMART OFFICE - SOẠN VĂN BẢN =====&#10;1. Xem văn bản&#10;2. Thêm dòng&#10;3. Sửa dòng&#10;4. Xóa dòng&#10;5. Hoàn tác&#10;6. Làm lại&#10;7. Đo bản cũ và bản mới&#10;8. Thoát&#10;Chọn chức năng (1-8): 1&#10;1| CÔNG VĂN SỐ 125/VNPT&#10;2| Kính gửi: Phòng Kế hoạch&#10;3| V/v: Lịch bảo trì hệ thống tháng 12&#10;&#10;[menu chính]&#10;Chọn chức năng (1-8): 3&#10;Dòng số: 2&#10;Nội dung mới: Kính gửi: Phòng Kỹ thuật&#10;Đã sửa dòng 2.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-8): 4&#10;Dòng số: 1&#10;Đã xóa dòng 1.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 7 in dạng sau (số đo trên máy soạn đề, Python 3.10):</p>
+<pre><code>n | bản cũ (ms) | bản mới (ms)&#10;500 | 3.2 | 0.7&#10;1000 | 12.3 | 1.2&#10;2000 | 61.5 | 2.6&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Khớp bản cũ.</strong> Kiểm tra trên 200 chuỗi thao tác ngẫu nhiên, gồm cả thao tác lỗi.</p>
+<p><strong>Bẫy 2 — Hoàn tác xóa, sửa.</strong> Dòng bị xóa trở lại đúng vị trí; dòng sửa trở lại nội dung cũ.</p>
+<p><strong>Bẫy 3 — Thao tác mới sau hoàn tác.</strong> Không còn làm lại được.</p>
+<p><strong>Bẫy 4 — Thứ tự kiểm tra.</strong> Sửa dòng: kiểm tra số dòng trước, nội dung sau; văn bản rỗng báo <code>Văn bản chưa có dòng nào</code>.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Nội dung trống hoặc dài hơn 80 ký tự; số dòng ngoài khoảng; menu sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Phân tích <code>SlowEditor</code>: mỗi thao tác chép bao nhiêu phần tử, bộ nhớ giữ sau m thao tác trên văn bản n dòng; tổng cho <code>workload(n)</code>; Big-O.</li>
+<li>Thiết kế <code>FastEditor</code>: mỗi thao tác cần nhớ gì để hoàn tác được (vẽ hai ngăn xếp sau các thao tác mẫu); Big-O; bảng số đo chức năng 7 trên máy bạn.</li>
+</ul>
+<p><strong>(3) Nghiên cứu mở rộng (mục cuối <code>PHAN_TICH.md</code>, được hỏi AI, phải ghi nguồn)</strong></p>
+<ul>
+<li>Tìm hiểu hai cách thiết kế hoàn tác hay gặp: lưu trạng thái (Memento) và lưu thao tác (Command); ưu, nhược mỗi cách; trình soạn văn bản thật thường kết hợp thế nào.</li>
+<li>Tạo <code>nghien_cuu.py</code>: đo bộ nhớ đỉnh (<code>tracemalloc</code>) của <code>workload</code> trên hai lớp với n = 1.000 và 2.000; nhận xét bộ nhớ tăng theo n thế nào.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>soan_van_ban.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 6 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH09</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-09">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-09</a> rồi chép các tệp vào kho: <code>soan_van_ban.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>, <code>nghien_cuu.py (tự tạo)</code>.</li>
+<li>Mức AI: AI-0 cho phân tích và mã; AI-1 cho nghiên cứu mở rộng (ghi nguồn, tự kiểm chứng).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Chủ shop nhập công thức khuyến mãi trên Haravan" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-08/minh_hoa.png" /></p>
+<p><em>Chủ shop nhập công thức khuyến mãi trên Haravan</em></p>
+<p><strong>Haravan</strong> cho chủ shop tự nhập <strong>công thức giá khuyến mãi</strong> áp cho mọi sản phẩm. Để không phải xử lý ngoặc và thứ tự ưu tiên, công thức viết dạng <strong>hậu tố</strong>: toán tử đứng sau hai toán hạng, các phần cách nhau bằng khoảng trắng; <code>gia</code> là giá gốc, <code>/</code> là chia lấy phần nguyên. Ví dụ <code>gia 90 * 100 /</code> là giảm 10%, <code>gia 20000 -</code> là giảm 20.000đ.</p>
+<p>Bản đầu tiên tính bằng cách lặp lại "tìm toán tử đầu tiên, tính với hai số đứng trước nó, ghép lại danh sách": đúng nhưng công thức dài (do hệ thống ghép nhiều chương trình khuyến mãi) thì chậm. Đội kỹ thuật cần hai giải pháp <strong>cùng kết quả, cùng lỗi</strong>, so sánh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Haravan Promo Formula CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p><code>Shop</code> (3 sản phẩm, công thức ban đầu <code>gia</code>), <code>to_tokens</code>, <code>apply</code>, <code>money</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem giá khuyến mãi</strong> theo công thức hiện tại. <strong>Chức năng 2 — Đổi công thức</strong>: phải tính được cho mọi sản phẩm và không ra giá âm, không thì giữ công thức cũ.</p>
+<p><strong>Chức năng 3 — Thử công thức với một giá</strong> (menu phụ chọn giải pháp). <strong>Chức năng 4 — Đo</strong> với công thức n toán tử (n = 1.000, 2.000, 4.000). <strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>eval_v1</code>, <code>eval_v2</code> cho cùng kết quả, cùng lỗi (<code>Biểu thức không hợp lệ</code>, <code>Không chia được cho 0</code>), khác nhau về cách làm; giải pháp 2 tính công thức 200.001 phần trong 1 giây.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== HARAVAN - CÔNG THỨC KHUYẾN MÃI =====&#10;1. Xem giá khuyến mãi&#10;2. Đổi công thức&#10;3. Thử công thức với một giá&#10;4. Đo so sánh hai giải pháp&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;Công thức: gia&#10;SP01 | Áo thun | 250.000đ -&gt; 250.000đ&#10;SP02 | Quần jean | 480.000đ -&gt; 480.000đ&#10;SP03 | Mũ lưỡi trai | 120.000đ -&gt; 120.000đ&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Công thức: gia   90 * 100 /&#10;Đã áp dụng: gia 90 * 100 /&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;Công thức: gia 90 * 100 /&#10;SP01 | Áo thun | 250.000đ -&gt; 225.000đ&#10;SP02 | Quần jean | 480.000đ -&gt; 432.000đ&#10;SP03 | Mũ lưỡi trai | 120.000đ -&gt; 108.000đ&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;1000 | 6.3 | 0.4&#10;2000 | 23.1 | 0.8&#10;4000 | 90.8 | 1.4&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Thứ tự toán hạng.</strong> <code>5 3 -</code> là 2, không phải -2; <code>10 3 /</code> là 3.</p>
+<p><strong>Bẫy 2 — Thiếu, thừa toán hạng.</strong> <code>gia +</code>, <code>1 2</code>, <code>+</code>, công thức trống: không hợp lệ.</p>
+<p><strong>Bẫy 3 — Phần lạ.</strong> <code>%</code>, số âm viết liền (<code>-5</code>): không hợp lệ.</p>
+<p><strong>Bẫy 4 — Chia cho 0.</strong> Báo theo thứ tự tính: <code>1 0 / +</code> là chia cho 0, <code>1 + 0 /</code> là không hợp lệ.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Công thức ra giá âm (giữ công thức cũ), giá gốc không phải số; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất hai giải pháp (ý tưởng, chạy tay trên <code>gia 3 + 2 * 1 - 4 /</code> với gia = 1.000, mã giả); với mỗi giải pháp, số phần tử bị duyệt, chép theo số phần n của công thức.</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ phụ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm số đo chức năng 4 trên máy bạn; chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>cong_thuc.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH08</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-08">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-08</a> rồi chép các tệp vào kho: <code>cong_thuc.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

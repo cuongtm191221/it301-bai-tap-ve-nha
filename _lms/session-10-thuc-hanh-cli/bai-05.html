@@ -1,0 +1,38 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Kỹ sư MoMo theo dõi hàng đợi yêu cầu thanh toán" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-05/minh_hoa.png" /></p>
+<p><em>Kỹ sư MoMo theo dõi hàng đợi yêu cầu thanh toán</em></p>
+<p>Ví <strong>MoMo</strong> đưa mỗi yêu cầu thanh toán (mã <code>YCxxxxx</code>, số điện thoại, số tiền) vào <strong>hàng đợi</strong>: gửi trước xử lý trước. Giờ cao điểm (giờ ăn trưa, ngày sale) hàng đợi có hàng chục nghìn yêu cầu.</p>
+<p>Bản đầu tiên dùng list và <code>pop(0)</code>. Một kỹ sư đề xuất <code>LinkedQueue</code> tự cài (Session 09), một kỹ sư khác đề xuất <code>collections.deque</code>. Trưởng nhóm yêu cầu dùng <code>deque</code> cho hệ thống và <strong>đo thật cả ba cách</strong> (thời gian lấy hết hàng đợi, bộ nhớ) để ghi vào tài liệu thiết kế.</p>
+<p>Bạn xây dựng module <strong>"MoMo Payment Queue CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Hàng đợi mẫu: <code>make_queue()</code> có 4 yêu cầu. <code>LinkedQueue</code>, <code>PaymentQueue</code> (có <code>requests</code> là <code>deque</code>), <code>money</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem hàng đợi.</strong> <strong>Chức năng 2 — Gửi yêu cầu</strong> (số điện thoại, số tiền 1.000 đến 50.000.000). <strong>Chức năng 3 — Xử lý k yêu cầu</strong> đầu hàng (lấy bằng <code>popleft</code>).</p>
+<p><strong>Chức năng 4 — Đo</strong>: lấy hết n phần tử bằng ba cách (n = 20.000, 40.000, 80.000), rồi số byte của list và deque 80.000 phần tử. <strong>Chức năng 5 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== MOMO - HÀNG ĐỢI THANH TOÁN =====&#10;1. Xem hàng đợi&#10;2. Gửi yêu cầu&#10;3. Xử lý yêu cầu&#10;4. Đo ba cách cài hàng đợi&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;YC00001 | 0901112223 | 150.000đ&#10;YC00002 | 0934556677 | 2.500.000đ&#10;YC00003 | 0987001122 | 45.000đ&#10;YC00004 | 0909090909 | 800.000đ&#10;Đang chờ: 4 yêu cầu&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Số điện thoại: 0977123456&#10;Số tiền: 300000&#10;Đã nhận YC00005: 300.000đ.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Số điện thoại: 977123456&#10;Số tiền: 1000&#10;Lỗi: Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 0&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Số điện thoại: 0977123456&#10;Số tiền: 999&#10;Lỗi: Số tiền phải là số nguyên từ 1.000 đến 50.000.000&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | list.pop(0) (ms) | LinkedQueue (ms) | deque (ms)&#10;20000 | 26.9 | 3.5 | 0.4&#10;40000 | 125.0 | 6.9 | 0.8&#10;80000 | 517.9 | 14.5 | 1.6&#10;80000 phần tử: list 640056 byte, deque 660624 byte&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Thứ tự.</strong> Xử lý theo thứ tự gửi; k lớn hơn số yêu cầu thì xử lý hết.</p>
+<p><strong>Bẫy 2 — Đo đúng phần cần so.</strong> Dựng ba hàng đợi ngoài phần tính giờ; chỉ đo việc lấy hết.</p>
+<p><strong>Bẫy 3 — Số đo theo máy.</strong> Bộ nhớ lấy bằng <code>sys.getsizeof</code> trên chính máy kiểm tra.</p>
+<p><strong>Bẫy 4 — Nhập sai.</strong> Số điện thoại, số tiền ngoài khoảng, k không phải số nguyên dương, xử lý khi hàng trống; menu sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Big-O của <code>pop(0)</code>, <code>dequeue</code>, <code>popleft</code> và của việc lấy hết n phần tử; bảng số đo chức năng 4 trên máy bạn (n gấp đôi thì mỗi cột tăng mấy lần).</li>
+<li>So sánh bộ nhớ list và deque trên máy bạn; ưu, nhược của <code>LinkedQueue</code> tự cài so với <code>deque</code> (tốc độ, bộ nhớ, công sức bảo trì). Kết luận cho MoMo.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>thanh_toan.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 5 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH05</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-05">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-05</a> rồi chép các tệp vào kho: <code>thanh_toan.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -1,0 +1,37 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Người đọc VnExpress bấm Quay lại giữa các bài báo" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-04/minh_hoa.png" /></p>
+<p><em>Người đọc VnExpress bấm Quay lại giữa các bài báo</em></p>
+<p>Ứng dụng đọc báo <strong>VnExpress</strong> có nút <strong>Quay lại</strong> và <strong>Tiến tới</strong> giữa các bài (mã <code>A</code> + 3 chữ số, trang chủ là <code>A100</code>). Quay lại mở bài vừa đọc trước đó; Tiến tới mở lại bài vừa rời đi bằng Quay lại; mở một bài mới thì không tiến tới được nữa. Để tiết kiệm bộ nhớ trên điện thoại, ứng dụng chỉ nhớ <strong>5 bài</strong> gần nhất để quay lại.</p>
+<p>Bản cũ cắt lịch sử bằng cách xóa phần tử đầu list mỗi lần đầy, đôi khi xóa nhầm bài vừa đọc. Đội kỹ thuật dùng <code>deque(maxlen=5)</code> cho danh sách quay lại và một list làm <strong>ngăn xếp</strong> cho danh sách tiến tới.</p>
+<p>Bạn xây dựng module <strong>"VnExpress Back Forward CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Lớp <code>Reader</code> (bắt đầu ở <code>A100</code>, <code>back</code> là <code>deque(maxlen=5)</code>, <code>forward</code> là list) và hàm <code>check_code</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem bài đang đọc.</strong> <strong>Chức năng 2 — Mở bài</strong>: không mở lại đúng bài đang đọc. <strong>Chức năng 3 — Quay lại.</strong> <strong>Chức năng 4 — Tiến tới.</strong></p>
+<p><strong>Chức năng 5 — Xem lịch sử</strong> (menu phụ): danh sách quay lại được hoặc tiến tới được, bài sẽ tới trước đứng trước; không có thì <code>(trống)</code>. <strong>Chức năng 6 — Thoát.</strong></p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VNEXPRESS - ĐỌC BÁO =====&#10;1. Xem bài đang đọc&#10;2. Mở bài&#10;3. Quay lại&#10;4. Tiến tới&#10;5. Xem lịch sử&#10;6. Thoát&#10;Chọn chức năng (1-6): 3&#10;Lỗi: Không có bài để quay lại&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 2&#10;Mã bài: a201&#10;Đang đọc: A201&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 2&#10;Mã bài: A202&#10;Đang đọc: A202&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 2&#10;Mã bài: A202&#10;Lỗi: Bạn đang đọc bài A202&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Mở bài mới sau khi quay lại.</strong> Danh sách tiến tới bị xóa sạch.</p>
+<p><strong>Bẫy 2 — Đủ 5 bài.</strong> Bài cũ nhất rơi khỏi danh sách quay lại; bài vừa đọc luôn được giữ.</p>
+<p><strong>Bẫy 3 — Thứ tự.</strong> Quay lại lấy bài gần nhất trước; Tiến tới lấy bài vừa rời đi trước.</p>
+<p><strong>Bẫy 4 — Xem không làm đổi.</strong> Xem lịch sử không làm đổi <code>back</code>, <code>forward</code>.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Mã sai dạng (gõ thường hợp lệ), mở lại bài đang đọc, quay lại/tiến tới khi không có; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Vẽ <code>current</code>, <code>back</code>, <code>forward</code> sau từng thao tác của màn hình mẫu.</li>
+<li>Vì sao xóa phần tử đầu list mỗi lần đầy là chậm và dễ sai; <code>deque(maxlen=5)</code> làm gì khi <code>append</code> lúc đã đủ; Big-O các thao tác.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>doc_bao.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 5 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH04</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-04">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-04</a> rồi chép các tệp vào kho: <code>doc_bao.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

@@ -82,11 +82,8 @@ class FastJournal:
     không duyệt danh sách; recent(k) chỉ đi qua tối đa k node. Dùng DNode; không dùng list Python để lưu."""
 
     def __init__(self):
-        self.head = None
-        self.tail = None
         self.issued = 0
-        self._size = 0
-        self._balance = 0
+        # Tự chọn các thuộc tính còn lại (dùng DNode).
 
     def add_last(self, entry):
         """Thêm bút toán vào cuối."""

@@ -1,0 +1,39 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Đầu bếp Jollibee theo dõi màn hình đơn hàng" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-06/minh_hoa.png" /></p>
+<p><em>Đầu bếp Jollibee theo dõi màn hình đơn hàng</em></p>
+<p>Màn hình bếp của <strong>Jollibee</strong> chỉ hiện <strong>6 đơn gần nhất</strong> (mã <code>JBxxx</code>, món). Đơn mới vào khi màn hình đã đủ thì đơn cũ nhất rời màn hình; bếp làm xong đơn nào thì bấm để bỏ đơn đó, nhường chỗ.</p>
+<p>Hệ thống báo cáo của chuỗi cũng cần giữ "N sự kiện gần nhất" với N hàng nghìn. Bản cũ giữ bằng list: hoặc <code>del items[0]</code> khi đầy, hoặc cắt lấy N phần tử cuối sau mỗi lần thêm. Đội kỹ thuật đề xuất <code>deque(maxlen=N)</code> và cần <strong>số đo thật</strong> ba cách.</p>
+<p>Bạn xây dựng module <strong>"Jollibee Kitchen Display CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Màn hình mẫu: <code>make_board()</code> có 5 đơn. <code>Board</code> (<code>orders</code> là <code>deque(maxlen=6)</code>), <code>keep_last_del</code>, <code>keep_last_slice</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem màn hình</strong> và <code>Đang hiện &lt;k&gt;/6 đơn</code>. <strong>Chức năng 2 — Thêm đơn</strong>: đơn bị đẩy ra thì in <code>&lt;mã&gt; rời màn hình.</code> <strong>Chức năng 3 — Bếp làm xong đơn.</strong></p>
+<p><strong>Chức năng 4 — Đo</strong> ba cách giữ N phần tử gần nhất khi thêm 20.000 phần tử (N = 1.000, 2.000, 4.000). <strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>keep_last_deque</code> dùng <code>maxlen</code>, không tự xóa phần tử.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== JOLLIBEE - MÀN HÌNH BẾP =====&#10;1. Xem màn hình&#10;2. Thêm đơn&#10;3. Bếp làm xong đơn&#10;4. Đo ba cách giữ N đơn gần nhất&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;JB001 | Gà giòn 2 miếng&#10;JB002 | Mì Ý sốt bò&#10;JB003 | Burger tôm&#10;JB004 | Gà giòn 1 miếng&#10;JB005 | Kem sundae&#10;Đang hiện 5/6 đơn&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Món: Cơm gà sốt cay&#10;Đã thêm JB006: Cơm gà sốt cay.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Món: Khoai tây chiên&#10;Đã thêm JB007: Khoai tây chiên.&#10;JB001 rời màn hình.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 1&#10;JB002 | Mì Ý sốt bò&#10;JB003 | Burger tôm&#10;JB004 | Gà giòn 1 miếng&#10;JB005 | Kem sundae&#10;JB006 | Cơm gà sốt cay&#10;JB007 | Khoai tây chiên&#10;Đang hiện 6/6 đơn&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 4 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | del items[0] (ms) | cắt lát (ms) | deque (ms)&#10;1000 | 3.5 | 17.9 | 0.5&#10;2000 | 5.5 | 32.3 | 0.5&#10;4000 | 8.7 | 85.6 | 0.5&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Đơn rời màn hình.</strong> Chỉ khi màn hình đã đủ 6 đơn; báo đúng đơn cũ nhất.</p>
+<p><strong>Bẫy 2 — Làm xong rồi thêm.</strong> Sau khi bỏ một đơn, màn hình còn chỗ: đơn mới không đẩy đơn nào ra.</p>
+<p><strong>Bẫy 3 — Ít hơn N.</strong> Thêm ít hơn N phần tử thì giữ tất cả, đúng thứ tự.</p>
+<p><strong>Bẫy 4 — Nhập sai.</strong> Tên món trống hoặc dài; mã không có trên màn hình (gõ thường hợp lệ); menu sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Big-O mỗi lần thêm của ba cách theo N; tổng cho m lần thêm; bảng số đo chức năng 4 trên máy bạn (N gấp đôi thì mỗi cột tăng mấy lần).</li>
+<li>Vì sao <code>finish</code> dùng <code>remove</code> trên deque vẫn chấp nhận được với màn hình 6 đơn; nếu N là 100.000 thì sao. Kết luận cho Jollibee.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>man_hinh_bep.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 5 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH06</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-06">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-06</a> rồi chép các tệp vào kho: <code>man_hinh_bep.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

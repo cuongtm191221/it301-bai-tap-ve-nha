@@ -13,6 +13,7 @@ Kho này chứa tệp khởi đầu và test của bài tập về nhà. Mỗi b
 | `session-07-danh-sach-lien-ket/` | Session 07: Danh sách liên kết | 20 bài: `bai-01` … `bai-20` |
 | `session-08-thuc-hanh-cli/` | Session 08 (thực hành): 10 bài ứng dụng CLI | 10 bài: `bai-01` … `bai-10` |
 | `session-09-stack-queue-deque/` | Session 09: Stack, Queue và Deque | 20 bài: `bai-01` … `bai-20` |
+| `session-10-thuc-hanh-cli/` | Session 10 (thực hành): 10 bài ứng dụng CLI | 10 bài: `bai-01` … `bai-10` |
 
 ## Cách làm và nộp một bài
 

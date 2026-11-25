@@ -1,0 +1,40 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Nhân viên Vinpearl điều phối khách lên cáp treo" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-07/minh_hoa.png" /></p>
+<p><em>Nhân viên Vinpearl điều phối khách lên cáp treo</em></p>
+<p>Ga cáp treo <strong>Vinpearl</strong> có khu chờ với <strong>sức chứa giới hạn</strong>. Khách mua vé (mã <code>CTxxxx</code>) và xếp hàng theo nhóm; nhóm chỉ được vào khi khu chờ còn đủ chỗ cho <strong>cả nhóm</strong>. Mỗi cabin rời ga chở tối đa <strong>6</strong> khách đầu hàng.</p>
+<p>Bản đầu tiên cài hàng chờ bằng list: đúng nhưng ngày lễ (khu chờ lớn của hệ thống đặt vé trực tuyến, hàng chục nghìn chỗ) chạy chậm dần. Đội kỹ thuật cần <strong>hai giải pháp cùng giao diện</strong>: <code>QueueV1</code>, <code>QueueV2</code>; giải pháp 2 chỉ dùng một vùng lưu trữ cố định tạo một lần, mọi thao tác ở hai đầu không phải dời phần tử. So sánh bằng số đo và phân tích.</p>
+<p>Bạn xây dựng module <strong>"Vinpearl Cable Car Queue CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Ga mẫu: <code>make_station()</code> sức chứa 12, có 8 khách. <code>Station</code>, <code>make_station</code>, <code>workload</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem hàng chờ</strong>: các vé, <code>Đang chờ &lt;k&gt;/&lt;sức chứa&gt; khách</code> (thêm <code>(đầy)</code> khi đầy). <strong>Chức năng 2 — Khách xếp hàng</strong> (nhóm 1 đến 10). <strong>Chức năng 3 — Cabin rời ga.</strong></p>
+<p><strong>Chức năng 4 — Chọn giải pháp</strong> (menu phụ), giữ nguyên khách và thứ tự. <strong>Chức năng 5 — Đo</strong> với n = 20.000, 40.000, 80.000. <strong>Chức năng 6 — Thoát.</strong></p>
+<p>Giao diện hàng đợi: <code>enqueue</code>, <code>dequeue</code>, <code>peek</code>, <code>size</code>, <code>is_full</code>, <code>items</code> (thông báo lỗi trong docstring <code>QueueV1</code>). Giải pháp 2: khu chờ 100.000 chỗ, hai vòng thêm đầy rồi lấy hết trong 1 giây; không dùng <code>deque</code>.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== VINPEARL - CÁP TREO =====&#10;1. Xem hàng chờ&#10;2. Khách xếp hàng&#10;3. Cabin rời ga&#10;4. Chọn giải pháp hàng chờ&#10;5. Đo so sánh hai giải pháp&#10;6. Thoát&#10;Chọn chức năng (1-6): 1&#10;CT0001, CT0002, CT0003, CT0004, CT0005, CT0006, CT0007, CT0008&#10;Đang chờ 8/12 khách&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 4&#10;1. Giải pháp 1  2. Giải pháp 2&#10;Chọn giải pháp: 2&#10;Đang dùng giải pháp 2, giữ 8 khách.&#10;&#10;[menu chính]&#10;Chọn chức năng (1-6): 2&#10;Số khách: 5&#10;Lỗi: Hàng chờ chỉ còn 4 chỗ&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<p>Chức năng 5 in dạng sau (máy soạn đề, Python 3.10):</p>
+<pre><code>n | giải pháp 1 (ms) | giải pháp 2 (ms)&#10;20000 | 63.7 | 14.7&#10;40000 | 271.0 | 29.0&#10;80000 | 1092.0 | 58.1&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Lấy rồi thêm khi gần đầy.</strong> Sức chứa 3: thêm a, b, c, lấy a, thêm d: hàng là b, c, d.</p>
+<p><strong>Bẫy 2 — Nhóm không vừa.</strong> Còn 4 chỗ mà nhóm 5 khách: không ai được thêm.</p>
+<p><strong>Bẫy 3 — Đổi giải pháp giữa chừng.</strong> Khách và thứ tự giữ nguyên.</p>
+<p><strong>Bẫy 4 — Dữ liệu lớn.</strong> Giải pháp 2 với 100.000 chỗ trong 1 giây.</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Số khách ngoài 1–10, cabin rời ga khi hàng trống; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Đề xuất hai giải pháp (ý tưởng, sơ đồ vùng lưu trữ sau từng thao tác của Bẫy 1, mã giả); số phần tử bị dời mỗi lần lấy ở mỗi giải pháp.</li>
+<li>Bảng so sánh 5 tiêu chí (tốc độ, bộ nhớ, độ dễ đọc, dễ bảo trì, phù hợp bối cảnh) kèm số đo chức năng 5 trên máy bạn; chọn giải pháp và giải thích.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>cap_treo.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 7 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH07</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-07">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-07</a> rồi chép các tệp vào kho: <code>cap_treo.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

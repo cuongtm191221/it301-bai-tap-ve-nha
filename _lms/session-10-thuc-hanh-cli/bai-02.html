@@ -1,0 +1,37 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Tổng đài viên Mobifone nhận cuộc gọi theo thứ tự" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-02/minh_hoa.png" /></p>
+<p><em>Tổng đài viên Mobifone nhận cuộc gọi theo thứ tự</em></p>
+<p>Tổng đài chăm sóc khách hàng <strong>Mobifone</strong> xếp cuộc gọi vào <strong>hàng chờ</strong>: gọi trước được nghe trước. Mỗi cuộc gọi có mã <code>CGxxx</code> và số điện thoại; một số đang chờ mà gọi lại thì không xếp thêm lần nữa.</p>
+<p>Bản cũ dùng list và <code>pop(0)</code>: giờ cao điểm hàng chờ dài, nhận cuộc gọi chậm dần; có lần nhận hết cuộc gọi rồi có cuộc gọi mới thì hệ thống báo lỗi. Đội kỹ thuật cài lại bằng <strong>hàng đợi liên kết <code>LinkedQueue</code></strong> (<code>head</code>, <code>tail</code>, <code>_size</code>), mọi thao tác ở hai đầu không phải duyệt.</p>
+<p>Bạn xây dựng module <strong>"Mobifone Call Queue CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Hàng chờ mẫu: <code>make_queue()</code> có 3 cuộc gọi. Lớp <code>Node</code>, hàm <code>waiting</code> có sẵn.</p>
+<p><strong>Chức năng 1 — Xem hàng chờ</strong> và <code>Đang chờ: &lt;n&gt; cuộc gọi</code>. <strong>Chức năng 2 — Có cuộc gọi đến</strong> (số 10 chữ số, bắt đầu bằng 0). <strong>Chức năng 3 — Nhận cuộc gọi</strong> đầu hàng.</p>
+<p><strong>Chức năng 4 — Xem cuộc gọi tiếp theo</strong> (không lấy ra). <strong>Chức năng 5 — Thoát.</strong></p>
+<p><code>LinkedQueue</code> có <code>enqueue</code>, <code>dequeue</code>, <code>peek</code>, <code>is_empty</code>, <code>size</code>; lấy khi rỗng báo <code>IndexError("hàng đợi rỗng")</code>; không duyệt, không dùng list Python.</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== MOBIFONE - TỔNG ĐÀI 9090 =====&#10;1. Xem hàng chờ&#10;2. Có cuộc gọi đến&#10;3. Nhận cuộc gọi&#10;4. Xem cuộc gọi tiếp theo&#10;5. Thoát&#10;Chọn chức năng (1-5): 1&#10;1. CG001 | 0901234567&#10;2. CG002 | 0912000111&#10;3. CG003 | 0388765432&#10;Đang chờ: 3 cuộc gọi&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 3&#10;Đang nghe CG001 (0901234567).&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 4&#10;Tiếp theo: CG002 (0912000111)&#10;&#10;[menu chính]&#10;Chọn chức năng (1-5): 2&#10;Số điện thoại: 0977555888&#10;Đã xếp CG004 (0977555888), vị trí 3.&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Nhận hết rồi có cuộc gọi mới.</strong> Lấy phần tử cuối cùng phải đưa cả <code>head</code>, <code>tail</code> về <code>None</code>.</p>
+<p><strong>Bẫy 2 — Xem không lấy ra.</strong> Xem cuộc gọi tiếp theo hai lần vẫn cùng cuộc gọi, số đang chờ không đổi.</p>
+<p><strong>Bẫy 3 — Số đang chờ gọi lại.</strong> Báo lỗi; số đã được nghe xong thì gọi lại bình thường, mã mới không dùng lại.</p>
+<p><strong>Bẫy 4 — Nhập sai.</strong> Số thiếu, thừa chữ số, không bắt đầu bằng 0, có chữ; nhận khi hàng trống; menu sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Vẽ <code>head</code>, <code>tail</code> sau từng thao tác: nhận đến khi hết, rồi có cuộc gọi mới.</li>
+<li>Vì sao hàng đợi cần cả <code>head</code> và <code>tail</code>; Big-O của các phương thức; vì sao <code>list.pop(0)</code> không phù hợp khi hàng chờ dài.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>tong_dai.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 4 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH02</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-02">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-02</a> rồi chép các tệp vào kho: <code>tong_dai.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>

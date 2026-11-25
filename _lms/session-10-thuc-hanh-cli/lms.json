@@ -1,0 +1,72 @@
+[
+ {
+  "n": 1,
+  "t": "Bài 1: Hệ thống soạn tin nhắn có hoàn tác của Zalo",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 4738
+ },
+ {
+  "n": 2,
+  "t": "Bài 2: Hệ thống hàng chờ cuộc gọi tổng đài Mobifone",
+  "l": "Dễ",
+  "h2": 5,
+  "len": 4791
+ },
+ {
+  "n": 3,
+  "t": "Bài 3: Hệ thống kiểm tra mẫu in hóa đơn của Sapo",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 5037
+ },
+ {
+  "n": 4,
+  "t": "Bài 4: Hệ thống nút Quay lại, Tiến tới của ứng dụng VnExpress",
+  "l": "Trung bình",
+  "h2": 5,
+  "len": 4694
+ },
+ {
+  "n": 5,
+  "t": "Bài 5: Hệ thống hàng đợi yêu cầu thanh toán của ví MoMo",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5211
+ },
+ {
+  "n": 6,
+  "t": "Bài 6: Hệ thống màn hình bếp của Jollibee",
+  "l": "Khá",
+  "h2": 5,
+  "len": 5089
+ },
+ {
+  "n": 7,
+  "t": "Bài 7: Hệ thống hàng chờ cáp treo có sức chứa giới hạn của Vinpearl",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5268
+ },
+ {
+  "n": 8,
+  "t": "Bài 8: Hệ thống công thức giá khuyến mãi dạng hậu tố của Haravan",
+  "l": "Giỏi",
+  "h2": 5,
+  "len": 5535
+ },
+ {
+  "n": 9,
+  "t": "Bài 9: Tối ưu hoàn tác, làm lại khi soạn văn bản trên VNPT Smart Office",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 5856
+ },
+ {
+  "n": 10,
+  "t": "Bài 10: Tối ưu hệ số giá cước theo nhu cầu của ứng dụng Be",
+  "l": "Xuất sắc",
+  "h2": 5,
+  "len": 5904
+ }
+]

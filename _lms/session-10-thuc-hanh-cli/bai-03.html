@@ -1,0 +1,38 @@
+<h2><strong>1. Bối cảnh &amp; Vấn đề</strong></h2>
+<p><img alt="Chủ cửa hàng sửa mẫu in hóa đơn trên Sapo" src="https://raw.githubusercontent.com/cuongtm191221/it301-bai-tap-ve-nha/main/session-10-thuc-hanh-cli/bai-03/minh_hoa.png" /></p>
+<p><em>Chủ cửa hàng sửa mẫu in hóa đơn trên Sapo</em></p>
+<p>Chủ cửa hàng dùng <strong>Sapo</strong> tự soạn <strong>mẫu in hóa đơn</strong>, chèn biến trong ngoặc như <code>{ten_khach}</code>, <code>[ma_don]</code>, <code>(tong_tien)</code>. Mẫu sai ngoặc làm máy in in ra ký hiệu lạ hoặc bỏ trống cả hóa đơn. Phần đặt trong nháy kép <code>"..."</code> là chữ in nguyên văn: ngoặc trong đó không tính.</p>
+<p>Bản kiểm tra cũ chỉ đếm số ngoặc mở và đóng nên để lọt <code>([)]</code>; khi báo lỗi lại không nói lỗi ở đâu. Đội kỹ thuật yêu cầu kiểm tra bằng <strong>ngăn xếp <code>LinkedStack</code></strong> và báo <strong>lỗi đầu tiên kèm vị trí</strong>.</p>
+<p>Bạn xây dựng module <strong>"Sapo Print Template CLI"</strong>.</p>
+<h2><strong>2. Yêu cầu nghiệp vụ</strong></h2>
+<p>Mẫu đang dùng: <code>make_templates()</code>. Lớp <code>Node</code>, hàm <code>clean</code> có sẵn. Vị trí đếm từ 1 theo ký tự của mẫu (sau khi bỏ khoảng trắng hai đầu).</p>
+<p><strong>Chức năng 1 — Xem các mẫu in.</strong> <strong>Chức năng 2 — Thêm mẫu in</strong>: chỉ thêm khi hợp lệ, không thì in thông báo lỗi.</p>
+<p><strong>Chức năng 3 — Kiểm tra một mẫu</strong> (menu phụ): chỉ báo <code>Hợp lệ</code> / <code>Không hợp lệ</code>, hoặc chi tiết lỗi. <strong>Chức năng 4 — Thoát.</strong></p>
+<p>Bốn dạng thông báo lỗi (xem docstring <code>check_template</code>): ngoặc đóng không có ngoặc mở; ngoặc đóng không khớp (kèm vị trí ngoặc mở); nháy kép chưa đóng; ngoặc chưa đóng (ngoặc mở gần cuối nhất).</p>
+<p>Màn hình mẫu (đoạn đầu; phím gõ vào hiện sau dấu hai chấm, <code>[menu chính]</code> là menu được in lại):</p>
+<pre><code>===== SAPO - MẪU IN HÓA ĐƠN =====&#10;1. Xem các mẫu in&#10;2. Thêm mẫu in&#10;3. Kiểm tra một mẫu&#10;4. Thoát&#10;Chọn chức năng (1-4): 1&#10;1. Khách: {ten_khach} - Đơn [ma_don]&#10;2. Tổng tiền: (tong_tien) đồng&#10;3. Ghi chú: &quot;(không xuất hóa đơn đỏ&quot; {ghi_chu}&#10;&#10;[menu chính]&#10;Chọn chức năng (1-4): 3&#10;1. Chỉ báo đúng/sai  2. Chi tiết lỗi&#10;Chọn cách kiểm tra: 2&#10;Mẫu in: Tổng: {tong_tien&#10;Vị trí 7: dấu '{' chưa được đóng&#10;&#10;[menu chính]&#10;Chọn chức năng (1-4): 3&#10;1. Chỉ báo đúng/sai  2. Chi tiết lỗi&#10;Chọn cách kiểm tra: 2&#10;Mẫu in: Giảm (10%]&#10;Vị trí 10: dấu ']' không khớp với '(' ở vị trí 6&#10;&#10;[menu chính]&#10;Chọn chức năng (1-4): 3&#10;1. Chỉ báo đúng/sai  2. Chi tiết lỗi&#10;Chọn cách kiểm tra: 1&#10;Mẫu in: Phí ship)&#10;Không hợp lệ&#10;&#10;[... các lượt sau: thêm dữ liệu sai, nhập menu sai, thoát ...]&#10;</code></pre>
+<h2><strong>3. Edge Cases (Bẫy dữ liệu)</strong></h2>
+<p><strong>Bẫy 1 — Đúng số lượng, sai thứ tự.</strong> <code>([)]</code> không hợp lệ: lỗi ở vị trí 3.</p>
+<p><strong>Bẫy 2 — Ngoặc trong nháy kép.</strong> <code>"{" "}"</code> hợp lệ; nháy kép chưa đóng báo vị trí dấu nháy.</p>
+<p><strong>Bẫy 3 — Lỗi đầu tiên.</strong> <code>a)(</code> báo vị trí 2, không báo ngoặc <code>(</code> chưa đóng.</p>
+<p><strong>Bẫy 4 — Còn nhiều ngoặc mở.</strong> <code>{[(</code> báo ngoặc mở gần cuối nhất (vị trí 3).</p>
+<p><strong>Bẫy 5 — Nhập sai.</strong> Mẫu trống hoặc dài hơn 200 ký tự; menu phụ và menu chính sai.</p>
+<h2><strong>4. Yêu cầu</strong></h2>
+<p><strong>(1) Phân tích và thiết kế (viết vào <code>PHAN_TICH.md</code>)</strong></p>
+<ul>
+<li>Input/Output của từng chức năng, trong trường hợp thường và trong từng bẫy; luồng chương trình (mã giả hoặc các bước).</li>
+<li>Chạy tay <code>check_template</code> trên <code>Giảm (10%]</code> và <code>([)]</code>: nội dung ngăn xếp sau mỗi ký tự ngoặc.</li>
+<li>Vì sao chỉ đếm số ngoặc là không đủ; Big-O theo độ dài mẫu; bộ nhớ ngăn xếp nhiều nhất khi nào.</li>
+</ul>
+<p><strong>(2) Triển khai code</strong></p>
+<ul>
+<li>Viết các hàm trong <code>mau_in.py</code> (giữ tên, tham số; hàm "Có sẵn" giữ nguyên) và chương trình menu trong <code>main.py</code>. Hàm nghiệp vụ không gọi <code>input()</code>, <code>print()</code>.</li>
+<li>Thông báo đúng từng chữ như đề; không dừng vì lỗi ở bất kỳ thao tác nào; tên biến snake_case, có chú thích.</li>
+<li><code>python kiem_tra.py</code> đạt cả 5 mục (mục cuối tự chạy <code>main.py</code>, gõ một loạt lựa chọn có cả dữ liệu sai, và kiểm tra các thông báo của đề).</li>
+</ul>
+<h2><strong>5. Quy định nộp bài</strong></h2>
+<ol>
+<li>Tạo kho GitHub riêng, đặt tên <code>[Tên Lớp]_IT301_Session10_TH03</code>. Tải thư mục khởi đầu tại <a href="https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-03">https://github.com/cuongtm191221/it301-bai-tap-ve-nha/tree/main/session-10-thuc-hanh-cli/bai-03</a> rồi chép các tệp vào kho: <code>mau_in.py</code>, <code>main.py</code>, <code>kiem_tra.py</code>, <code>PHAN_TICH.md</code>.</li>
+<li>Mức AI: AI-0 (tự làm, không dùng AI).</li>
+<li>Đưa bài làm lên kho và nộp đường dẫn kho lên hệ thống.</li>
+</ol>
