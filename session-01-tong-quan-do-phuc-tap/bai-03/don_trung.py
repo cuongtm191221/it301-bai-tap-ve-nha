@@ -7,7 +7,7 @@ def count_duplicate_pairs(orders):
     pairs = 0
     comparisons = 0
     n = len(orders)
-    for i in range(n):
+    for i in range(n-1):
         for j in range(n - 1):
             comparisons += 1
             if orders[i]["buyer"] == orders[j]["buyer"] and orders[i]["product"] == orders[j]["product"]:
