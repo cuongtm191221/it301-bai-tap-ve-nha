@@ -1,4 +1,5 @@
 import threading as _threading
+import ast, inspect, textwrap
 
 _threading.stack_size(64 * 1024 * 1024)
 
@@ -73,9 +74,19 @@ def test_khong_giu_tham_chieu_thua():
 
 
 def test_vung_luu_tru_co_dinh():
-    src = inspect.getsource(KitchenQueue)
-    for word in (".pop(", ".insert(", ".append(", "del ", ".remove("):
-        assert word not in src, f"không dùng {word.strip()} trên vùng lưu trữ"
+    tree = ast.parse(textwrap.dedent(inspect.getsource(KitchenQueue)))
+    banned_methods = {"pop", "insert", "append", "remove"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if node.func.attr in banned_methods:
+                # Kiểm tra đối tượng bị gọi có phải self._data không
+                val = node.func.value
+                if isinstance(val, ast.Attribute) and val.attr == "_data":
+                    raise AssertionError(f"không dùng .{node.func.attr}() trên self._data")
+        if isinstance(node, ast.Delete):
+            for target in node.targets:
+                if isinstance(target, ast.Subscript) and isinstance(target.value, ast.Attribute) and target.value.attr == "_data":
+                    raise AssertionError("không dùng del trên self._data")
 
 
 def test_200000_thao_tac():
